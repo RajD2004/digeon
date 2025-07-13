@@ -1,54 +1,49 @@
-from flask import Flask, request
-import requests
+from flask import Flask, request, render_template
 import sqlite3
 
 app = Flask(__name__)
+
+db_name = "database.db"
 sql_file = "database.sql"
-db_file = "database.db"
-
-'''
-1. api for log user
-2. api for display for category
-3. api display default 
-'''
-dbExist = False
-
-def create_db():
-    if not dbExist:
-        conn = sqlite3.connect(db_file)
-        with conn:
-            cursor = conn.cursor()
-            cursor.executescript(sql_file)
-        
-        global dbExist
-        dbExist = True
-
-        return conn
 
 def get_db():
-    if not dbExist:
-        conn = create_db()
-    
-    else:
-        conn = sqlite3.connect(db_file)
-    
+    conn = sqlite3.connect(db_name)
+    conn.execute("PRAGMA foreign_keys = ON;")
     return conn
+
 
 @app.route("/")
 def index():
-    pass
+    return render_template("index.html")
 
-@app.route("/home")
-def home():
-    pass
-
-@app.route("/subscribe", methods = ["POST"])
+@app.route("/newsletter", methods=["GET", "POST"])
 def subscribe():
-    pass
+    if request.method == "POST":
+        try:
+            name = request.form.get("name")
+            email = request.form.get("email")
+            categories = request.form.getlist("categories")
+            conn = get_db()
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO Users(user_name, user_email) VALUES (?, ?);", (name, email))
+                for cat in categories:
+                    cursor.execute("SELECT category_id FROM Categories WHERE category = ?;", (cat,))
+                    result = cursor.fetchone()
+                    if result:
+                        category_id = result[0]
+                        cursor.execute(
+                            "INSERT INTO UserCategories (user_email, category_id) VALUES (?, ?);",
+                            (email, category_id)
+                        )
+            return render_template("newsletter.html")
+        except Exception as e:
+            return render_template("error.html", error=str(e))
+    return render_template("newsletter.html")
 
-@app.route("/ai-tools-directory", methods = ["GET"])
-def view_tools():
-    pass
+@app.route("/ai-tools-directory")
+def home():
+    return render_template("ai-tools-directory.html")
 
-if __name__ in "__main__":
+if __name__ == "__main__":
     app.run(debug=True)

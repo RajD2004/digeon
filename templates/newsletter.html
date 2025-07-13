@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscribe to Newsletter</title>
+</head>
+<body>
+    <h2>Subscribe to our Newsletter</h2>
+    <form action="/newsletter" method="POST">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label>Categories:</label><br>
+        <input type="checkbox" id="ai" name="categories" value="AI">
+        <label for="ai">AI</label><br>
+        <input type="checkbox" id="ml" name="categories" value="ML">
+        <label for="ml">Machine Learning</label><br>
+        <input type="checkbox" id="nlp" name="categories" value="NLP">
+        <label for="nlp">NLP</label><br>
+        <input type="checkbox" id="cv" name="categories" value="CV">
+        <label for="cv">Computer Vision</label><br><br>
+
+        <button type="submit">Subscribe</button>
+    </form>
+</body>
+</html>

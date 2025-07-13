@@ -1,0 +1,134 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.navbar {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+.nav-links a:hover {
+  color: #0077cc;
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0077cc;
+  text-decoration: none;
+}
+/* Search Bar */
+.search-bar {
+  margin: 20px 0;
+}
+#site-search {
+  display: flex;
+}
+#search-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+}
+#site-search button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #0077cc;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+#site-search button:hover {
+  background-color: #005fa3;
+}
+/* Categories */
+.categories-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.category {
+  display: inline-block;
+  width: 30%;
+  text-align: center;
+  transition: transform 0.3s;
+}
+.category img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+.category span {
+  display: block;
+  font-weight: bold;
+  color: #333;
+}
+.category:hover {
+  transform: scale(1.05);
+}
+button {
+  background-color: #0077cc;
+  border: none;
+  padding: 10px 20px;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:hover {
+  background-color: #005fa3;
+}
+input[type='email'], input[type='text'] {
+  width: calc(100% - 140px);
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+#chat-container {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #fff;
+}
+#messages {
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+.message {
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #eaeaea;
+}
+.blog-list article, .directory-category {
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
