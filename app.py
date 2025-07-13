@@ -42,8 +42,13 @@ def subscribe():
     return render_template("newsletter.html")
 
 @app.route("/ai-tools-directory")
-def home():
-    return render_template("ai-tools-directory.html")
+def directory():
+    tools = [
+        {"tool_name": "ChatGPT", "category": "NLP", "date_added": "2023-07-01", "link": "https://chat.openai.com/"},
+        {"tool_name": "Midjourney", "category": "Image Generation", "date_added": "2023-09-15", "link": "https://midjourney.com/"},
+        {"tool_name": "Codeium", "category": "Coding", "date_added": "2024-03-11", "link": "https://codeium.com/"},
+    ]
+    return render_template("ai-tools-directory.html", tools=tools)
 
 if __name__ == "__main__":
     app.run(debug=True)
