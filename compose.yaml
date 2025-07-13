@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  digeon:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: digeon
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app         # Optional: lets you edit code locally & auto-reload in container
+      - ./database.db:/app/database.db  # Optional: persist SQLite db on host
+    environment:
+      - FLASK_ENV=development
+    # command: ["python", "app.py"]  # not needed if already in Dockerfile
+
+networks:
+  default:
+    driver: bridge
