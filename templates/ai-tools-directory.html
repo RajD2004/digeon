@@ -22,37 +22,16 @@
   </header>
 
   <main class="container">
-    <section class="directory-section">
-      <h1>AI Tools Directory</h1>
-      <p>Discover the latest and most useful AI tools curated by Digeon AI.</p>
-      <table class="tools-table">
-        <thead>
-          <tr>
-            <th>Tool Name</th>
-            <th>Category</th>
-            <th>Date Added</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for tool in tools %}
-          <tr>
-            <td>{{ tool.tool_name }}</td>
-            <td>{{ tool.category }}</td>
-            <td>{{ tool.date_added }}</td>
-            <td>
-              {% if tool.link %}
-                <a href="{{ tool.link }}" target="_blank">Visit</a>
-              {% else %}
-                N/A
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
-  </main>
+  <section class="directory-section">
+    <h1>AI Tools Directory</h1>
+    <p>Discover the latest and most useful AI tools curated by Digeon AI.</p>
+    <div class="directory-layout">
+      <aside id="category-sidebar"></aside>
+      <div id="tool-list"></div>
+    </div>
+  </section>
+</main>
+
 
   <footer>
     <div class="container">

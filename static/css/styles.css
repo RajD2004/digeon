@@ -132,3 +132,61 @@ input[type='email'], input[type='text'] {
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
+.directory-layout {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+#category-sidebar {
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.category-btn {
+  padding: 10px 12px;
+  background: #f7f7f7;
+  border: none;
+  border-radius: 3px;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.category-btn.active,
+.category-btn:hover {
+  background: #0077cc;
+  color: #fff;
+  font-weight: bold;
+}
+
+#tool-list {
+  flex: 1;
+}
+
+.tools-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-top: 0;
+}
+
+.tools-table th, .tools-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.tools-table th {
+  background: #f1f8ff;
+  font-weight: 600;
+}
+
+.tools-table tr:hover {
+  background: #f7fbff;
+}

@@ -14,14 +14,11 @@
         <input type="email" id="email" name="email" required><br><br>
 
         <label>Categories:</label><br>
-        <input type="checkbox" id="ai" name="categories" value="AI">
-        <label for="ai">AI</label><br>
-        <input type="checkbox" id="ml" name="categories" value="ML">
-        <label for="ml">Machine Learning</label><br>
-        <input type="checkbox" id="nlp" name="categories" value="NLP">
-        <label for="nlp">NLP</label><br>
-        <input type="checkbox" id="cv" name="categories" value="CV">
-        <label for="cv">Computer Vision</label><br><br>
+        {% for category in categories %}
+            <input type="checkbox" id="cat_{{ loop.index }}" name="categories" value="{{ category }}">
+            <label for="cat_{{ loop.index }}">{{ category }}</label><br>
+        {% endfor %}
+        <br>
 
         <button type="submit">Subscribe</button>
     </form>
