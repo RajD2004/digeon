@@ -31,25 +31,25 @@
       </form>
     </section>
 
-    <!-- Icon Buttons -->
+    <!-- Icon Cards (smaller and styled) -->
     <section class="categories">
-      <div class="categories-container">
-        <a href="/newsletter" class="category" title="Go to Newsletter">
-          <img src="{{ url_for('static', filename='images/newsletter.png') }}" alt="Newsletter icon">
-          <span>Newsletter</span>
+      <div class="categories-container" style="gap: 2rem;">
+        <a href="/newsletter" class="home-card" title="Go to Newsletter">
+          <img src="{{ url_for('static', filename='images/newsletter.png') }}" alt="Newsletter icon" class="home-card-icon">
+          <div class="home-card-label">Newsletter</div>
         </a>
-        <a href="/ai-tools-directory" class="category" title="Browse Directory">
-          <img src="{{ url_for('static', filename='images/directory.png') }}" alt="Directory icon">
-          <span>Directory</span>
+        <a href="/ai-tools-directory" class="home-card" title="Browse Directory">
+          <img src="{{ url_for('static', filename='images/directory.png') }}" alt="Directory icon" class="home-card-icon">
+          <div class="home-card-label">Directory</div>
         </a>
-        <a href="/marketplace" class="category" title="Visit Marketplace">
-          <img src="{{ url_for('static', filename='images/marketplace.png') }}" alt="Marketplace icon">
-          <span>Marketplace</span>
+        <a href="/marketplace" class="home-card" title="Visit Marketplace">
+          <img src="{{ url_for('static', filename='images/marketplace.png') }}" alt="Marketplace icon" class="home-card-icon">
+          <div class="home-card-label">Marketplace</div>
         </a>
       </div>
     </section>
 
-    <!-- Newsletter Section (can be kept or removed if you want only the /newsletter page) -->
+    <!-- Newsletter Section (optional) -->
     <section id="newsletter" class="newsletter">
       <h1>Subscribe to Our Newsletter</h1>
       <p>Stay updated with the latest AI tools and news from Digeon AI.</p>

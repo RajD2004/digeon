@@ -31,7 +31,17 @@ def subscribe():
 
 @app.route("/ai-tools-directory")
 def directory():
-    return render_template("ai-tools-directory.html")
+    conn = get_db()
+    q = """
+      SELECT t.tool_name, t.date_added, t.link, c.category
+      FROM Tools t
+      JOIN Categories c ON t.category_id = c.category_id
+      ORDER BY c.category, t.tool_name
+    """
+    tools = conn.execute(q).fetchall()
+    conn.close()
+    return render_template("ai-tools-directory.html", tools=tools)
+
 
 @app.route("/api/categories")
 def api_categories():
