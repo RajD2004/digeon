@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI - Payment</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+
+  <style>
+    /* Navbar Styles */
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+    /* Payment Styles */
+    .payment-main { max-width: 410px; margin: 48px auto 0 auto; background: #fff; padding: 34px 26px 26px 26px; border-radius: 16px; box-shadow: 0 2px 18px rgba(30,70,90,0.11);}
+    .payment-main h2 { margin-bottom: 16px; text-align: center; font-size: 2rem; color: #15304a; }
+    .agent-summary { background: #f7fcfd; border: 1px solid #d3e2ea; border-radius: 11px; padding: 14px 16px; margin-bottom: 20px;}
+    .agent-summary h3 { font-size: 1.15rem; color: #15304a; margin: 0 0 4px 0; }
+    .agent-summary p { margin: 0; color: #234; font-size: 1rem;}
+    .agent-summary .price { color: #0077cc; font-weight: bold; font-size: 1.09rem; }
+    .payment-form { display: flex; flex-direction: column; gap: 13px;}
+    .payment-form label { font-weight: 700; margin-bottom: 2px; color: #15304a;}
+    .payment-form input { padding: 11px 12px; border-radius: 8px; border: 1.2px solid #bbc; font-size: 1.08rem; background: #f8fbfc;}
+    .payment-form button[type="submit"] { background: #19b6ad; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 13px 0; font-size: 1.17rem; cursor: pointer; margin-top: 8px;}
+    .payment-form button[type="submit"]:hover { background: #138c86; }
+    .cancel-link { margin-top: 9px; color: #19b6ad; text-align: right; display: block; text-decoration: none; font-size: 1rem;}
+    .cancel-link:hover { text-decoration: underline; }
+    #pay-msg { min-height: 18px; margin-top: 4px; font-size: 1.08rem; text-align: center; color: #19b6ad;}
+    /* Footer */
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="logo"><img src="logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter.html">Newsletter</a></li>
+          <li><a href="directory.html">Directory</a></li>
+          <li><a href="marketplace.html">Marketplace</a></li>
+          <li><a href="blog.html">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="payment-main">
+      <h2>Complete Your Purchase</h2>
+      <div class="agent-summary" id="agent-summary">
+        <h3 id="agent-name">TextBot Pro</h3>
+        <div class="price" id="agent-price">$19.99</div>
+        <p id="agent-desc">A smart text assistant for advanced Q&amp;A.</p>
+      </div>
+      <form id="payment-form" class="payment-form" autocomplete="off">
+        <label for="buyer-name">Full Name</label>
+        <input type="text" id="buyer-name" required placeholder="Your Name">
+        <label for="buyer-email">Email</label>
+        <input type="email" id="buyer-email" required placeholder="you@email.com">
+        <label for="card-number">Card Number</label>
+        <input type="text" id="card-number" required maxlength="19" placeholder="1234 5678 9012 3456" pattern="\d{16}">
+        <div style="display:flex; gap:11px;">
+          <div style="flex:2;">
+            <label for="card-expiry">Expiry</label>
+            <input type="text" id="card-expiry" required maxlength="5" placeholder="MM/YY" pattern="\d{2}/\d{2}">
+          </div>
+          <div style="flex:1;">
+            <label for="card-cvv">CVV</label>
+            <input type="password" id="card-cvv" required maxlength="4" placeholder="CVV">
+          </div>
+        </div>
+        <button type="submit">Pay</button>
+      </form>
+      <a href="marketplace.html" class="cancel-link">Cancel and return to Marketplace</a>
+      <div id="pay-msg"></div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    // Optionally, you could populate agent info via URL params, here we hard-code demo info
+    document.getElementById('payment-form').onsubmit = function(e) {
+      e.preventDefault();
+      const payMsg = document.getElementById('pay-msg');
+      payMsg.style.color = "#19b6ad";
+      payMsg.textContent = "Processing payment...";
+      // Simulate payment process
+      setTimeout(() => {
+        payMsg.textContent = "Payment successful! Thank you for your purchase.";
+        // Simulate backend log:
+        console.log("Payment info:", {
+          agent: document.getElementById('agent-name').textContent,
+          price: document.getElementById('agent-price').textContent,
+          name: document.getElementById('buyer-name').value,
+          email: document.getElementById('buyer-email').value
+        });
+      }, 1200);
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI - Register</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+
+  <style>
+    /* Navbar Styles (from marketplace.html) */
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+
+    /* Auth Container Styles */
+    .auth-container { max-width: 410px; margin: 60px auto 0 auto; background: #fff; padding: 38px 28px 32px 28px; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.10);}
+    .auth-container h2 { text-align: center; margin-bottom: 16px; font-size: 2.2rem; color: #19b6ad;}
+    .auth-form { display: flex; flex-direction: column; gap: 14px;}
+    .auth-form input { padding: 12px 13px; border-radius: 8px; border: 1.2px solid #bbc; font-size: 1.08rem; background: #f8fbfc;}
+    .auth-form button { background: #0077cc; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 14px 0; font-size: 1.18rem; cursor: pointer; margin-top: 6px;}
+    .auth-form button:hover { background: #005fa3; }
+    .form-link-row { display: flex; justify-content: space-between; margin-top: 8px; }
+    .form-link-row a { color: #19b6ad; text-decoration: none; font-size: 1rem;}
+    .form-link-row a:hover { text-decoration: underline; }
+    #register-msg { color: #e63946; font-size: 1.06rem; min-height: 22px; }
+
+    /* Footer */
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="auth-container">
+      <h2>Create Your Account</h2>
+      <form id="register-form" class="auth-form" autocomplete="off">
+        <input type="email" id="register-email" placeholder="Email" required>
+        <input type="password" id="register-password" placeholder="Password" required>
+        <input type="password" id="register-password2" placeholder="Confirm Password" required>
+        <button type="submit">Register</button>
+      </form>
+      <div class="form-link-row">
+        <a href="login">Already have an account?</a>
+        <a href="forgot-password">Forgot Password?</a>
+      </div>
+      <div id="register-msg"></div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+    <script>
+  document.getElementById('register-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('register-email').value.trim();
+    const pw = document.getElementById('register-password').value;
+    const pw2 = document.getElementById('register-password2').value;
+    const msg = document.getElementById('register-msg');
+    if (!email || !pw || !pw2) {
+      msg.textContent = "All fields are required.";
+      return;
+    }
+    if (pw !== pw2) {
+      msg.textContent = "Passwords do not match.";
+      return;
+    }
+    const formData = new FormData();
+    formData.append("name", email);  // You can use another value for name if you want a real name field
+    formData.append("email", email);
+    formData.append("password", pw);
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      body: formData
+    });
+    const result = await res.json();
+    if (result.status === 1) {
+      localStorage.setItem('marketplaceUser', email);
+      msg.style.color = "#19b6ad";
+      msg.textContent = "Registration successful! Redirecting...";
+      setTimeout(() => window.location.href = "/marketplace", 1200);
+    } else {
+      msg.style.color = "#e63946";
+      msg.textContent = result.Except || "Registration failed.";
+    }
+  };
+  </script>
+</body>
+</html>

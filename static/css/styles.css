@@ -1,218 +1,70 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #b5c5c9;
-  color: #333;
+/* Agent Registration Styles (Only affect marketplace) */
+#agent-registration {
+  background: #eaf3ff;
+  padding: 30px;
+  border-radius: 10px;
+  margin-top: 30px;
 }
-
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.navbar {
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.navbar .container {
+.agent-registration-flex {
   display: flex;
-  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.agent-instructions {
+  flex: 1 1 300px;
+  min-width: 240px;
+}
+.agent-form {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.input-field-block {
+  display: flex;
+  gap: 10px;
   align-items: center;
 }
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
-.nav-links a {
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-}
-.nav-links a:hover {
-  color: #0077cc;
-}
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #0077cc;
-  text-decoration: none;
-}
-/* Search Bar */
-#site-search {
-  display: flex;
-  margin-left: 30px;
-}
-#search-input {
-  flex: 1;
+#agent-registration input[type="text"],
+#agent-registration textarea,
+#agent-registration select {
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
+  border-radius: 6px;
 }
-#site-search button {
-  padding: 10px 20px;
-  border: none;
+#agent-registration textarea {
+  resize: vertical;
+  height: 80px;
+}
+#agent-registration button[type="submit"] {
   background-color: #0077cc;
   color: #fff;
-  border-radius: 0 4px 4px 0;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
 }
-#site-search button:hover {
+#agent-registration button[type="submit"]:hover {
   background-color: #005fa3;
 }
-
-/* Directory Layout */
-.directory-main {
-  display: flex;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.directory-sidebar {
-  min-width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.directory-category-btn {
-  width: 100%;
-  margin-bottom: 9px;
-  background: #111;
-  color: #fff;
-  font-size: 1.13rem;
-  border: none;
-  border-radius: 10px;
-  padding: 16px 20px;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s;
-  font-weight: 500;
-  outline: none;
-  box-sizing: border-box;
-  display: block;
-}
-.directory-category-btn.selected,
-.directory-category-btn:active {
-  background: #888;
-  color: #222;
-}
-.directory-category-btn:hover:not(.selected) {
-  background: #222;
-}
-
-/* Card Grid */
-.agents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-}
-.agent-card {
-  background: #cfd8db;
-  border: 1.5px solid #c5d0d3;
-  border-radius: 10px;
-  padding: 18px 18px 10px 18px;
-  box-shadow: 0 2px 10px rgba(40,40,40,0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 120px;
-  text-align: center;
-  transition: box-shadow 0.17s;
-}
-.agent-card h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.3rem;
+#agent-submit-message {
+  margin-top: 10px;
   font-weight: bold;
-  letter-spacing: 0.01em;
+  color: green;
 }
-.agent-card p {
-  margin: 0;
-  color: #222;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  font-weight: 400;
-}
-.agent-card:hover {
-  box-shadow: 0 7px 28px rgba(40,40,40,0.16), 0 1.5px 4px rgba(20,80,120,0.09);
-}
-@media (max-width: 950px) {
-  .directory-main {
+@media (max-width: 900px) {
+  .agent-registration-flex {
     flex-direction: column;
-  }
-  .directory-sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 22px;
-    gap: 10px;
-    justify-content: flex-start;
+    gap: 20px;
   }
 }
 @media (max-width: 700px) {
-  .agents-grid {
-    grid-template-columns: 1fr;
+  #agent-registration {
+    padding: 10px;
   }
-  .directory-sidebar {
-    gap: 7px;
-  }
-  .directory-main {
-    margin-top: 18px;
-  }
-}
-footer .container {
-  text-align: center;
-}
-.home-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #fff;
-  border-radius: 12px;
-  padding: 32px 0 18px 0;
-  box-shadow: 0 2px 8px rgba(30,60,80,0.06);
-  margin-bottom: 24px;
-  text-decoration: none;
-  transition: box-shadow 0.17s;
-  min-width: 200px;
-  flex: 1 1 0;
-}
-.home-card:hover {
-  box-shadow: 0 8px 22px rgba(40,40,40,0.16), 0 1.5px 4px rgba(20,80,120,0.09);
-}
-.home-card-icon {
-  width: 150px !important;
-  height: 150px !important;
-  max-width: 100%;
-  display: block;
-  margin: 0 auto 16px auto;
-}
-.home-card-label {
-  font-size: 1.55rem !important;
-  text-align: center;
-  margin-bottom: 0;
-  color: #1a2533;
-  font-weight: 600;
-}
-.categories-container {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  margin: 48px 0 36px 0;
-}
-@media (max-width: 900px) {
-  .categories-container {
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: center;
-  }
-  .home-card {
-    width: 100%;
+  .agent-instructions {
     min-width: unset;
   }
 }

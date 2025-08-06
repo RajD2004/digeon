@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI - Developer Agent Registration</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+  <style>
+    /* Navbar Styles */
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+
+    /* Tabs for Dev Auth */
+    .tab-row { display: flex; justify-content: center; gap: 16px; margin: 32px 0 0 0;}
+    .tab-row button { background: #f5fcfd; color: #19b6ad; border: none; padding: 14px 30px; font-size: 1.14rem; border-radius: 10px 10px 0 0; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent;}
+    .tab-row button.active { background: #fff; color: #15304a; border-bottom: 2px solid #19b6ad;}
+
+    .auth-container { max-width: 420px; margin: 0 auto; background: #fff; padding: 38px 28px 32px 28px; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.10);}
+    .auth-container h2 { text-align: center; margin-bottom: 16px; font-size: 2.0rem; color: #19b6ad;}
+    .auth-form { display: flex; flex-direction: column; gap: 14px;}
+    .auth-form input { padding: 12px 13px; border-radius: 8px; border: 1.2px solid #bbc; font-size: 1.08rem; background: #f8fbfc;}
+    .auth-form button { background: #0077cc; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 14px 0; font-size: 1.18rem; cursor: pointer; margin-top: 6px;}
+    .auth-form button:hover { background: #005fa3; }
+    .form-link-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .form-link-row a { color: #19b6ad; text-decoration: none; font-size: 1rem;}
+    .form-link-row a:hover { text-decoration: underline; }
+    .auth-msg { color: #e63946; font-size: 1.06rem; min-height: 22px; }
+
+    /* Agent Form Styles */
+    .main-dev-container { max-width: 880px; margin: 38px auto 38px auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 18px rgba(30,70,90,0.08); padding: 38px 32px 32px 32px; }
+    .dev-form-flex { display: flex; gap: 36px; flex-wrap: wrap; }
+    .dev-form-side { flex: 1 1 340px; min-width: 290px; }
+    .preview-side { flex: 1 1 300px; min-width: 260px; }
+    .dev-form { display: flex; flex-direction: column; gap: 15px; }
+    .dev-form label { font-weight: 700; margin-bottom: 3px; color: #15304a; }
+    .dev-form input[type="text"], .dev-form textarea, .dev-form input[type="number"], .dev-form select { width: 100%; padding: 11px 12px; border-radius: 7px; border: 1.2px solid #bbc; font-size: 1.06rem; background: #f8fbfc;}
+    .dev-form textarea { resize: vertical; min-height: 45px; }
+    .dynamic-fields { display: flex; flex-direction: column; gap: 13px; margin-bottom: 0;}
+    .dyn-field-row { display: flex; gap: 9px; align-items: center;}
+    .dyn-field-row input[type="text"] { flex: 1; }
+    .remove-field-btn { background: #e63946; color: #fff; border: none; border-radius: 5px; padding: 4px 9px; font-weight: bold; cursor: pointer; }
+    .remove-field-btn:hover { background: #b82334; }
+    .add-field-btn { background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 9px 18px; font-weight: bold; font-size: 1.08rem; cursor: pointer;}
+    .add-field-btn:hover { background: #138c86; }
+    .dev-form button[type="submit"] { margin-top: 11px; }
+
+    /* Preview Card Styles */
+    .agent-preview-card { background: #f3f7fa; border: 1.4px solid #d3e2ea; border-radius: 13px; padding: 24px 18px 20px 18px; box-shadow: 0 2px 10px rgba(40,60,80,0.07); min-height: 120px; }
+    .agent-preview-card h3 { margin: 0 0 7px 0; font-size: 1.32rem; font-weight: 700; color: #15304a; }
+    .agent-preview-card p { margin: 0 0 12px 0; color: #222; font-size: 1.04rem; line-height: 1.5; }
+    .agent-type { font-size: 0.97rem; color: #1997b6; font-weight: 600; margin-top: auto;}
+    .agent-price { font-size: 1.1rem; color: #0077cc; font-weight: 700; margin-top: 8px;}
+
+    /* Footer */
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <!-- Tabs for Developer Auth -->
+    <div class="tab-row" id="tab-row">
+      <button id="tab-login" class="active">Developer Login</button>
+      <button id="tab-register">Developer Register</button>
+    </div>
+    <!-- Auth Forms -->
+    <div id="dev-auth-section">
+      <div class="auth-container" id="dev-login-section">
+        <h2>Developer Login</h2>
+        <form id="dev-login-form" class="auth-form" autocomplete="off">
+          <input type="email" id="dev-login-email" placeholder="Email" required>
+          <input type="password" id="dev-login-password" placeholder="Password" required>
+          <button type="submit">Login</button>
+        </form>
+        <div class="form-link-row">
+          <a href="forgot-password">Forgot Password?</a>
+        </div>
+        <div class="auth-msg" id="dev-login-msg"></div>
+      </div>
+      <div class="auth-container" id="dev-register-section" style="display:none;">
+        <h2>Developer Registration</h2>
+        <form id="dev-register-form" class="auth-form" autocomplete="off">
+          <input type="email" id="dev-register-email" placeholder="Email" required>
+          <input type="password" id="dev-register-password" placeholder="Password" required>
+          <input type="password" id="dev-register-password2" placeholder="Confirm Password" required>
+          <button type="submit">Register</button>
+        </form>
+        <div class="form-link-row">
+          <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+        <div class="auth-msg" id="dev-register-msg"></div>
+      </div>
+    </div>
+    <!-- Main Agent Registration, hidden until dev logged in -->
+    <div id="main-dev-container" class="main-dev-container" style="display:none;">
+      <h2>Register Your Agent</h2>
+      <div class="dev-form-flex">
+        <div class="dev-form-side">
+          <form id="agent-form" class="dev-form" autocomplete="off">
+            <label for="agent-name">Agent Name</label>
+            <input type="text" id="agent-name" required maxlength="32" placeholder="e.g. VoiceGen Pro">
+
+            <label for="agent-desc">Description</label>
+            <textarea id="agent-desc" required maxlength="180" placeholder="What does your agent do?"></textarea>
+
+            <label for="agent-type">Agent Type</label>
+            <select id="agent-type" required>
+              <option value="">Select Type</option>
+              <option value="Text">Text</option>
+              <option value="Audio">Audio</option>
+              <option value="Video">Video</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <label>Agent Input Fields</label>
+            <div class="dynamic-fields" id="dynamic-fields"></div>
+            <button type="button" class="add-field-btn" id="add-field-btn">+ Add Field</button>
+
+            <label for="agent-price">Price (USD)</label>
+            <input type="number" id="agent-price" required min="0" step="0.01" placeholder="0.00">
+
+            <input type="hidden" id="field-config" name="field-config">
+            <button type="submit">Submit Agent</button>
+          </form>
+          <div id="agent-msg" class="auth-msg" style="margin-top:10px;"></div>
+        </div>
+        <div class="preview-side">
+          <div class="agent-preview-card" id="agent-preview-card">
+            <h3>Agent Name Preview</h3>
+            <p class="agent-desc-preview">Your agent's description will show here.</p>
+            <div class="agent-type"><strong>Type:</strong> <span id="preview-type">None</span></div>
+            <div class="agent-price" id="preview-price"></div>
+            <hr style="margin:14px 0;">
+            <form id="preview-inputs">
+              <!-- Preview of user input fields -->
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    // Tab logic for developer login/register
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const devLoginSection = document.getElementById('dev-login-section');
+    const devRegisterSection = document.getElementById('dev-register-section');
+    tabLogin.onclick = () => {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      devLoginSection.style.display = '';
+      devRegisterSection.style.display = 'none';
+    };
+    tabRegister.onclick = () => {
+      tabLogin.classList.remove('active');
+      tabRegister.classList.add('active');
+      devLoginSection.style.display = 'none';
+      devRegisterSection.style.display = '';
+    };
+
+    // Developer login
+    document.getElementById('dev-login-form').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('dev-login-email').value.trim();
+      const pw = document.getElementById('dev-login-password').value;
+      const msg = document.getElementById('dev-login-msg');
+      msg.style.color = "#e63946";
+      if (!email || !pw) {
+        msg.textContent = "All fields are required.";
+        return;
+      }
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", pw);
+      fetch("/api/dev-login", {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 1) {
+          msg.style.color = "#19b6ad";
+          msg.textContent = "Login successful! Loading agent registration...";
+          setTimeout(() => {
+            document.getElementById('dev-auth-section').style.display = "none";
+            document.getElementById('main-dev-container').style.display = "";
+          }, 800);
+        } else {
+          msg.textContent = data.Except || "Invalid credentials or developer not registered.";
+        }
+      });
+  };
+
+    // Developer register
+    document.getElementById('dev-register-form').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('dev-register-email').value.trim();
+      const pw = document.getElementById('dev-register-password').value;
+      const pw2 = document.getElementById('dev-register-password2').value;
+      const msg = document.getElementById('dev-register-msg');
+      msg.style.color = "#e63946";
+      if (!email || !pw || !pw2) {
+        msg.textContent = "All fields are required.";
+        return;
+      }
+      if (pw !== pw2) {
+        msg.textContent = "Passwords do not match.";
+        return;
+      }
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", pw);
+      fetch("/api/dev-register", {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 1) {
+          msg.style.color = "#19b6ad";
+          msg.textContent = "Registration successful! Loading agent registration...";
+          setTimeout(() => {
+            document.getElementById('dev-auth-section').style.display = "none";
+            document.getElementById('main-dev-container').style.display = "";
+          }, 800);
+        } else {
+          msg.textContent = data.Except || "Registration failed.";
+        }
+      });
+    };
+
+
+    // ============ Agent Registration Dynamic Fields and Preview ============
+    let fieldId = 0;
+    const dynamicFields = document.getElementById('dynamic-fields');
+    const previewInputs = document.getElementById('preview-inputs');
+    const agentForm = document.getElementById('agent-form');
+    const fieldConfig = document.getElementById('field-config');
+    const agentMsg = document.getElementById('agent-msg');
+
+    function updatePreview() {
+      // Card
+      document.getElementById('agent-preview-card').querySelector('h3').textContent =
+        document.getElementById('agent-name').value || "Agent Name Preview";
+      document.querySelector('.agent-desc-preview').textContent =
+        document.getElementById('agent-desc').value || "Your agent's description will show here.";
+      document.getElementById('preview-type').textContent =
+        document.getElementById('agent-type').value || "None";
+      const price = document.getElementById('agent-price').value;
+      document.getElementById('preview-price').textContent = price ? "$" + (+price).toFixed(2) : "";
+
+      // Input preview
+      previewInputs.innerHTML = "";
+      getFieldArray().forEach(field => {
+        let inp;
+        if (field.type === 'text') {
+          inp = document.createElement('input');
+          inp.type = 'text';
+          inp.placeholder = field.label;
+        } else if (field.type === 'file') {
+          inp = document.createElement('input');
+          inp.type = 'file';
+        }
+        inp.style.marginBottom = '8px';
+        previewInputs.appendChild(inp);
+      });
+    }
+
+    // Helper to get field config as array
+    function getFieldArray() {
+      const arr = [];
+      for (const row of dynamicFields.children) {
+        const label = row.querySelector('.field-label').value;
+        const type = row.querySelector('.field-type').value;
+        if (label && type) arr.push({label, type});
+      }
+      return arr;
+    }
+
+    function saveFieldConfig() {
+      fieldConfig.value = JSON.stringify(getFieldArray());
+      updatePreview();
+    }
+
+    function addField(label = '', type = 'text') {
+      const row = document.createElement('div');
+      row.className = 'dyn-field-row';
+      row.innerHTML = `
+        <input type="text" class="field-label" placeholder="Label" value="${label}" required maxlength="32">
+        <select class="field-type">
+          <option value="text" ${type==='text'?'selected':''}>Text</option>
+          <option value="file" ${type==='file'?'selected':''}>File</option>
+        </select>
+        <button type="button" class="remove-field-btn" title="Remove Field">&times;</button>
+      `;
+      // Remove handler
+      row.querySelector('.remove-field-btn').onclick = function() {
+        dynamicFields.removeChild(row);
+        saveFieldConfig();
+      };
+      // Change handlers
+      row.querySelector('.field-label').oninput = saveFieldConfig;
+      row.querySelector('.field-type').onchange = saveFieldConfig;
+      dynamicFields.appendChild(row);
+      saveFieldConfig();
+    }
+    document.getElementById('add-field-btn').onclick = () => addField();
+
+    // Update preview on all form inputs
+    ['agent-name','agent-desc','agent-type','agent-price'].forEach(id=>{
+      document.getElementById(id).oninput = updatePreview;
+    });
+
+    // ============ Handle Agent Form Submit ============
+    agentForm.onsubmit = function(e) {
+      e.preventDefault();
+      if (getFieldArray().length === 0) {
+        agentMsg.style.color = "#e63946";
+        agentMsg.textContent = "Add at least one agent input field!";
+        return;
+      }
+      agentMsg.style.color = "#19b6ad";
+      agentMsg.textContent = "Submitting agent...";
+
+      const formData = new FormData();
+      formData.append("name", document.getElementById('agent-name').value);
+      formData.append("desc", document.getElementById('agent-desc').value);
+      formData.append("type", document.getElementById('agent-type').value);
+      formData.append("price", document.getElementById('agent-price').value);
+      formData.append("inputs", JSON.stringify(getFieldArray()));
+
+      fetch("/api/agent-register", {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 1) {
+          window.location.href = "/marketplace";
+        } else {
+          agentMsg.style.color = "#e63946";
+          agentMsg.textContent = data.Except || "Failed to register agent.";
+      }
+});
+
+    };
+
+
+    // On page load, setup preview and a default field
+    updatePreview();
+    addField("User Input", "text");
+  </script>
+</body>
+</html>

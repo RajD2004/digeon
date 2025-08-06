@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile - Digeon AI</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+
+  <style>
+    body { background: #f7fcfd; margin: 0; font-family: 'Inter', sans-serif; }
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+    .main-container { max-width: 540px; margin: 68px auto 0 auto; background: #fff; padding: 50px 32px; border-radius: 16px; box-shadow: 0 2px 18px rgba(30,70,90,0.09); text-align: center;}
+    .main-container h1 { font-size: 2.2rem; margin-bottom: 16px; color: #15304a;}
+    .main-container p { font-size: 1.12rem; color: #456;}
+    .profile-logout { background: #e63946; color: #fff; border: none; border-radius: 7px; padding: 12px 32px; font-weight: 700; font-size: 1.09rem; cursor: pointer; margin-top: 32px;}
+    .profile-logout:hover { background: #b82334;}
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="logo"><img src="logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter.html">Newsletter</a></li>
+          <li><a href="directory.html">Directory</a></li>
+          <li><a href="marketplace.html">Marketplace</a></li>
+          <li><a href="blog.html">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <div class="main-container">
+    <h1>My Profile</h1>
+    <p>This feature is coming soon.<br>You'll be able to view your purchases, manage your account, and more.</p>
+    <button class="profile-logout" onclick="localStorage.removeItem('marketplaceUser'); window.location.href='login.html';">Logout</button>
+  </div>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

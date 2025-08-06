@@ -4,20 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Digeon AI - Marketplace</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+
   <style>
-    /* ...your existing styles... */
-    /* (Keep all your original CSS here, omitted for brevity) */
-    #register-overlay {
+    /* NAVBAR */
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+
+    /* HEADER ROW BUTTONS */
+    .header-btns { display: flex; gap: 16px; }
+    .header-btn {
+      background: #0077cc;
+      color: #fff;
+      padding: 11px 28px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.13rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: inline-block;
+      margin-left: 0;
+    }
+    .header-btn:hover { background: #005fa3; }
+
+    .main-container { max-width: 1100px; margin: 42px auto 0 auto; padding: 34px 18px 40px 18px; background: #fff; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.06);}
+    .marketplace-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; gap: 16px;}
+    .marketplace-title { font-size: 2.7rem; font-weight: 800; letter-spacing: -1px; color: #15304a; margin: 0; }
+
+    /* AGENT CARDS */
+    .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 32px; }
+    .agent-card { background: #f3f7fa; border: 1.4px solid #d3e2ea; border-radius: 13px; padding: 26px 22px 22px 22px; box-shadow: 0 2px 10px rgba(40,60,80,0.07); min-height: 180px; display: flex; flex-direction: column;}
+    .agent-card h3 { margin: 0 0 8px 0; font-size: 1.38rem; font-weight: 700; color: #15304a; }
+    .agent-card p { margin: 0 0 12px 0; color: #222; font-size: 1.06rem; line-height: 1.5; }
+    .agent-card .agent-type { font-size: 0.99rem; color: #1997b6; font-weight: 600; margin-top: auto;}
+    .agent-card .agent-price { font-size: 1.08rem; color: #0077cc; font-weight: 700; margin: 10px 0 0 0; }
+    .buy-btn { background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 13px 0; margin-top: 15px; font-weight: 700; font-size: 1.14rem; cursor: pointer; transition: background 0.14s;}
+    .buy-btn:hover { background: #138c86; }
+
+    /* LOGIN OVERLAY */
+    #login-overlay {
       position: fixed;
-      z-index: 1002;
+      z-index: 1001;
       left: 0; top: 0; right: 0; bottom: 0;
       background: rgba(10,40,60,0.14);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    #register-box {
+    #login-box {
       background: #fff;
       border-radius: 14px;
       box-shadow: 0 2px 18px rgba(40,80,160,0.09);
@@ -29,22 +69,28 @@
       align-items: center;
       gap: 18px;
     }
-    #register-form {
+    #login-box h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0;
+      color: #0077cc;
+    }
+    #login-form {
       display: flex;
       flex-direction: column;
       gap: 14px;
       width: 100%;
       margin-top: 7px;
     }
-    #register-form input {
+    #login-form input[type="email"], #login-form input[type="password"] {
       padding: 11px 12px;
       border-radius: 7px;
       border: 1.2px solid #bbc;
       font-size: 1.08rem;
       background: #f8fbfc;
     }
-    #register-form button {
-      background: #19b6ad;
+    #login-form button {
+      background: #0077cc;
       color: #fff;
       font-weight: 700;
       border: none;
@@ -54,86 +100,69 @@
       cursor: pointer;
       margin-top: 5px;
     }
-    #register-form button:hover { background: #138c86; }
-    #register-msg {
+    #login-form button:hover { background: #005fa3; }
+    #login-msg {
       color: #e63946;
       font-size: 1.06rem;
       min-height: 24px;
       margin-top: 2px;
     }
+    .login-link-row { display: flex; justify-content: space-between; width: 100%; margin-top: -9px; }
+    .login-link-row a { color: #19b6ad; font-size: 0.97rem; text-decoration: none; }
+    .login-link-row a:hover { text-decoration: underline; }
+    /* Footer */
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
   </style>
 </head>
 <body>
+  <script>
+  if (!localStorage.getItem('marketplaceUser')) {
+    window.location.href = "login";
+  }
+  </script>
   <header>
     <nav class="navbar">
       <div class="container">
-        <a href="index.html" class="logo"><img src="static/images/logo.png" alt="Digeon.ai logo"></a>
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
         <ul class="nav-links">
-          <li><a href="newsletter.html">Newsletter</a></li>
-          <li><a href="directory.html">Directory</a></li>
-          <li><a href="marketplace.html">Marketplace</a></li>
-          <li><a href="blog.html">Blog</a></li>
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="blog">Blog</a></li>
         </ul>
-        <form id="site-search">
-          <input type="text" id="search-input" placeholder="Search...">
-          <button type="submit">Search</button>
-        </form>
       </div>
     </nav>
   </header>
-  <!-- Login Overlay -->
   <div id="login-overlay" style="display: none;">
     <div id="login-box">
       <h2>Login</h2>
       <form id="login-form" autocomplete="off">
         <input type="email" id="login-email" placeholder="Email" required>
         <input type="password" id="login-password" placeholder="Password" required>
-        <button type="submit">Login</button>
+        <button type="submit" href = "login">Login</button>
       </form>
-      <!-- Register button triggers modal -->
-      <button type="button" class="register-btn" onclick="openRegister()">Register</button>
+      <div class="login-link-row">
+        <a href="register">Register</a>
+        <span style="margin: 0 11px; color:#bbb;">|</span>
+        <a href="forgot-password">Forgot Password?</a>
+        <span style="flex:1;"></span>
+        <a href="developer-register" style="margin-left:auto;">Developer Login</a>
+      </div>
       <div id="login-msg"></div>
     </div>
   </div>
-  <!-- Register Modal Overlay -->
-  <div id="register-overlay" style="display: none;">
-    <div id="register-box">
-      <h2>Register</h2>
-      <form id="register-form" autocomplete="off">
-        <input type="text" id="register-name" placeholder="Name" required>
-        <input type="email" id="register-email" placeholder="Email" required>
-        <input type="password" id="register-password" placeholder="Password" required>
-        <button type="submit">Register</button>
-      </form>
-      <div id="register-msg"></div>
-      <button type="button" onclick="closeRegister()" style="margin-top:8px;width:100%;">Cancel</button>
-    </div>
-  </div>
   <main id="marketplace-main">
-    <div class="main-container">
-      <div class="marketplace-header-row">
-        <h1 class="marketplace-title">Marketplace</h1>
-        <a class="register-agent-btn" href="register-agent.html">Register Your Agent</a>
-      </div>
-      <div class="agents-grid">
-        <div class="agent-card">
-          <h3>TextBot</h3>
-          <p>A smart text assistant for Q&amp;A.</p>
-          <span class="agent-type"><strong>Type:</strong> Text</span>
-        </div>
-        <div class="agent-card">
-          <h3>VoiceGen</h3>
-          <p>Text-to-speech and voice commands.</p>
-          <span class="agent-type"><strong>Type:</strong> Audio</span>
-        </div>
-        <div class="agent-card">
-          <h3>VideoAI</h3>
-          <p>Video analysis and summarization.</p>
-          <span class="agent-type"><strong>Type:</strong> Video</span>
-        </div>
+  <div class="main-container">
+    <div class="marketplace-header-row">
+      <h1 class="marketplace-title">Marketplace</h1>
+      <div class="header-btns">
+        <a class="header-btn" href="developer-register">Register Your Agent</a>
+        <a class="header-btn" href="profile">My Profile</a>
       </div>
     </div>
+    <div class="agents-grid" id="agents-list"></div>
+  </div>
   </main>
+
   <footer>
     <div class="container">
       <p>&copy; 2025 Digeon AI. All rights reserved.</p>
@@ -154,7 +183,6 @@
     }
     checkLogin();
 
-    // Login logic (no backend, just stores email for now)
     document.getElementById('login-form').onsubmit = function(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
@@ -169,53 +197,60 @@
       }
     };
 
-    // Register modal logic
-    function openRegister() {
-      document.getElementById('register-overlay').style.display = 'flex';
-      document.getElementById('login-overlay').style.display = 'none';
-    }
-    function closeRegister() {
-      document.getElementById('register-overlay').style.display = 'none';
-      document.getElementById('login-overlay').style.display = 'flex';
+    // Purchase buttons → redirect to payment page with agent info
+    document.querySelectorAll('.buy-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        const agent = JSON.parse(this.closest('.agent-card').getAttribute('data-agent'));
+        // Pass agent data via query string
+        const params = new URLSearchParams({
+          name: agent.name,
+          desc: agent.desc,
+          price: agent.price
+        }).toString();
+        window.location.href = "payment.html?" + params;
+      };
+    });
+  </script>
+
+    <script>
+    function renderAgentCard(agent) {
+      // Render using the original markup and classes
+      return `
+        <div class="agent-card" data-agent='${JSON.stringify(agent).replace(/'/g, "&apos;")}'>
+          <h3>${agent.name}</h3>
+          <p>${agent.description || ''}</p>
+          <div class="agent-type">Type: ${agent.type}</div>
+          <div class="agent-price">$${agent.price}</div>
+          <button class="buy-btn">Purchase</button>
+        </div>
+      `;
     }
 
-    // Attach API to register form
-    document.getElementById('register-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('register-name').value.trim();
-      const email = document.getElementById('register-email').value.trim();
-      const password = document.getElementById('register-password').value.trim();
-      const msg = document.getElementById('register-msg');
-      msg.style.color = "#444";
-      msg.textContent = "Registering...";
-      try {
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("email", email);
-        formData.append("password", password);
-        const res = await fetch('/api/register', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        if (data.status === 1) {
-          msg.style.color = "green";
-          msg.textContent = "Registration successful! You may now log in.";
-          e.target.reset();
-          setTimeout(() => {
-            closeRegister();
-            msg.style.color = "#e63946";
-            msg.textContent = "";
-          }, 1500);
-        } else {
-          msg.style.color = "#e63946";
-          msg.textContent = data.Except || "Registration failed.";
+    fetch('/api/market-agents')
+      .then(r => r.json())
+      .then(agents => {
+        const container = document.getElementById('agents-list');
+        if (!container) return;
+        if (agents.length === 0) {
+          container.innerHTML = "<p>No agents yet!</p>";
+          return;
         }
-      } catch (err) {
-        msg.style.color = "#e63946";
-        msg.textContent = "An error occurred.";
-      }
-    };
-  </script>
+        container.innerHTML = agents.map(renderAgentCard).join('');
+
+        // Restore purchase button logic for new cards
+        container.querySelectorAll('.buy-btn').forEach(function(btn) {
+          btn.onclick = function() {
+            const agent = JSON.parse(this.closest('.agent-card').getAttribute('data-agent').replace(/&apos;/g, "'"));
+            const params = new URLSearchParams({
+              name: agent.name,
+              desc: agent.description,
+              price: agent.price
+            }).toString();
+            window.location.href = "payment.html?" + params;
+          };
+        });
+      });
+    </script>
+
 </body>
 </html>

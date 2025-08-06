@@ -1,26 +1,557 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Subscribe to Newsletter</title>
+  <meta charset="UTF-8">
+  <title>Digeon.ai Newsletter</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .navbar {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+    }
+    .navbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+    }
+    .logo img {
+      height: 44px;
+      width: auto;
+      border-radius: 6px;
+      vertical-align: middle;
+      display: block;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+      margin: 0 0 0 20px;
+      padding: 0;
+      align-items: center;
+    }
+    .nav-links li {
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #234;
+      font-weight: bold;
+      font-size: 1.07rem;
+      letter-spacing: 0.01em;
+      padding: 7px 0;
+      transition: color 0.22s;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: #19b6ad;
+      border-bottom: 2px solid #19b6ad;
+    }
+    #site-search {
+      display: flex;
+      align-items: center;
+      margin-left: 30px;
+    }
+    #search-input {
+      padding: 7px 12px;
+      border: 1px solid #bbc;
+      border-radius: 5px 0 0 5px;
+      outline: none;
+      font-size: 1rem;
+    }
+    #site-search button {
+      padding: 7px 18px;
+      border: none;
+      background-color: #19b6ad;
+      color: #fff;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.15s;
+      font-size: 1rem;
+    }
+    #site-search button:hover {
+      background-color: #138c86;
+    }
+
+    body {
+      background: #b5c5c9;
+    }
+    .newsletter-main {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin: 0 auto;
+      min-height: 85vh;
+      max-width: 1200px;
+      padding-top: 44px;
+    }
+    .newsletter-left {
+      background: #fff;
+      flex: 1 1 0;
+      padding: 54px 36px 36px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+    .newsletter-left h1, .newsletter-left h2 {
+      font-family: 'Inter', Arial, sans-serif;
+      font-weight: 800;
+      margin: 0 0 20px 0;
+      font-size: 3rem;
+      line-height: 1.08;
+      letter-spacing: 0.01em;
+    }
+    .newsletter-left h2 {
+      font-size: 2.15rem;
+      margin: 44px 0 16px 0;
+    }
+    .newsletter-left h3 {
+      margin: 36px 0 10px 0;
+      font-size: 1.58rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .newsletter-left ul {
+      margin: 0 0 0 22px;
+      font-size: 1.2rem;
+    }
+    .newsletter-left li {
+      margin-bottom: 10px;
+      line-height: 1.58;
+    }
+    .newsletter-right {
+      background: #1db5b5;
+      flex: 1 1 0;
+      padding: 44px 38px 36px 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      color: #171717;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+    .newsletter-form-desc {
+      font-size: 1.48rem;
+      font-weight: 400;
+      margin-bottom: 24px;
+      line-height: 1.38;
+      margin-top: 0;
+    }
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+    .newsletter-form-row {
+      display: flex;
+      gap: 22px;
+    }
+    .newsletter-form label {
+      display: block;
+      font-weight: 700;
+      font-size: 1.17rem;
+      margin-bottom: 5px;
+      color: #333;
+      letter-spacing: 0.01em;
+    }
+    .newsletter-form input[type="text"], 
+    .newsletter-form input[type="email"] {
+      padding: 12px 10px;
+      border-radius: 6px;
+      border: 1.3px solid #b6b6b6;
+      width: 100%;
+      font-size: 1.08rem;
+      font-family: inherit;
+      margin-bottom: 7px;
+      outline: none;
+      transition: border 0.17s;
+    }
+    .newsletter-form input[type="text"]:focus,
+    .newsletter-form input[type="email"]:focus {
+      border: 1.6px solid #008787;
+    }
+    .newsletter-form-categories {
+      margin-top: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 18px;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .newsletter-form-categories label {
+      font-weight: 500;
+      font-size: 1.05rem;
+      color: #222;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .newsletter-form input[type="checkbox"] {
+      accent-color: #008787;
+      width: 18px; height: 18px;
+    }
+    .newsletter-form button {
+      margin-top: 12px;
+      width: fit-content;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      font-family: inherit;
+      background: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #171717;
+      cursor: pointer;
+      box-shadow: 0 1.5px 7px rgba(40,40,40,0.08);
+      transition: box-shadow 0.17s, background 0.15s;
+    }
+    .newsletter-form button:hover {
+      background: #d9ffff;
+      box-shadow: 0 4px 16px rgba(30,90,90,0.14);
+    }
+    .newsletter-success {
+      background: #e6f7ee;
+      color: #15986b;
+      padding: 22px 22px;
+      border-radius: 8px;
+      margin-top: 28px;
+      text-align: center;
+      font-size: 1.28rem;
+      font-weight: 600;
+      border: 1.5px solid #b2e7cd;
+      box-shadow: 0 2px 8px rgba(60,200,110,0.06);
+    }
+    /* Directory login modal styles */
+    #dir-login-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1002;
+      background: rgba(12,18,40,0.18);
+      align-items: center;
+      justify-content: center;
+    }
+    #dir-login-modal .modal-box {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 24px rgba(10,40,70,0.16);
+      padding: 38px 32px 30px 32px;
+      max-width: 360px;
+      width: 95vw;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 17px;
+      align-items: center;
+    }
+    #dir-login-modal .modal-box h2 {
+      color: #0077cc;
+      margin-bottom: 7px;
+      font-weight: 800;
+      font-size: 1.32rem;
+    }
+    #dir-login-modal .modal-box .modal-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    #dir-login-modal .modal-box a {
+      background: #0077cc;
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.06rem;
+      transition: background 0.13s;
+    }
+    #dir-login-modal .modal-box a:last-child {
+      background: #19b6ad;
+      padding: 10px 24px;
+    }
+    #dir-login-modal .modal-box a:hover {
+      opacity: 0.92;
+    }
+    #dir-login-modal .modal-box button {
+      margin-top: 15px;
+      background: none;
+      border: none;
+      font-size: 0.98rem;
+      color: #789;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    /* NEW: Banner for login reminder */
+    .directory-access-banner {
+      background: #fff3cd;
+      color: #856404;
+      border: 1.5px solid #ffe599;
+      border-radius: 9px;
+      padding: 17px 34px;
+      margin: 22px auto 0 auto;
+      max-width: 700px;
+      font-size: 1.15rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1.5px 10px rgba(250,215,100,0.09);
+      position: relative;
+    }
+    .directory-access-banner .banner-close {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      background: none;
+      border: none;
+      color: #b49716;
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .directory-access-banner .banner-action {
+      margin-left: 13px;
+      background: #19b6ad;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 21px;
+      font-size: 1.01rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .directory-access-banner .banner-action:hover {
+      background: #138c86;
+    }
+    @media (max-width: 650px) {
+      .directory-access-banner {
+        padding: 11px 3vw;
+        font-size: 1rem;
+      }
+      .directory-access-banner .banner-action {
+        padding: 7px 9px;
+        font-size: 0.98rem;
+      }
+    }
+    @media (max-width: 1100px) {
+      .navbar .container {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 3vw;
+        gap: 12px;
+      }
+      .newsletter-main {
+        flex-direction: column;
+        padding-top: 10px;
+        max-width: 99vw;
+      }
+      .newsletter-left, .newsletter-right {
+        padding: 32px 18px 24px 18px;
+      }
+      .newsletter-left h1 {
+        font-size: 2.15rem;
+      }
+    }
+    @media (max-width: 650px) {
+      .nav-links {
+        gap: 10px;
+        font-size: 0.95rem;
+      }
+      #site-search {
+        margin-left: 0;
+      }
+      .newsletter-main {
+        flex-direction: column;
+        padding: 0;
+        min-height: unset;
+      }
+      .newsletter-left, .newsletter-right {
+        padding: 15px 6vw 8px 6vw;
+      }
+      .newsletter-form-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .newsletter-left h1, .newsletter-left h2 {
+        font-size: 1.45rem;
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h2>Subscribe to our Newsletter</h2>
-    <form action="/newsletter" method="POST">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo" style="padding:0;">
+          <img src="/static/images/logo.png" alt="Digeon.ai logo" style="height:44px;width:auto;vertical-align:middle;border-radius:6px;">
+        </a>
+        <ul class="nav-links">
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
 
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
+  <!-- LOGIN REMINDER BANNER -->
+  <div id="directory-access-banner" class="directory-access-banner" style="display:none;">
+    <span>Want to access the full AI Directory? <strong>Please login first.</strong></span>
+    <a class="banner-action" href="login">Login</a>
+    <a class="banner-action" href="register" style="background:#0077cc;">Register</a>
+    <button class="banner-close" onclick="document.getElementById('directory-access-banner').style.display='none';" title="Dismiss">&times;</button>
+  </div>
 
-        <label>Categories:</label><br>
-        {% for category in categories %}
-            <input type="checkbox" id="cat_{{ loop.index }}" name="categories" value="{{ category }}">
-            <label for="cat_{{ loop.index }}">{{ category }}</label><br>
-        {% endfor %}
-        <br>
+  <main>
+    <div class="newsletter-main">
+      <!-- LEFT SIDE -->
+      <section class="newsletter-left">
+        <h1 style="font-size:2.85rem;text-align:left;">
+          Stay Informed, Stay Ahead with<br>
+          Digeon.ai<br>
+          weekly digest
+        </h1>
+        <h3>What You'll Get Every Week?</h3>
+        <ul>
+          <li>Handpicked AI tools and agents to supercharge your workflow</li>
+          <li>Exclusive insights into AI Trends in Software Development, Content Creation, Productivity, Marketing, Data Analytics and More</li>
+          <li>Tool tutorials, tips, use cases – from automation to visual design</li>
+          <li>Pro recommendations you won’t find on generic AI directories</li>
+          <li>Early access to tools, marketplaces and platform Updates</li>
+        </ul>
+        <h3>Why Subscribe?</h3>
+        <ul>
+          <li>Save hours on AI research – we test and curate tools so you don’t have to</li>
+          <li>Be the first to discover powerful, niche AI agents before they trend</li>
+          <li>Stay in the loop with Digeon.ai product updates and community events</li>
+        </ul>
+      </section>
+      <!-- RIGHT SIDE -->
+      <section class="newsletter-right">
+        <div class="newsletter-form-desc">
+          Subscribe to our weekly newsletter for exclusive updates on AI developments, expert insights, and practical tips to keep you informed and ahead in the rapidly changing tech landscape.
+        </div>
+        <form class="newsletter-form" id="newsletter-form" autocomplete="off">
+          <div class="newsletter-form-row">
+            <div style="flex:1;">
+              <label for="newsletter-name">Name</label>
+              <input type="text" id="newsletter-name" name="newsletter-name" required>
+            </div>
+            <div style="flex:1;">
+              <label for="newsletter-email">Email</label>
+              <input type="email" id="newsletter-email" name="newsletter-email" required>
+            </div>
+          </div>
+          <div style="margin-top:8px;margin-bottom:2px;font-weight:700;font-size:1.14rem;color:#333;">Area of Interest</div>
+          <div class="newsletter-form-categories">
+            <div class="checkbox-group">
+              {% for category in categories %}
+                <label>
+                  <input type="checkbox" name="area[]" value="{{ category }}"> {{ category }}
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+          <button type="submit" id="newsletter-submit">Subscribe</button>
+        </form>
+        <div id="newsletter-success" class="newsletter-success" style="display:none;">
+          Thank you for subscribing! You’ll receive our next issue in your inbox.
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- Directory Login Required Modal -->
+  <div id="dir-login-modal">
+    <div class="modal-box">
+      <h2>Login Required</h2>
+      <div>Please login or register to access the Directory page.</div>
+      <div class="modal-actions">
+        <a href="login">Login</a>
+        <a href="register">Register</a>
+      </div>
+      <button onclick="document.getElementById('dir-login-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    // Show/hide persistent login banner if user is not logged in
+    window.addEventListener('DOMContentLoaded', function() {
+      if (!localStorage.getItem('marketplaceUser')) {
+        document.getElementById('directory-access-banner').style.display = "flex";
+      }
+    });
 
-        <button type="submit">Subscribe</button>
-    </form>
+    // Newsletter subscription confirmation logic
+    document.getElementById('newsletter-form').onsubmit = async function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('newsletter-name').value.trim();
+    const email = document.getElementById('newsletter-email').value.trim();
+    const checkboxes = document.querySelectorAll('input[name="area[]"]:checked');
+    const categories = Array.from(checkboxes).map(cb => cb.value);
+
+    const btn = document.getElementById('newsletter-submit');
+    btn.disabled = true;
+    btn.textContent = "Subscribing...";
+
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, categories })
+    });
+
+    const result = await res.json();
+    if (result.status === 1) {
+      document.getElementById('newsletter-form').style.display = "none";
+      document.getElementById('newsletter-success').style.display = "block";
+    } else {
+      alert("Subscription failed: " + (result.error || "unknown error"));
+      btn.disabled = false;
+      btn.textContent = "Subscribe";
+    }
+  };
+
+    // Intercept Directory link in navbar
+    document.querySelectorAll('.nav-links a[href="directory.html"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        if (!localStorage.getItem('marketplaceUser')) {
+          e.preventDefault();
+          document.getElementById('dir-login-modal').style.display = 'flex';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
