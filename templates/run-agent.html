@@ -1,0 +1,430 @@
+<!-- run-agent.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI - Run Agent</title>
+  <link rel="icon" href="icon.png" type="image/png">
+  <style>
+    body {
+      background: #b5c5c9;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      color: #234;
+    }
+    /* NAVBAR (matches marketplace) */
+    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+    #site-search { display: flex; align-items: center; margin-left: 30px; }
+    #search-input { padding: 7px 12px; border: 1px solid #bbc; border-radius: 5px 0 0 5px; outline: none; font-size: 1rem; }
+    #site-search button { padding: 7px 18px; border: none; background-color: #19b6ad; color: #fff; border-radius: 0 5px 5px 0; cursor: pointer; font-weight: bold; transition: background 0.15s; font-size: 1rem; }
+    #site-search button:hover { background-color: #138c86; }
+    /* MAIN CONTAINER */
+    .main-container { max-width: 1100px; margin: 42px auto 0 auto; padding: 34px 18px 40px 18px; background: #fff; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.06);}
+    .agents-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; gap: 16px;}
+    .agents-title { font-size: 2.7rem; font-weight: 800; letter-spacing: -1px; color: #15304a; margin: 0; }
+    .header-btns { display: flex; gap: 16px; }
+    .header-btn {
+      background: #0077cc;
+      color: #fff;
+      padding: 11px 28px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.13rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      display: inline-block;
+      margin-left: 0;
+    }
+    .header-btn:hover { background: #005fa3; }
+    /* AGENT GRID & CARD */
+    .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 32px; }
+    .agent-card {
+      background: #f3f7fa;
+      border: 1.4px solid #d3e2ea;
+      border-radius: 13px;
+      padding: 26px 22px 22px 22px;
+      box-shadow: 0 2px 10px rgba(40,60,80,0.07);
+      min-height: 180px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      position: relative;
+      transition: box-shadow 0.17s;
+    }
+    .agent-card:hover { box-shadow: 0 4px 16px rgba(30,70,90,0.12);}
+    .agent-card .agent-icon {
+      width: 44px; height: 44px; border-radius: 9px; object-fit: cover; margin-bottom: 10px; background: #e4ecef;
+      display: block;
+    }
+    .agent-card h3 { margin: 0 0 8px 0; font-size: 1.38rem; font-weight: 700; color: #15304a; }
+    .agent-card p { margin: 0 0 12px 0; color: #222; font-size: 1.06rem; line-height: 1.5; }
+    .agent-card .agent-type { font-size: 0.99rem; color: #1997b6; font-weight: 600; margin-top: auto;}
+    .agent-card .agent-price { font-size: 1.08rem; color: #0077cc; font-weight: 700; margin: 10px 0 0 0; }
+    .run-btn {
+      background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 13px 0; margin-top: 15px; font-weight: 700; font-size: 1.14rem; cursor: pointer; transition: background 0.14s; width: 100%;
+    }
+    .run-btn:hover { background: #138c86; }
+    /* MODAL */
+    .modal-bg {
+      display: none; position: fixed; left:0; top:0; width:100vw; height:100vh; z-index:1002; background: rgba(20,40,60,0.12);
+      align-items: center; justify-content: center;
+    }
+    .modal-bg.active { display: flex; }
+    .agent-modal {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 28px rgba(30,70,90,0.16);
+      padding: 34px 32px 30px 32px;
+      max-width: 420px; width: 97vw;
+      display: flex; flex-direction: column; align-items: stretch;
+      position: relative;
+      min-height: 100px;
+      animation: popup 0.23s cubic-bezier(.34,1.56,.64,1) 1;
+    }
+    @keyframes popup {
+      0% {transform: scale(0.92);}
+      100% {transform: scale(1);}
+    }
+    .modal-close {
+      position: absolute; right: 18px; top: 16px; font-size: 1.6rem; color: #bbb; background: none; border: none; cursor: pointer;
+      transition: color 0.18s;
+    }
+    .modal-close:hover { color: #19b6ad; }
+    .agent-modal .agent-modal-icon {
+      width: 55px; height: 55px; border-radius: 11px; object-fit: cover; background: #e4ecef; display: block; margin-bottom: 13px; align-self: center;
+    }
+    .agent-modal h2 { font-size: 1.42rem; font-weight: 700; color: #15304a; margin: 0 0 5px 0; text-align: center;}
+    .agent-modal .modal-desc { color: #222; margin-bottom: 13px; text-align: center; font-size: 1.07rem;}
+    .agent-modal .modal-type { color: #1997b6; font-size: 1.01rem; text-align: center; margin-bottom: 9px;}
+    .agent-modal form { display: flex; flex-direction: column; gap: 13px; }
+    .agent-modal label { font-weight: 700; color: #15304a; }
+    .agent-modal input[type="text"], .agent-modal input[type="file"] {
+      padding: 11px 12px; border-radius: 7px; border: 1.2px solid #bbc; font-size: 1.06rem; background: #f8fbfc;
+    }
+    .agent-modal .modal-run-btn {
+      background: #0077cc; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 14px 0; font-size: 1.13rem; cursor: pointer; margin-top: 6px; transition: background 0.15s;
+    }
+    .agent-modal .modal-run-btn:hover { background: #005fa3; }
+    .modal-output {
+      margin-top: 18px; padding: 16px 13px; background: #f3f7fa; border-radius: 8px; border: 1.2px solid #d3e2ea; min-height: 44px; font-size: 1.07rem; color: #15304a; box-shadow: 0 2px 7px rgba(30,70,90,0.05);
+      white-space: pre-wrap;
+    }
+    .modal-output.error { color: #e63946; background: #fdebec; border-color: #e9b2b8; }
+    .modal-output img { max-width: 100%; border-radius: 6px; margin-top: 9px; }
+    /* Footer (matches marketplace) */
+    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+    .footer-row { text-align: center; margin-top: 28px; }
+    .footer-social-bar {
+      display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 26px; margin-bottom: 8px;
+    }
+    .footer-social-bar img, .footer-social-bar svg {
+      width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; vertical-align: middle; filter: none;
+    }
+    .footer-social-bar img:hover, .footer-social-bar svg:hover {
+      opacity: 1; transform: translateY(-3px) scale(1.1);
+    }
+    @media (max-width: 700px) {
+      .footer-social-bar { gap: 18px; margin-top: 17px; margin-bottom: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="logo"><img src="logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter.html">Newsletter</a></li>
+          <li><a href="directory.html">Directory</a></li>
+          <li><a href="marketplace.html">Marketplace</a></li>
+          <li><a href="blog.html">Blog</a></li>
+        </ul>
+        <form id="site-search">
+          <input type="text" id="search-input" placeholder="Search...">
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="main-container">
+      <div class="agents-header-row">
+        <h1 class="agents-title">My Agents</h1>
+        <div class="header-btns">
+          <a class="header-btn" href="developer-register.html">Register Your Agent</a>
+          <a class="header-btn" href="profile.html">My Profile</a>
+        </div>
+      </div>
+      <div class="agents-grid" id="agents-grid">
+        <!-- Dynamically populated agent cards -->
+      </div>
+    </div>
+    <!-- Modal for running agent -->
+    <div class="modal-bg" id="agent-modal-bg">
+      <div class="agent-modal" id="agent-modal">
+        <button class="modal-close" id="modal-close" title="Close">&times;</button>
+        <img class="agent-modal-icon" id="modal-icon" src="" alt="Agent Icon" style="display:none;">
+        <h2 id="modal-title"></h2>
+        <div class="modal-type" id="modal-type"></div>
+        <div class="modal-desc" id="modal-desc"></div>
+        <form id="modal-form"></form>
+        <div class="modal-output" id="modal-output" style="display:none;"></div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-row">
+        <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+      </div>
+      <div class="footer-social-bar">
+        <a href="https://x.com/digeonAI" target="_blank" title="X (Twitter)">
+          <img src="https://cdn.simpleicons.org/x/23272A" alt="X (Twitter)">
+        </a>
+        <a href="https://www.instagram.com/digeon.ai/" target="_blank" title="Instagram">
+          <img src="https://cdn.simpleicons.org/instagram/23272A" alt="Instagram">
+        </a>
+        <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank" title="LinkedIn" style="display:inline-block;">
+          <svg xmlns="http://www.w3.org/2000/svg" role="img" width="28" height="28" viewBox="0 0 24 24" fill="#23272A">
+            <title>LinkedIn</title>
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zm-16.356-11.41c-1.144 0-2.067-.926-2.067-2.065 0-1.138.923-2.065 2.067-2.065 1.143 0 2.066.927 2.066 2.065 0 1.139-.923 2.065-2.066 2.065zm1.778 11.41H2.313V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .771 0 1.723v20.549C0 23.229.792 24 1.771 24h20.451C23.2 24 24 23.229 24 22.271V1.723C24 .771 23.2 0 22.222 0z"/>
+          </svg>
+        </a>
+        <a href="mailto:Digeon.technologies@gmail.com" title="Email Digeon">
+          <img src="https://cdn.simpleicons.org/gmail/23272A" alt="Gmail">
+        </a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // ----------- Demo Data Setup (simulate localStorage) -----------
+    // (Only run once: create this block if you have no agents/purchases in localStorage yet.)
+    if (!localStorage.getItem('agents')) {
+      const agents = [
+        {
+          id: "textbot",
+          name: "TextBot",
+          desc: "A smart text assistant for Q&A.",
+          type: "Text",
+          price: "19.99",
+          icon: "https://img.icons8.com/fluency/48/000000/robot-2.png",
+          fields: [
+            { label: "Question", type: "text" }
+          ]
+        },
+        {
+          id: "voicegen",
+          name: "VoiceGen",
+          desc: "Text-to-speech and voice commands.",
+          type: "Audio",
+          price: "24.99",
+          icon: "https://img.icons8.com/color/48/000000/microphone.png",
+          fields: [
+            { label: "Text to speak", type: "text" }
+          ]
+        },
+        {
+          id: "videoai",
+          name: "VideoAI",
+          desc: "Video analysis and summarization.",
+          type: "Video",
+          price: "29.99",
+          icon: "https://img.icons8.com/fluency/48/000000/video.png",
+          fields: [
+            { label: "Video URL", type: "text" }
+          ]
+        }
+      ];
+      localStorage.setItem('agents', JSON.stringify(agents));
+    }
+    // Simulate purchased agents for this demo user
+    if (!localStorage.getItem('purchasedAgents')) {
+      localStorage.setItem('purchasedAgents', JSON.stringify(["textbot", "voicegen"]));
+    }
+    // ----------- Login Overlay (same as marketplace) -----------
+    function showLoginOverlayIfNeeded() {
+      let user = localStorage.getItem('marketplaceUser');
+      if (!user) {
+        let overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.zIndex = 1200;
+        overlay.style.left = 0; overlay.style.top = 0; overlay.style.right = 0; overlay.style.bottom = 0;
+        overlay.style.background = "rgba(10,40,60,0.14)";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        overlay.innerHTML = `
+        <div id="login-box" style="background:#fff; border-radius:14px; box-shadow:0 2px 18px rgba(40,80,160,0.09); padding:40px 32px 28px 32px; max-width:370px; width:95vw; display:flex; flex-direction:column; align-items:center; gap:18px;">
+          <h2 style="font-size:2rem;font-weight:800;margin-bottom:0;color:#0077cc;">Login</h2>
+          <form id="login-form" autocomplete="off" style="display:flex;flex-direction:column;gap:14px;width:100%;margin-top:7px;">
+            <input type="email" id="login-email" placeholder="Email" required style="padding:11px 12px;border-radius:7px;border:1.2px solid #bbc;font-size:1.08rem;background:#f8fbfc;">
+            <input type="password" id="login-password" placeholder="Password" required style="padding:11px 12px;border-radius:7px;border:1.2px solid #bbc;font-size:1.08rem;background:#f8fbfc;">
+            <button style="background:#0077cc;color:#fff;font-weight:700;border:none;border-radius:7px;padding:13px 0;font-size:1.14rem;cursor:pointer;margin-top:5px;">Login</button>
+          </form>
+          <div class="login-link-row" style="display:flex;justify-content:space-between;width:100%;margin-top:-9px;">
+            <a href="register.html" style="color:#19b6ad;font-size:0.97rem;text-decoration:none;">Register</a>
+            <span style="margin:0 11px;color:#bbb;">|</span>
+            <a href="forgot-password.html" style="color:#19b6ad;font-size:0.97rem;text-decoration:none;">Forgot Password?</a>
+            <span style="flex:1;"></span>
+            <a href="developer-register.html" style="margin-left:auto;color:#19b6ad;font-size:0.97rem;text-decoration:none;">Developer Login</a>
+          </div>
+          <div id="login-msg" style="color:#e63946;font-size:1.06rem;min-height:24px;margin-top:2px;"></div>
+        </div>
+        `;
+        document.body.appendChild(overlay);
+        document.getElementById('login-form').onsubmit = function(e) {
+          e.preventDefault();
+          const email = document.getElementById('login-email').value.trim();
+          const password = document.getElementById('login-password').value.trim();
+          const msg = document.getElementById('login-msg');
+          if (email && password) {
+            localStorage.setItem('marketplaceUser', email);
+            msg.textContent = "";
+            window.location.reload();
+          } else {
+            msg.textContent = "Please enter both email and password.";
+          }
+        };
+      }
+    }
+    showLoginOverlayIfNeeded();
+
+    // ----------- Agent Card Rendering -----------
+    const agentsGrid = document.getElementById('agents-grid');
+    let allAgents = JSON.parse(localStorage.getItem('agents') || "[]");
+    let purchased = JSON.parse(localStorage.getItem('purchasedAgents') || "[]");
+    // Filter only purchased agents
+    let myAgents = allAgents.filter(a => purchased.includes(a.id));
+    agentsGrid.innerHTML = "";
+    if (myAgents.length === 0) {
+      agentsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;font-size:1.22rem;color:#789;">You have not purchased any agents yet.</div>`;
+    } else {
+      myAgents.forEach(agent => {
+        const card = document.createElement('div');
+        card.className = "agent-card";
+        card.innerHTML = `
+          <img class="agent-icon" src="${agent.icon || 'https://img.icons8.com/fluency/48/000000/robot-2.png'}" alt="Agent Icon">
+          <h3>${agent.name}</h3>
+          <p>${agent.desc}</p>
+          <span class="agent-type"><strong>Type:</strong> ${agent.type}</span>
+          <div class="agent-price">$${agent.price}</div>
+          <button class="run-btn">Run</button>
+        `;
+        card.querySelector('.run-btn').onclick = () => openModal(agent);
+        agentsGrid.appendChild(card);
+      });
+    }
+
+    // ----------- Modal Logic -----------
+    const modalBg = document.getElementById('agent-modal-bg');
+    const modal = document.getElementById('agent-modal');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalType = document.getElementById('modal-type');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalForm = document.getElementById('modal-form');
+    const modalOutput = document.getElementById('modal-output');
+    let currentAgent = null;
+
+    function openModal(agent) {
+      currentAgent = agent;
+      // Branding
+      modalIcon.src = agent.icon || 'https://img.icons8.com/fluency/48/000000/robot-2.png';
+      modalIcon.style.display = "block";
+      modalTitle.textContent = agent.name;
+      modalType.textContent = "Type: " + agent.type;
+      modalDesc.textContent = agent.desc;
+      // Build dynamic form
+      modalForm.innerHTML = "";
+      modalOutput.style.display = "none";
+      modalOutput.textContent = "";
+      (agent.fields || []).forEach((field, idx) => {
+        const label = document.createElement('label');
+        label.textContent = field.label;
+        label.setAttribute('for', 'modal-input-' + idx);
+        modalForm.appendChild(label);
+        if (field.type === 'text') {
+          const input = document.createElement('input');
+          input.type = "text";
+          input.required = true;
+          input.id = 'modal-input-' + idx;
+          input.name = field.label;
+          modalForm.appendChild(input);
+        } else if (field.type === 'file') {
+          const input = document.createElement('input');
+          input.type = "file";
+          input.required = true;
+          input.id = 'modal-input-' + idx;
+          input.name = field.label;
+          modalForm.appendChild(input);
+        }
+      });
+      // Add Run button
+      const runBtn = document.createElement('button');
+      runBtn.type = "submit";
+      runBtn.className = "modal-run-btn";
+      runBtn.textContent = "Run Agent";
+      modalForm.appendChild(runBtn);
+
+      // Show modal
+      modalBg.classList.add('active');
+    }
+
+    // Close modal
+    document.getElementById('modal-close').onclick = () => {
+      modalBg.classList.remove('active');
+      setTimeout(() => { modalOutput.textContent = ""; modalOutput.style.display = "none"; }, 350);
+    };
+    // Also close modal when clicking outside the box
+    modalBg.onclick = function(e) {
+      if (e.target === modalBg) {
+        modalBg.classList.remove('active');
+        setTimeout(() => { modalOutput.textContent = ""; modalOutput.style.display = "none"; }, 350);
+      }
+    };
+
+    // ----------- Run Agent (simulate API call) -----------
+    modalForm.onsubmit = function(e) {
+      e.preventDefault();
+      // Gather input values
+      let inputVals = [];
+      Array.from(modalForm.querySelectorAll('input')).forEach(inp => {
+        if (inp.type === 'file') {
+          inputVals.push(inp.files && inp.files[0] ? inp.files[0].name : '');
+        } else {
+          inputVals.push(inp.value);
+        }
+      });
+      // Simulate agent output
+      modalOutput.className = "modal-output";
+      modalOutput.style.display = "block";
+      modalOutput.innerHTML = '<span style="color:#19b6ad;">Processing...</span>';
+      setTimeout(() => {
+        modalOutput.className = "modal-output";
+        // Different mock response by agent type for demo
+        if (currentAgent.id === "textbot") {
+          modalOutput.innerHTML = "<strong>Answer:</strong> This is a simulated answer to your question: <em>\"" + (inputVals[0] || '') + "\"</em>";
+        } else if (currentAgent.id === "voicegen") {
+          modalOutput.innerHTML = "<strong>Audio generated!</strong> <br><audio controls src='https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'></audio><br><span style='font-size:0.97em;color:#222;'>Text: " + (inputVals[0] || '') + "</span>";
+        } else if (currentAgent.id === "videoai") {
+          modalOutput.innerHTML = "<strong>Video summary:</strong><br>This is a mock summary for your video URL: <span style='color:#0077cc;'>" + (inputVals[0] || '') + "</span>";
+        } else {
+          modalOutput.innerHTML = "<em>Agent output simulated. Your input: " + inputVals.map(x => x ? x : '[file]').join(', ') + "</em>";
+        }
+      }, 1100);
+    };
+
+    // ----------- Search bar demo logic (optional) -----------
+    document.getElementById('site-search').onsubmit = function(e) {
+      e.preventDefault();
+      alert('Search for: ' + document.getElementById('search-input').value);
+    };
+  </script>
+</body>
+</html>

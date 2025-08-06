@@ -1,28 +1,31 @@
 from flask import Flask, request, render_template, jsonify, session, redirect, url_for
-import sqlite3
-import hashlib
+import mysql.connector
 import os
 import base64
 import json
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SUPER_SECRET_KEY"
 
-db_name = "database.db"
-sql_file = "database.sql"
 
-mkt_sql = "Marketplace.sql"
-mkt_db = "Marketplace.db"
 
 def get_db():
-    conn = sqlite3.connect(db_name)
-    conn.execute("PRAGMA foreign_keys = ON;")
-    return conn
+    return mysql.connector.connect(
+        host="127.0.0.1",       # or your MySQL server address
+        user="root",       # your MySQL username
+        password="Row90bit_20041803-2022-2026",# your MySQL password
+        database="main_db"      # the correct database name
+    )
 
 def get_mkt_db():
-    conn = sqlite3.connect(mkt_db)
-    conn.execute("PRAGMA foreign_keys = ON;")
-    return conn
+    return mysql.connector.connect(
+        host="127.0.0.1",
+        user="root",
+        password="Row90bit_20041803-2022-2026",
+        database="marketplace_db"
+    )
+
 
 
 @app.route('/')
@@ -33,8 +36,10 @@ def home():
 @app.route("/newsletter", methods=["GET", "POST"])
 def subscribe():
     conn = get_db()
-    categories = conn.execute("SELECT category FROM Categories ORDER BY category").fetchall()
-    categories = [row[0] for row in categories]
+    cursor = conn.cursor()
+    cursor.execute("SELECT category FROM Categories ORDER BY category")
+    categories = [row[0] for row in cursor.fetchall()]
+    cursor.close()
     conn.close()
 
     if request.method == "POST":
@@ -45,8 +50,11 @@ def subscribe():
 @app.route("/newsletter-form")
 def newsletter_form():
     conn = get_db()
-    rows = conn.execute("SELECT category FROM Categories ORDER BY category").fetchall()
+    cursor = conn.cursor()
+    cursor.execute("SELECT category FROM Categories ORDER BY category")
+    rows = rows.fetchall()
     categories = [row[0] for row in rows]
+    cursor.close()
     conn.close()
     return render_template("newsletter.html", categories=categories)
 
@@ -59,14 +67,21 @@ def api_subscribe():
 
     conn = get_db()
     try:
-        with conn:
-            conn.execute("INSERT OR IGNORE INTO Users (user_name, user_email) VALUES (?, ?);", (name, email))
-            for cat in categories:
-                conn.execute("INSERT OR IGNORE INTO UserCategories (user_email, category) VALUES (?, ?);", (email, cat))
+        cursor = conn.cursor()
+        cursor.execute("INSERT IGNORE INTO Users (user_name, user_email) VALUES (%s, %s);", (name, email))
+        conn.commit()
+        for cat in categories:
+            cursor.execute("INSERT IGNORE INTO UserCategories (user_email, category) VALUES (%s, %s);", (email, cat))
+            conn.commit()
+        cursor.close()
+        conn.close()
         return jsonify({"status": 1})
     except Exception as e:
+        cursor.close()
+        conn.close()
         return jsonify({"status": 2, "error": str(e)})
     finally:
+        cursor.close()
         conn.close()
 
 
@@ -77,7 +92,10 @@ def directory():
 @app.route("/api/categories")
 def api_categories():
     conn = get_db()
-    rows = conn.execute("SELECT category_id, category FROM Categories ORDER BY category").fetchall()
+    cursor = conn.cursor()
+    cursor.execute("SELECT category_id, category FROM Categories ORDER BY category")
+    rows = cursor.fetchall()
+    cursor.close()
     conn.close()
     return jsonify([{"id": row[0], "name": row[1]} for row in rows])
 
@@ -85,10 +103,13 @@ def api_categories():
 def api_tools():
     category_id = request.args.get("category_id", type=int)
     conn = get_db()
-    rows = conn.execute(
-        "SELECT tool_name, description, link FROM Tools WHERE category_id = ? ORDER BY tool_name",
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT tool_name, description, link FROM Tools WHERE category_id = %s ORDER BY tool_name",
         (category_id,)
-    ).fetchall()
+    )
+    rows = cursor.fetchall()
+    cursor.close()
     conn.close()
     return jsonify([
         {"name": row[0], "desc": row[1], "link": row[2]} for row in rows
@@ -98,7 +119,10 @@ def api_tools():
 def api_tool_link():
     name = request.args.get("name")
     conn = get_db()
-    row = conn.execute("SELECT link FROM Tools WHERE tool_name = ?", (name,)).fetchone()
+    cursor = conn.cursor()
+    cursor.execute("SELECT link FROM Tools WHERE tool_name = %s", (name,))
+    row = cursor.fetchone()
+    cursor.close()
     conn.close()
     return jsonify({"link": row[0]} if row else {"link": None})
 
@@ -145,27 +169,30 @@ def validate_password(password : str) -> bool:
 def marketplace_create():
     try:
         conn = get_mkt_db()
-        with conn:
-            cursor = conn.cursor()
-            name, email, password = request.form.get('name'), request.form.get("email"), request.form.get("password")
+        cursor = conn.cursor()
+        name, email, password = request.form.get('name'), request.form.get("email"), request.form.get("password")
 
-            if not validate_password(password):
-                return jsonify({"status" : 2, "Except" : "Password does not meet requirements!!"})
-            
-            cursor.execute("SELECT * FROM users WHERE name = ? AND email = ?;", (name, email))
-            user_auth = cursor.fetchone()
+        if not validate_password(password):
+            return jsonify({"status" : 2, "Except" : "Password does not meet requirements!!"})
+        
+        cursor.execute("SELECT * FROM users WHERE name = %s AND email = %s;", (name, email))
+        user_auth = cursor.fetchone()
 
-            if user_auth:
-                return jsonify({"status" : 2, "Except" : "User already in database"})
-            
-            salt = generate_salt()
-            pass_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+        if user_auth:
+            return jsonify({"status" : 2, "Except" : "User already in database"})
+        
+        salt = generate_salt()
+        pass_hash = hashlib.sha256((password + salt).encode()).hexdigest()
 
-            cursor.execute("INSERT INTO users (name, email, password_hash, salt) VALUES (?, ?, ?, ?);", (name, email, pass_hash, salt))
-
-            return jsonify({"status" : 1})
+        cursor.execute("INSERT INTO users (name, email, password_hash, salt) VALUES (%s, %s, %s, %s);", (name, email, pass_hash, salt))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"status" : 1})
 
     except Exception as E:
+        cursor.close()
+        conn.close()
         return jsonify({"Except" : str(E)})
 
 
@@ -173,21 +200,28 @@ def marketplace_create():
 def marketplace_auth():
     try:
         conn = get_mkt_db()
-        with conn:
-            email = request.form.get("email")
-            password = request.form.get("password")
-            user = conn.execute("SELECT password_hash, salt FROM users WHERE email = ?", (email,)).fetchone()
-            if not user:
-                return jsonify({"status": 2, "Except": "Invalid credentials"})
-            stored_hash, salt = user
-            calc_hash = hashlib.sha256((password + salt).encode()).hexdigest()
-            if calc_hash == stored_hash:
-                # Set session
-                session["marketplace_user"] = email
-                return jsonify({"status": 1})
-            else:
-                return jsonify({"status": 2, "Except": "Invalid credentials"})
+        cursor = conn.cursor()
+        email = request.form.get("email")
+        password = request.form.get("password")
+        cursor.execute("SELECT password_hash, salt FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({"status": 2, "Except": "Invalid credentials"})
+        stored_hash, salt = user
+        calc_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+        if calc_hash == stored_hash:
+            # Set session
+            session["marketplace_user"] = email
+            cursor.close()
+            conn.close()
+            return jsonify({"status": 1})
+        else:
+            cursor.close()
+            conn.close()
+            return jsonify({"status": 2, "Except": "Invalid credentials"})
     except Exception as e:
+        cursor.close()
+        conn.close()
         return jsonify({"status": 2, "Except": str(e)})
 
 
@@ -198,42 +232,59 @@ def marketplace_auth():
 def dev_register():
     try:
         conn = get_mkt_db()
-        with conn:
-            cursor = conn.cursor()
-            email = request.form.get("email")
-            password = request.form.get("password")
-            if not email or not password:
-                return jsonify({"status": 2, "Except": "Email and password required"})
-            if not validate_password(password):
-                return jsonify({"status": 2, "Except": "Password does not meet requirements"})
-            cursor.execute("SELECT * FROM developers WHERE email = ?", (email,))
-            if cursor.fetchone():
-                return jsonify({"status": 2, "Except": "Developer already registered"})
-            salt = generate_salt()
-            pass_hash = hashlib.sha256((password + salt).encode()).hexdigest()
-            cursor.execute("INSERT INTO developers (email, password_hash, salt) VALUES (?, ?, ?)", (email, pass_hash, salt))
-            return jsonify({"status": 1})
+        cursor = conn.cursor()
+        email = request.form.get("email")
+        password = request.form.get("password")
+        if not email or not password:
+            conn.close()
+            cursor.close()
+            return jsonify({"status": 2, "Except": "Email and password required"})
+        if not validate_password(password):
+            conn.close()
+            cursor.close()
+            return jsonify({"status": 2, "Except": "Password does not meet requirements"})
+        cursor.execute("SELECT * FROM developers WHERE email = %s", (email,))
+        if cursor.fetchone():
+            conn.close()
+            cursor.close()
+            return jsonify({"status": 2, "Except": "Developer already registered"})
+        salt = generate_salt()
+        pass_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+        cursor.execute("INSERT INTO developers (email, password_hash, salt) VALUES (%s, %s, %s)", (email, pass_hash, salt))
+        conn.commit()
+        conn.close()
+        cursor.close()
+        return jsonify({"status": 1})
     except Exception as e:
+        cursor.close()
+        conn.close()
         return jsonify({"Except": str(e)})
 
 @app.route("/api/dev-login", methods=["POST"])
 def dev_login():
     try:
         conn = get_mkt_db()
-        with conn:
-            email = request.form.get("email")
-            password = request.form.get("password")
-            user = conn.execute("SELECT password_hash, salt FROM developers WHERE email = ?", (email,)).fetchone()
-            if not user:
-                return jsonify({"status": 2, "Except": "Invalid credentials"})
-            stored_hash, salt = user
-            calc_hash = hashlib.sha256((password + salt).encode()).hexdigest()
-            if calc_hash == stored_hash:
-                session["dev_user"] = email
-                return jsonify({"status": 1})
-            else:
-                return jsonify({"status": 2, "Except": "Invalid credentials"})
+        cursor = conn.cursor()
+        email = request.form.get("email")
+        password = request.form.get("password")
+        cursor.execute("SELECT password_hash, salt FROM developers WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({"status": 2, "Except": "Invalid credentials"})
+        stored_hash, salt = user
+        calc_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+        if calc_hash == stored_hash:
+            session["dev_user"] = email
+            cursor.close()
+            conn.close()
+            return jsonify({"status": 1})
+        else:
+            cursor.close()
+            conn.close()
+            return jsonify({"status": 2, "Except": "Invalid credentials"})
     except Exception as e:
+        cursor.close()
+        conn.close()
         return jsonify({"status": 2, "Except": str(e)})
 
 @app.route("/api/agent-register", methods=["POST"])
@@ -242,42 +293,52 @@ def agent_register():
         return jsonify({"status": 2, "Except": "Not logged in as developer"})
     try:
         conn = get_mkt_db()
-        with conn:
-            dev_email = session["dev_user"]
-            agent_name = request.form.get("name")
-            desc = request.form.get("desc")
-            agent_type = request.form.get("type")
-            price = request.form.get("price")
-            # input fields: JSON string like [{label:"Email", type:"text"}, ...]
-            input_fields = request.form.get("inputs")
-            if not agent_name or not agent_type or not price or not input_fields:
-                return jsonify({"status": 2, "Except": "All fields required"})
+        cursor = conn.cursor()
+        dev_email = session["dev_user"]
+        agent_name = request.form.get("name")
+        desc = request.form.get("desc")
+        agent_type = request.form.get("type")
+        price = request.form.get("price")
+        # input fields: JSON string like [{label:"Email", type:"text"}, ...]
+        input_fields = request.form.get("inputs")
+        if not agent_name or not agent_type or not price or not input_fields:
+            return jsonify({"status": 2, "Except": "All fields required"})
 
-            # 1. Insert agent
-            conn.execute(
-                "INSERT INTO Agents (developer_email, agent_name, description, agentType, price) VALUES (?, ?, ?, ?, ?)",
-                (dev_email, agent_name, desc, agent_type, float(price))
+        # 1. Insert agent
+        cursor.execute(
+            "INSERT INTO Agents (developer_email, agent_name, description, agentType, price) VALUES (%s, %s, %s, %s, %s)",
+            (dev_email, agent_name, desc, agent_type, float(price))
+        )
+        conn.commit()
+
+        # 2. Insert input fields
+        fields = json.loads(input_fields)
+        for field in fields:
+            label = field["label"]
+            ftype = field["type"]
+            cursor.execute(
+                "INSERT INTO AgentInputs (agent_name, inputFieldType) VALUES (%s, %s)",
+                (agent_name, ftype)
             )
-
-            # 2. Insert input fields
-            fields = json.loads(input_fields)
-            for field in fields:
-                label = field["label"]
-                ftype = field["type"]
-                conn.execute(
-                    "INSERT INTO AgentInputs (agent_name, inputFieldType) VALUES (?, ?)",
-                    (agent_name, ftype)
-                )
-            return jsonify({"status": 1})
+            conn.commit()
+            
+        cursor.close()
+        conn.close()
+        return jsonify({"status": 1})
     except Exception as e:
+        cursor.close()
+        conn.close()
         return jsonify({"status": 2, "Except": str(e)})
 
 @app.route("/api/market-agents")
 def api_market_agents():
     conn = get_mkt_db()
-    agents = conn.execute(
+    cursor = conn.cursor()
+    cursor.execute(
         "SELECT agent_id, agent_name, description, agentType, price FROM Agents ORDER BY agent_id DESC"
-    ).fetchall()
+    )
+    agents = cursor.fetchall()
+    cursor.close()
     conn.close()
     return jsonify([
         {
