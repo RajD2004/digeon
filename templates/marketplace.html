@@ -7,112 +7,132 @@
   <link rel="icon" href="/static/images/icon.png" type="image/png">
 
   <style>
-    /* NAVBAR */
-    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
-    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
-    .logo img { height: 44px; border-radius: 6px; }
-    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
-    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
-    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+  /* ===== DARK THEME BASE ===== */
+  body {
+    background: #0e0f12;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #eaeaea;
+  }
 
-    /* HEADER ROW BUTTONS */
-    .header-btns { display: flex; gap: 16px; }
-    .header-btn {
-      background: #0077cc;
-      color: #fff;
-      padding: 11px 28px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.13rem;
-      cursor: pointer;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: inline-block;
-      margin-left: 0;
-    }
-    .header-btn:hover { background: #005fa3; }
+  /* ===== NAVBAR ===== */
+  .navbar {
+    background: rgba(20, 20, 25, 0.9);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 60px;
+  }
+  .logo img { height: 44px; border-radius: 6px; }
+  .nav-links { list-style: none; display: flex; gap: 32px; margin: 0; padding: 0; align-items: center; }
+  .nav-links a {
+    text-decoration: none; color: #eaeaea; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em;
+    border-bottom: 2px solid transparent; transition: color 0.22s, border-bottom 0.22s;
+  }
+  .nav-links a:hover { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
 
-    .main-container { max-width: 1100px; margin: 42px auto 0 auto; padding: 34px 18px 40px 18px; background: #fff; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.06);}
-    .marketplace-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; gap: 16px;}
-    .marketplace-title { font-size: 2.7rem; font-weight: 800; letter-spacing: -1px; color: #15304a; margin: 0; }
+  /* ===== (optional) SEARCH BAR (safe to keep even if unused) ===== */
+  #site-search { display: flex; align-items: center; }
+  #search-input {
+    padding: 7px 12px; border: 1px solid #333; border-radius: 5px 0 0 5px; outline: none; font-size: 1rem;
+    background: #1a1c20; color: #eaeaea;
+  }
+  #site-search button {
+    padding: 7px 18px; border: none; background: #19b6ad; color: #fff; border-radius: 0 5px 5px 0; cursor: pointer; font-weight: bold; transition: background 0.15s; font-size: 1rem;
+  }
+  #site-search button:hover { background: #138c86; }
 
-    /* AGENT CARDS */
-    .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 32px; }
-    .agent-card { background: #f3f7fa; border: 1.4px solid #d3e2ea; border-radius: 13px; padding: 26px 22px 22px 22px; box-shadow: 0 2px 10px rgba(40,60,80,0.07); min-height: 180px; display: flex; flex-direction: column;}
-    .agent-card h3 { margin: 0 0 8px 0; font-size: 1.38rem; font-weight: 700; color: #15304a; }
-    .agent-card p { margin: 0 0 12px 0; color: #222; font-size: 1.06rem; line-height: 1.5; }
-    .agent-card .agent-type { font-size: 0.99rem; color: #1997b6; font-weight: 600; margin-top: auto;}
-    .agent-card .agent-price { font-size: 1.08rem; color: #0077cc; font-weight: 700; margin: 10px 0 0 0; }
-    .buy-btn { background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 13px 0; margin-top: 15px; font-weight: 700; font-size: 1.14rem; cursor: pointer; transition: background 0.14s;}
-    .buy-btn:hover { background: #138c86; }
+  /* ===== MAIN CONTAINER ===== */
+  .main-container {
+    max-width: 1100px;
+    margin: 42px auto;
+    padding: 34px 18px 40px 18px;
+    background: rgba(30, 32, 38, 0.85);
+    border-radius: 14px;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.3);
+  }
 
-    /* LOGIN OVERLAY */
-    #login-overlay {
-      position: fixed;
-      z-index: 1001;
-      left: 0; top: 0; right: 0; bottom: 0;
-      background: rgba(10,40,60,0.14);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #login-box {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 2px 18px rgba(40,80,160,0.09);
-      padding: 40px 32px 28px 32px;
-      max-width: 370px;
-      width: 95vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
-    #login-box h2 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0;
-      color: #0077cc;
-    }
-    #login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      width: 100%;
-      margin-top: 7px;
-    }
-    #login-form input[type="email"], #login-form input[type="password"] {
-      padding: 11px 12px;
-      border-radius: 7px;
-      border: 1.2px solid #bbc;
-      font-size: 1.08rem;
-      background: #f8fbfc;
-    }
-    #login-form button {
-      background: #0077cc;
-      color: #fff;
-      font-weight: 700;
-      border: none;
-      border-radius: 7px;
-      padding: 13px 0;
-      font-size: 1.14rem;
-      cursor: pointer;
-      margin-top: 5px;
-    }
-    #login-form button:hover { background: #005fa3; }
-    #login-msg {
-      color: #e63946;
-      font-size: 1.06rem;
-      min-height: 24px;
-      margin-top: 2px;
-    }
-    .login-link-row { display: flex; justify-content: space-between; width: 100%; margin-top: -9px; }
-    .login-link-row a { color: #19b6ad; font-size: 0.97rem; text-decoration: none; }
-    .login-link-row a:hover { text-decoration: underline; }
-    /* Footer */
-    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
+  /* ===== HEADER ROW ===== */
+  .marketplace-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; gap: 16px; }
+  .marketplace-title { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; color: #fff; margin: 0; }
+  .header-btns { display: flex; gap: 16px; }
+  .header-btn {
+    background: #19b6ad; color: #fff; padding: 11px 24px; border: none; border-radius: 8px; font-weight: 700; font-size: 1.05rem;
+    cursor: pointer; text-decoration: none; transition: background 0.15s;
+  }
+  .header-btn:hover { background: #138c86; }
+
+  /* ===== AGENT CARDS ===== */
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; }
+  .agent-card {
+    background: rgba(25, 27, 33, 0.9);
+    border: 1.4px solid #2a2d34;
+    border-radius: 13px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .agent-card:hover { transform: translateY(-5px); box-shadow: 0 8px 26px rgba(0,0,0,0.4); }
+  .agent-card h3 { margin: 0 0 8px; font-size: 1.3rem; font-weight: 700; color: #fff; }
+  .agent-card p { margin: 0 0 12px; color: #ccc; font-size: 1.05rem; line-height: 1.5; }
+  .agent-type { font-size: 0.95rem; color: #19b6ad; font-weight: 600; margin-top: auto; }
+  .agent-price { font-size: 1.05rem; color: #19b6ad; font-weight: 700; margin-top: 10px; }
+  .buy-btn {
+    background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 12px 0; margin-top: 15px;
+    font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.14s;
+  }
+  .buy-btn:hover { background: #138c86; }
+
+  /* ===== LOGIN OVERLAY ===== */
+  #login-overlay {
+    position: fixed; z-index: 1001; inset: 0;
+    background: rgba(10,10,15,0.75);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #login-box {
+    background: rgba(30, 32, 38, 0.95);
+    border-radius: 14px;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.4);
+    padding: 40px 32px 28px;
+    max-width: 370px; width: 95vw;
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  #login-box h2 { font-size: 2rem; font-weight: 800; margin-bottom: 0; color: #19b6ad; }
+  #login-form { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+  #login-form input {
+    padding: 11px 12px; border-radius: 7px; border: 1.2px solid #333; font-size: 1.05rem; background: #1a1c20; color: #eaeaea;
+  }
+  #login-form button { background: #19b6ad; color: #fff; font-weight: 700; border: none; border-radius: 7px; padding: 13px 0; font-size: 1rem; cursor: pointer; }
+  #login-form button:hover { background: #138c86; }
+  #login-msg { color: #e63946; font-size: 1.06rem; min-height: 24px; }
+  .login-link-row { display: flex; justify-content: space-between; width: 100%; font-size: 0.97rem; }
+  .login-link-row a { color: #19b6ad; text-decoration: none; }
+  .login-link-row a:hover { text-decoration: underline; }
+
+  /* ===== FOOTER ===== */
+  footer { background: rgba(20, 20, 25, 0.95); padding: 20px; text-align: center; }
+  .footer-social-bar { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+  .footer-social-bar img, .footer-social-bar svg { width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; }
+  .footer-social-bar img:hover, .footer-social-bar svg:hover { opacity: 1; transform: translateY(-3px) scale(1.1); }
+
+  /* ===== ANIMATION ===== */
+  .animate { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .animate.visible { opacity: 1 !important; transform: translateY(0) !important; }
   </style>
+
 </head>
 <body>
   <script>
@@ -153,7 +173,7 @@
   <main id="marketplace-main">
   <div class="main-container">
     <div class="marketplace-header-row">
-      <h1 class="marketplace-title">Marketplace</h1>
+      <h1 class="marketplace-title animate">Marketplace</h1>
       <div class="header-btns">
         <a class="header-btn" href="developer-register">Register Your Agent</a>
         <a class="header-btn" href="profile">My Profile</a>
@@ -198,33 +218,27 @@
     };
 
     // Purchase buttons → redirect to payment page with agent info
-    document.querySelectorAll('.buy-btn').forEach(function(btn) {
-      btn.onclick = function() {
-        const agent = JSON.parse(this.closest('.agent-card').getAttribute('data-agent'));
-        // Pass agent data via query string
-        const params = new URLSearchParams({
-          name: agent.name,
-          desc: agent.desc,
-          price: agent.price
-        }).toString();
-        window.location.href = "payment.html?" + params;
-      };
-    });
+    // Restore purchase button logic for new cards
+    
+
+
   </script>
 
     <script>
     function renderAgentCard(agent) {
-      // Render using the original markup and classes
-      return `
-        <div class="agent-card" data-agent='${JSON.stringify(agent).replace(/'/g, "&apos;")}'>
-          <h3>${agent.name}</h3>
-          <p>${agent.description || ''}</p>
-          <div class="agent-type">Type: ${agent.type}</div>
-          <div class="agent-price">$${agent.price}</div>
-          <button class="buy-btn">Purchase</button>
-        </div>
-      `;
+    return `
+      <div class="agent-card animate" data-agent='${JSON.stringify(agent).replace(/'/g, "&apos;")}'>
+        <h3>${agent.name}</h3>
+        <p>${agent.description || ''}</p>
+        <div class="agent-type">Type: ${agent.type}</div>
+        <div class="agent-price">$${agent.price}</div>
+        <button class="buy-btn">Purchase</button>
+      </div>
+    `;
     }
+
+
+
 
     fetch('/api/market-agents')
       .then(r => r.json())
@@ -238,19 +252,49 @@
         container.innerHTML = agents.map(renderAgentCard).join('');
 
         // Restore purchase button logic for new cards
+                // Purchase → go to Run Agent page
         container.querySelectorAll('.buy-btn').forEach(function(btn) {
           btn.onclick = function() {
-            const agent = JSON.parse(this.closest('.agent-card').getAttribute('data-agent').replace(/&apos;/g, "'"));
-            const params = new URLSearchParams({
-              name: agent.name,
-              desc: agent.description,
-              price: agent.price
-            }).toString();
-            window.location.href = "payment.html?" + params;
+            const agent = JSON.parse(
+              this.closest('.agent-card')
+                  .getAttribute('data-agent')
+                  .replace(/&apos;/g, "'")
+            );
+            window.location.href = `/run-agent?name=${encodeURIComponent(agent.name)}`;
           };
         });
+
       });
     </script>
+    <script>
+    // Animation observer (cascading fade/slide)
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, idx) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), idx * 120);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    // Observe anything with .animate (including cards rendered after fetch)
+    document.querySelectorAll('.animate').forEach(el => revealObserver.observe(el));
+
+    // If cards are (re)rendered after fetch, hook them too:
+    const list = document.getElementById('agents-list');
+    if (list) {
+      const mo = new MutationObserver((muts) => {
+        muts.forEach(m => {
+          m.addedNodes.forEach(n => {
+            if (n.nodeType === 1 && n.classList && n.classList.contains('animate')) {
+              revealObserver.observe(n);
+            }
+          });
+        });
+      });
+      mo.observe(list, { childList: true });
+    }
+  </script>
 
 </body>
 </html>

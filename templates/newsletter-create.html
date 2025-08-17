@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Digeon AI – Create Newsletter Post (Admin)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="/static/images/icon.png" type="image/png" />
+  <meta name="description" content="Admin-only page to create Digeon AI newsletter posts with personalization and category targeting." />
+  <style>
+    :root {
+      --brand:#19b6ad; --brand-dark:#138c86; --ink:#f5f5f5; --muted:#aaa; --border:rgba(255,255,255,0.15); --bg:#0d1117; --white:#fff;
+      --link:#00d1c4; --link-dark:#00a79e;
+    }
+    html,body {
+      margin:0; padding:0;
+      background: linear-gradient(135deg, #0d1117, #161b22);
+      color:#f5f5f5;
+      font-family:'Inter', Arial, sans-serif;
+    }
+    .container { max-width:1300px; margin:0 auto; padding:0 24px; }
+    .navbar {
+      background: rgba(13,17,23,0.85);
+      backdrop-filter: blur(10px);
+      position:sticky; top:0; z-index:100;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    }
+    .navbar .row {
+      display:flex; align-items:center; justify-content:space-between; height:60px;
+    }
+    .logo img { height:44px; border-radius:6px; vertical-align:middle }
+    .nav-links {
+      list-style:none; display:flex; gap:28px; margin:0; padding:0; align-items:center;
+    }
+    .nav-links a {
+      text-decoration:none; color:#f0f0f0; font-weight:700; font-size:1.07rem;
+      border-bottom:2px solid transparent; padding-bottom:4px; transition:.22s;
+    }
+    .nav-links a:hover { color:var(--link); border-bottom-color:var(--link); }
+    #site-search { display:flex; align-items:center; margin-left:30px }
+    #site-search input {
+      padding:7px 12px; border:none; border-radius:5px 0 0 5px; outline:none; font-size:1rem;
+    }
+    #site-search button {
+      padding:7px 18px; border:none; background:var(--link); color:#fff;
+      border-radius:0 5px 5px 0; cursor:pointer; font-weight:700;
+    }
+    #site-search button:hover { background:var(--link-dark); }
+
+    .page-head { padding:28px 0 6px 0 }
+    .page-head h1 { margin:0; font-size:2rem; letter-spacing:-.01em; color:#fff }
+    .page-sub { color:#ccc; margin-top:8px }
+    .grid {
+      display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:start; margin:18px 0 38px;
+    }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr } }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1.4px solid var(--border);
+      border-radius:14px;
+      box-shadow:0 4px 30px rgba(0,0,0,0.3);
+      padding:24px;
+      box-sizing:border-box;
+    }
+    .section-title { font-size:1.05rem; font-weight:800; color:var(--link); margin:0 0 14px 0 }
+    .form-row { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px; }
+    .form-item { flex:1 1 240px; min-width:240px }
+    label { display:block; font-weight:700; margin:12px 0 6px 0; color:#fff; }
+    input[type="text"], textarea {
+      width:100%; box-sizing:border-box; padding:12px; border:1.2px solid rgba(255,255,255,0.15);
+      border-radius:9px; background:rgba(255,255,255,0.08); color:#fff;
+      font-size:1.02rem; outline:none;
+    }
+    input[type="text"]:focus, textarea:focus { border-color:var(--link); }
+    textarea {
+      min-height:180px; resize:vertical; line-height:1.5; margin-bottom:10px;
+    }
+    .token-row {
+      display:flex; gap:10px; align-items:center; margin-top:6px;
+      margin-bottom: 20px; 
+    }
+    .chip-btn {
+      background:rgba(0,209,196,0.15); color:#00d1c4; border:1px dashed #00d1c4;
+      border-radius:8px; padding:6px 10px; font-weight:700; cursor:pointer;
+    }
+    .chip-btn:hover { background:rgba(0,209,196,0.25); }
+    fieldset {
+      border:1.2px solid var(--border); border-radius:12px; padding:14px;
+    }
+    legend { font-weight:800; color:var(--link); padding:0 6px; }
+    .cat-grid { display:grid; grid-template-columns:repeat(2,minmax(180px,1fr)); gap:8px 16px; margin:8px 2px }
+    @media (max-width:600px) { .cat-grid { grid-template-columns:1fr } }
+    .cat-item { display:flex; align-items:center; gap:8px; }
+    input[type="checkbox"] { width:18px; height:18px; accent-color:var(--link); }
+    .actions { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap }
+    .btn { appearance:none; border:none; border-radius:10px; padding:12px 18px; font-weight:800; cursor:pointer }
+    .btn-primary { background:var(--link); color:#fff }
+    .btn-primary:hover { background:var(--link-dark) }
+    .btn-ghost { background:rgba(255,255,255,0.08); color:#00d1c4; border:1px solid rgba(0,209,196,0.4) }
+    .btn-ghost:hover { background:rgba(0,209,196,0.15) }
+    .save-note { margin-top:10px; font-weight:700; color:#00d1c4; min-height:20px }
+
+    .preview-head { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:16px 20px }
+    .preview-head h3 { margin:0; font-size:1.1rem }
+    .preview-body { padding:20px }
+    .pv-subject { font-weight:800; font-size:1.05rem; margin:0 0 8px 0 }
+    .pv-greet { color:#ccc; margin:0 0 12px 0 }
+    .pv-content { white-space:pre-wrap; line-height:1.55; margin:0; color:#eee }
+    .pv-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px }
+    .tag { background:rgba(0,209,196,0.15); border:1px solid rgba(0,209,196,0.4); color:#00d1c4; border-radius:999px; padding:6px 10px; font-size:.88rem }
+
+    footer { margin:30px 0; text-align:center; }
+    .footer-social-bar { display:flex; justify-content:center; align-items:center; gap:30px; margin-top:14px }
+    .footer-social-bar img, .footer-social-bar svg { width:28px; height:28px; opacity:.88; transition:opacity .16s, transform .16s }
+    .footer-social-bar img:hover, .footer-social-bar svg:hover { opacity:1; transform:translateY(-3px) scale(1.1) }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container">
+      <div class="row">
+        <a href="/" class="logo" aria-label="Digeon AI Home">
+          <img src="/static/images/logo.png" alt="Digeon.ai logo">
+        </a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory" id="dir-link">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-head">
+      <h1>Create Newsletter Post</h1>
+      <p class="page-sub">Admin-only editor for drafting and publishing newsletter emails. <span class="pill">MVP – Client-side</span></p>
+      <p class="top-tip">Tip: Use the token <strong>{{name}}</strong> in your body to personalize each email.</p>
+    </div>
+
+    <section class="grid">
+      <div class="card">
+        <p class="section-title">Post details</p>
+        <div class="form-row">
+          <div class="form-item">
+            <label for="subject">Subject line</label>
+            <input type="text" id="subject" maxlength="120" placeholder="e.g., 7 AI tools that save 5+ hours/week" required>
+          </div>
+        </div>
+
+        <label for="body">Post body</label>
+        <textarea id="body" placeholder="Write your post here. You can use {{name}} to personalize the greeting." required></textarea>
+        <div class="token-row">
+          Quick insert:
+          <button type="button" class="chip-btn" id="insert-name">Insert {{name}}</button>
+        </div>
+
+        <fieldset>
+          <legend>Area of Interest</legend>
+          <div class="cat-grid" id="cat-grid"></div>
+        </fieldset>
+
+        <div class="actions">
+          <button class="btn btn-ghost" id="clear-btn" type="button">Clear</button>
+          <button class="btn btn-primary" id="save-draft" type="button">Save Draft</button>
+          <button class="btn btn-primary" id="publish" type="button">Publish</button>
+        </div>
+        <div class="save-note" id="save-note"></div>
+      </div>
+
+      <div class="card">
+        <div class="preview-head">
+          <h3>Live Preview</h3>
+          <div class="tiny" id="pv-status">Draft not saved</div>
+        </div>
+        <div class="preview-body">
+          <p class="pv-subject" id="pv-subject">[Subject will appear here]</p>
+          <p class="pv-greet" id="pv-greet">Hi Alex,</p>
+          <p class="pv-content" id="pv-content">Start writing your post body to see a preview…</p>
+          <div class="pv-tags" id="pv-tags"></div>
+        </div>
+      </div>
+    </section>
+
+    <p><a href="newsletter.html" style="color:var(--link);font-weight:700">← Back to Newsletter</a></p>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    <div class="footer-social-bar">
+      <a href="https://x.com/digeonAI" target="_blank" title="X (Twitter)">
+        <img src="https://cdn.simpleicons.org/x/ffffff" alt="X (Twitter)">
+      </a>
+      <a href="https://www.instagram.com/digeon.ai/" target="_blank" title="Instagram">
+        <img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram">
+      </a>
+      <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank" title="LinkedIn">
+        <svg xmlns="http://www.w3.org/2000/svg" role="img" width="28" height="28" viewBox="0 0 24 24" fill="#FFFFFF">
+          <title>LinkedIn</title>
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zM4.091 9H.535V20.452h3.556V9zM2.313 2.526c-1.144 0-2.067.927-2.067 2.065 0 1.139.923 2.065 2.067 2.065 1.143 0 2.066-.926 2.066-2.065 0-1.138-.923-2.065-2.066-2.065z"/>
+        </svg>
+      </a>
+      <a href="mailto:Digeon.technologies@gmail.com" title="Email Digeon">
+        <img src="https://cdn.simpleicons.org/gmail/ffffff" alt="Gmail">
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    
+    document.getElementById('dir-link').addEventListener('click', function(e){
+      if (localStorage.getItem('digeonSubscribed') !== 'yes') {
+        e.preventDefault();
+        alert('Subscribe to the newsletter to access the Directory.');
+      }
+    });
+    // Replace static AREAS with a live fetch
+    async function populateCategories() {
+      const catGrid = document.getElementById('cat-grid');
+      catGrid.innerHTML = '';
+      try {
+        const res = await fetch('/api/categories');
+        const data = await res.json(); // app returns [{id, name}, ...]
+        const names = Array.isArray(data)
+          ? data.map(o => o.name)                 // current /api/categories response
+          : (data.categories || []);              // if you later switch to {categories:[...]}
+        names.forEach((name, i) => {
+          const id = 'cat_' + i;
+          const wrap = document.createElement('label');
+          wrap.className = 'cat-item';
+          wrap.innerHTML = `<input type="checkbox" id="${id}" value="${name}"><span>${name}</span>`;
+          catGrid.appendChild(wrap);
+        });
+      } catch (e) {
+        console.warn('Falling back to static categories', e);
+        const fallback = [
+          "Development/Automation","Productivity","Writing/Content Creation","Visual Design","Social Media Marketing",
+          "Research/Academia","Real Estate","Healthcare","Web/Mobile apps","Data Analytics","Machine Learning","Finance","Data Engineering"
+        ];
+        fallback.forEach((name, i)=>{
+          const id = 'cat_' + i;
+          const wrap = document.createElement('label');
+          wrap.className='cat-item';
+          wrap.innerHTML = `<input type="checkbox" id="${id}" value="${name}"><span>${name}</span>`;
+          catGrid.appendChild(wrap);
+        });
+      }
+    }
+    document.addEventListener('DOMContentLoaded', populateCategories);
+
+  // Call this after DOM is ready
+  document.addEventListener('DOMContentLoaded', populateCategories);
+
+    const catGrid = document.getElementById('cat-grid');
+    
+    const subjectEl = document.getElementById('subject');
+    const bodyEl = document.getElementById('body');
+    const pvSubject = document.getElementById('pv-subject');
+    const pvGreet = document.getElementById('pv-greet');
+    const pvContent = document.getElementById('pv-content');
+    const pvTags = document.getElementById('pv-tags');
+    const pvStatus = document.getElementById('pv-status');
+    const saveNote = document.getElementById('save-note');
+    
+    function getSelectedCategories(){
+    return Array.from(catGrid.querySelectorAll('input[type="checkbox"]:checked')).map(c=>c.value);
+  }
+
+  async function apiCreate(statusOverride) {
+    const payload = {
+      subject: subjectEl.value.trim(),
+      body: bodyEl.value,
+      categories: getSelectedCategories(),
+      status: statusOverride || 'draft'
+    };
+    const res = await fetch('/api/newsletter/create', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  }
+
+  async function saveDraft(){
+    if(!subjectEl.value.trim() || !bodyEl.value){
+      alert('Please fill in both subject and body.'); return;
+    }
+    // server draft
+    const r = await apiCreate('draft');
+    if (r.status === 1) {
+      // optional: keep a local backup too
+      localStorage.setItem('newsletterDraft', JSON.stringify({
+        subject: subjectEl.value.trim(),
+        body: bodyEl.value,
+        categories: getSelectedCategories()
+      }));
+      document.getElementById('save-note').textContent = `Draft saved (Post #${r.post_id}).`;
+      document.getElementById('pv-status').textContent = 'Draft saved';
+    } else {
+      alert('Save failed: ' + (r.error || 'unknown'));
+    }
+  }
+  document.getElementById('save-draft').addEventListener('click', saveDraft);
+
+  document.getElementById('publish').addEventListener('click', async ()=>{
+    if(!subjectEl.value.trim() || !bodyEl.value){
+      alert('Please fill in both subject and body.'); return;
+    }
+    const categories = getSelectedCategories();
+    if (categories.length === 0) {
+      alert('Select at least one Area of Interest.'); return;
+    }
+    const res = await fetch('/api/newsletter/publish', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        subject: subjectEl.value.trim(),
+        body: bodyEl.value,
+        categories
+      })
+    });
+    const r = await res.json();
+    if (r.status === 1) {
+      alert(`Published post #${r.post_id}. Sent: ${r.sent}, Failed: ${r.failed}`);
+      document.getElementById('pv-status').textContent = 'Published';
+    } else {
+      alert('Publish failed: ' + (r.error || 'unknown'));
+    }
+  });
+  </script>
+</body>
+</html>

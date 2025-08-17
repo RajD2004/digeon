@@ -1,20 +1,40 @@
 version: "3.9"
 
 services:
-  digeon:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Row90bit_20041803-2022-2026
+      MYSQL_DATABASE: main_db
+      MYSQL_USER: digeon
+      MYSQL_PASSWORD: Row90bit_20041803-2022-2026   # same as DB_PASS
+    volumes:
+      - db_data:/var/lib/mysql
+      # optional init file if you want to create marketplace_db too:
+      # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -pRow90bit_20041803-2022-2026 --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  web:
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: digeon
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app         # Optional: lets you edit code locally & auto-reload in container
-      - ./database.db:/app/database.db  # Optional: persist SQLite db on host
     environment:
-      - FLASK_ENV=development
-    # command: ["python", "app.py"]  # not needed if already in Dockerfile
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: digeon
+      DB_PASS: Row90bit_20041803-2022-2026   # matches MYSQL_PASSWORD above
+      DB_NAME: main_db
+      DB_MKT_NAME: marketplace_db
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
 
-networks:
-  default:
-    driver: bridge
+volumes:
+  db_data:

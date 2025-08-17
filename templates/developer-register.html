@@ -135,22 +135,13 @@
             <label for="agent-price">Price (USD)</label>
             <input type="number" id="agent-price" required min="0" step="0.01" placeholder="0.00">
 
+            <label for="agent-api-url">Agent API Endpoint</label>
+            <input type="url" id="agent-api-url" required placeholder="https://api.example.com/endpoint">
+
             <input type="hidden" id="field-config" name="field-config">
             <button type="submit">Submit Agent</button>
           </form>
           <div id="agent-msg" class="auth-msg" style="margin-top:10px;"></div>
-        </div>
-        <div class="preview-side">
-          <div class="agent-preview-card" id="agent-preview-card">
-            <h3>Agent Name Preview</h3>
-            <p class="agent-desc-preview">Your agent's description will show here.</p>
-            <div class="agent-type"><strong>Type:</strong> <span id="preview-type">None</span></div>
-            <div class="agent-price" id="preview-price"></div>
-            <hr style="margin:14px 0;">
-            <form id="preview-inputs">
-              <!-- Preview of user input fields -->
-            </form>
-          </div>
         </div>
       </div>
     </div>
@@ -259,34 +250,7 @@
     const fieldConfig = document.getElementById('field-config');
     const agentMsg = document.getElementById('agent-msg');
 
-    function updatePreview() {
-      // Card
-      document.getElementById('agent-preview-card').querySelector('h3').textContent =
-        document.getElementById('agent-name').value || "Agent Name Preview";
-      document.querySelector('.agent-desc-preview').textContent =
-        document.getElementById('agent-desc').value || "Your agent's description will show here.";
-      document.getElementById('preview-type').textContent =
-        document.getElementById('agent-type').value || "None";
-      const price = document.getElementById('agent-price').value;
-      document.getElementById('preview-price').textContent = price ? "$" + (+price).toFixed(2) : "";
-
-      // Input preview
-      previewInputs.innerHTML = "";
-      getFieldArray().forEach(field => {
-        let inp;
-        if (field.type === 'text') {
-          inp = document.createElement('input');
-          inp.type = 'text';
-          inp.placeholder = field.label;
-        } else if (field.type === 'file') {
-          inp = document.createElement('input');
-          inp.type = 'file';
-        }
-        inp.style.marginBottom = '8px';
-        previewInputs.appendChild(inp);
-      });
-    }
-
+    
     // Helper to get field config as array
     function getFieldArray() {
       const arr = [];
@@ -300,7 +264,6 @@
 
     function saveFieldConfig() {
       fieldConfig.value = JSON.stringify(getFieldArray());
-      updatePreview();
     }
 
     function addField(label = '', type = 'text') {
@@ -327,10 +290,7 @@
     }
     document.getElementById('add-field-btn').onclick = () => addField();
 
-    // Update preview on all form inputs
-    ['agent-name','agent-desc','agent-type','agent-price'].forEach(id=>{
-      document.getElementById(id).oninput = updatePreview;
-    });
+    
 
     // ============ Handle Agent Form Submit ============
     agentForm.onsubmit = function(e) {
@@ -348,6 +308,7 @@
       formData.append("desc", document.getElementById('agent-desc').value);
       formData.append("type", document.getElementById('agent-type').value);
       formData.append("price", document.getElementById('agent-price').value);
+      formData.append("api_url", document.getElementById('agent-api-url').value);
       formData.append("inputs", JSON.stringify(getFieldArray()));
 
       fetch("/api/agent-register", {
@@ -368,7 +329,6 @@
 
 
     // On page load, setup preview and a default field
-    updatePreview();
     addField("User Input", "text");
   </script>
 </body>

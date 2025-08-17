@@ -1,7 +1,11 @@
-DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Categories;
+DROP TABLE ratings;
+DROP TABLE tools;
 DROP TABLE IF EXISTS UserCategories;
 DROP TABLE IF EXISTS Tools;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Categories;
+DROP TABLE IF EXISTS Blogs;
+
 
 CREATE TABLE IF NOT EXISTS Users(
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,4 +34,54 @@ CREATE TABLE Tools(
     link TEXT,
     description TEXT,
     FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+);
+
+CREATE TABLE IF NOT EXISTS Ratings (
+    rating_id   INT AUTO_INCREMENT PRIMARY KEY,
+    user_email  VARCHAR(255) NOT NULL,
+    tool_id     INT NOT NULL,
+    value       TINYINT NOT NULL,           
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_ratings_user_email FOREIGN KEY (user_email) REFERENCES Users(user_email),
+    CONSTRAINT fk_ratings_tool_id    FOREIGN KEY (tool_id)    REFERENCES Tools(tool_id),
+    CONSTRAINT uq_ratings_user_tool  UNIQUE (user_email, tool_id),
+    CONSTRAINT ck_ratings_value      CHECK (value BETWEEN 1 AND 5)
+);
+
+CREATE TABLE Blogs (
+    blog_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    image LONGBLOB,               
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Newsletter authoring + sending
+CREATE TABLE IF NOT EXISTS NewsletterPosts (
+  post_id     INT AUTO_INCREMENT PRIMARY KEY,
+  subject     VARCHAR(200) NOT NULL,
+  body        MEDIUMTEXT   NOT NULL,  -- may include token {{name}}
+  status      ENUM('draft','published') NOT NULL DEFAULT 'draft',
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  published_at DATETIME NULL
+);
+
+CREATE TABLE IF NOT EXISTS NewsletterPostCategories (
+  id       INT AUTO_INCREMENT PRIMARY KEY,
+  post_id  INT NOT NULL,
+  category VARCHAR(255) NOT NULL,
+  FOREIGN KEY (post_id)  REFERENCES NewsletterPosts(post_id),
+  FOREIGN KEY (category) REFERENCES Categories(category)
+);
+
+CREATE TABLE IF NOT EXISTS NewsletterDeliveries (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  post_id    INT NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  sent_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+  success    TINYINT(1) NOT NULL DEFAULT 1,
+  error_text TEXT NULL,
+  FOREIGN KEY (post_id)    REFERENCES NewsletterPosts(post_id),
+  FOREIGN KEY (user_email) REFERENCES Users(user_email)
 );

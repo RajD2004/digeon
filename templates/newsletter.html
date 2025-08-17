@@ -6,405 +6,71 @@
   <link rel="icon" href="/static/images/icon.png" type="image/png">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    .navbar {
-      background-color: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.07);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      width: 100%;
-    }
-    .navbar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      height: 60px;
-    }
-    .logo img {
-      height: 44px;
-      width: auto;
-      border-radius: 6px;
-      vertical-align: middle;
-      display: block;
-    }
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 32px;
-      margin: 0 0 0 20px;
-      padding: 0;
-      align-items: center;
-    }
-    .nav-links li {
-      margin: 0;
-      padding: 0;
-    }
-    .nav-links a {
-      text-decoration: none;
-      color: #234;
-      font-weight: bold;
-      font-size: 1.07rem;
-      letter-spacing: 0.01em;
-      padding: 7px 0;
-      transition: color 0.22s;
-      border-bottom: 2px solid transparent;
-    }
-    .nav-links a:hover,
-    .nav-links a:focus {
-      color: #19b6ad;
-      border-bottom: 2px solid #19b6ad;
-    }
-    #site-search {
-      display: flex;
-      align-items: center;
-      margin-left: 30px;
-    }
-    #search-input {
-      padding: 7px 12px;
-      border: 1px solid #bbc;
-      border-radius: 5px 0 0 5px;
-      outline: none;
-      font-size: 1rem;
-    }
-    #site-search button {
-      padding: 7px 18px;
-      border: none;
-      background-color: #19b6ad;
-      color: #fff;
-      border-radius: 0 5px 5px 0;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.15s;
-      font-size: 1rem;
-    }
-    #site-search button:hover {
-      background-color: #138c86;
-    }
+<style>
+/* ===== Global Dark Theme (no behavior changes) ===== */
+body{margin:0;font-family:'Inter',Arial,sans-serif;background:linear-gradient(135deg,#0d1117,#161b22);color:#f5f5f5;overflow-x:hidden}
+a{color:#00d1c4;text-decoration:none} a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
 
-    body {
-      background: #b5c5c9;
-    }
-    .newsletter-main {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-      margin: 0 auto;
-      min-height: 85vh;
-      max-width: 1200px;
-      padding-top: 44px;
-    }
-    .newsletter-left {
-      background: #fff;
-      flex: 1 1 0;
-      padding: 54px 36px 36px 56px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      font-family: 'Inter', Arial, sans-serif;
-    }
-    .newsletter-left h1, .newsletter-left h2 {
-      font-family: 'Inter', Arial, sans-serif;
-      font-weight: 800;
-      margin: 0 0 20px 0;
-      font-size: 3rem;
-      line-height: 1.08;
-      letter-spacing: 0.01em;
-    }
-    .newsletter-left h2 {
-      font-size: 2.15rem;
-      margin: 44px 0 16px 0;
-    }
-    .newsletter-left h3 {
-      margin: 36px 0 10px 0;
-      font-size: 1.58rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-    .newsletter-left ul {
-      margin: 0 0 0 22px;
-      font-size: 1.2rem;
-    }
-    .newsletter-left li {
-      margin-bottom: 10px;
-      line-height: 1.58;
-    }
-    .newsletter-right {
-      background: #1db5b5;
-      flex: 1 1 0;
-      padding: 44px 38px 36px 38px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      color: #171717;
-      font-family: 'Inter', Arial, sans-serif;
-    }
-    .newsletter-form-desc {
-      font-size: 1.48rem;
-      font-weight: 400;
-      margin-bottom: 24px;
-      line-height: 1.38;
-      margin-top: 0;
-    }
-    .newsletter-form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 100%;
-    }
-    .newsletter-form-row {
-      display: flex;
-      gap: 22px;
-    }
-    .newsletter-form label {
-      display: block;
-      font-weight: 700;
-      font-size: 1.17rem;
-      margin-bottom: 5px;
-      color: #333;
-      letter-spacing: 0.01em;
-    }
-    .newsletter-form input[type="text"], 
-    .newsletter-form input[type="email"] {
-      padding: 12px 10px;
-      border-radius: 6px;
-      border: 1.3px solid #b6b6b6;
-      width: 100%;
-      font-size: 1.08rem;
-      font-family: inherit;
-      margin-bottom: 7px;
-      outline: none;
-      transition: border 0.17s;
-    }
-    .newsletter-form input[type="text"]:focus,
-    .newsletter-form input[type="email"]:focus {
-      border: 1.6px solid #008787;
-    }
-    .newsletter-form-categories {
-      margin-top: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px 18px;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .newsletter-form-categories label {
-      font-weight: 500;
-      font-size: 1.05rem;
-      color: #222;
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-    .newsletter-form input[type="checkbox"] {
-      accent-color: #008787;
-      width: 18px; height: 18px;
-    }
-    .newsletter-form button {
-      margin-top: 12px;
-      width: fit-content;
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      font-family: inherit;
-      background: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      color: #171717;
-      cursor: pointer;
-      box-shadow: 0 1.5px 7px rgba(40,40,40,0.08);
-      transition: box-shadow 0.17s, background 0.15s;
-    }
-    .newsletter-form button:hover {
-      background: #d9ffff;
-      box-shadow: 0 4px 16px rgba(30,90,90,0.14);
-    }
-    .newsletter-success {
-      background: #e6f7ee;
-      color: #15986b;
-      padding: 22px 22px;
-      border-radius: 8px;
-      margin-top: 28px;
-      text-align: center;
-      font-size: 1.28rem;
-      font-weight: 600;
-      border: 1.5px solid #b2e7cd;
-      box-shadow: 0 2px 8px rgba(60,200,110,0.06);
-    }
-    /* Directory login modal styles */
-    #dir-login-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 1002;
-      background: rgba(12,18,40,0.18);
-      align-items: center;
-      justify-content: center;
-    }
-    #dir-login-modal .modal-box {
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 4px 24px rgba(10,40,70,0.16);
-      padding: 38px 32px 30px 32px;
-      max-width: 360px;
-      width: 95vw;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 17px;
-      align-items: center;
-    }
-    #dir-login-modal .modal-box h2 {
-      color: #0077cc;
-      margin-bottom: 7px;
-      font-weight: 800;
-      font-size: 1.32rem;
-    }
-    #dir-login-modal .modal-box .modal-actions {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-    }
-    #dir-login-modal .modal-box a {
-      background: #0077cc;
-      color: #fff;
-      padding: 10px 28px;
-      border-radius: 8px;
-      font-weight: 700;
-      text-decoration: none;
-      font-size: 1.06rem;
-      transition: background 0.13s;
-    }
-    #dir-login-modal .modal-box a:last-child {
-      background: #19b6ad;
-      padding: 10px 24px;
-    }
-    #dir-login-modal .modal-box a:hover {
-      opacity: 0.92;
-    }
-    #dir-login-modal .modal-box button {
-      margin-top: 15px;
-      background: none;
-      border: none;
-      font-size: 0.98rem;
-      color: #789;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 0;
-    }
+/* ===== Navbar (keep your Flask paths) ===== */
+.navbar{background:rgba(13,17,23,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:fadeDown .6s ease forwards}
+.navbar .container{display:flex;justify-content:space-between;align-items:center;height:60px}
+.logo img{height:44px;border-radius:6px;display:block}
+.nav-links{list-style:none;display:flex;gap:28px;margin:0;padding:0}
+.nav-links a{font-weight:600;font-size:1rem;padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-bottom .2s;color:#f0f0f0}
+.nav-links a:hover{color:#00d1c4;border-bottom-color:#00d1c4}
 
-    /* NEW: Banner for login reminder */
-    .directory-access-banner {
-      background: #fff3cd;
-      color: #856404;
-      border: 1.5px solid #ffe599;
-      border-radius: 9px;
-      padding: 17px 34px;
-      margin: 22px auto 0 auto;
-      max-width: 700px;
-      font-size: 1.15rem;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      box-shadow: 0 1.5px 10px rgba(250,215,100,0.09);
-      position: relative;
-    }
-    .directory-access-banner .banner-close {
-      position: absolute;
-      right: 14px;
-      top: 12px;
-      background: none;
-      border: none;
-      color: #b49716;
-      font-size: 1.25rem;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-    }
-    .directory-access-banner .banner-action {
-      margin-left: 13px;
-      background: #19b6ad;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 7px 21px;
-      font-size: 1.01rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-    .directory-access-banner .banner-action:hover {
-      background: #138c86;
-    }
-    @media (max-width: 650px) {
-      .directory-access-banner {
-        padding: 11px 3vw;
-        font-size: 1rem;
-      }
-      .directory-access-banner .banner-action {
-        padding: 7px 9px;
-        font-size: 0.98rem;
-      }
-    }
-    @media (max-width: 1100px) {
-      .navbar .container {
-        flex-direction: column;
-        height: auto;
-        padding: 10px 3vw;
-        gap: 12px;
-      }
-      .newsletter-main {
-        flex-direction: column;
-        padding-top: 10px;
-        max-width: 99vw;
-      }
-      .newsletter-left, .newsletter-right {
-        padding: 32px 18px 24px 18px;
-      }
-      .newsletter-left h1 {
-        font-size: 2.15rem;
-      }
-    }
-    @media (max-width: 650px) {
-      .nav-links {
-        gap: 10px;
-        font-size: 0.95rem;
-      }
-      #site-search {
-        margin-left: 0;
-      }
-      .newsletter-main {
-        flex-direction: column;
-        padding: 0;
-        min-height: unset;
-      }
-      .newsletter-left, .newsletter-right {
-        padding: 15px 6vw 8px 6vw;
-      }
-      .newsletter-form-row {
-        flex-direction: column;
-        gap: 8px;
-      }
-      .newsletter-left h1, .newsletter-left h2 {
-        font-size: 1.45rem;
-        text-align: left;
-      }
-    }
-  </style>
+/* (Optional) top-right search, if you add it later */
+#site-search{display:flex;align-items:center}
+#search-input{padding:7px 12px;border-radius:5px 0 0 5px;border:none;outline:none;font-size:1rem}
+#site-search button{padding:7px 14px;border:none;background:#00d1c4;color:#fff;border-radius:0 5px 5px 0;cursor:pointer;font-weight:bold}
+
+/* ===== Layout ===== */
+.newsletter-main{display:flex;flex-wrap:wrap;gap:30px;max-width:1200px;margin:50px auto;animation:fadeUp .8s ease forwards}
+.newsletter-left,.newsletter-right{flex:1 1 500px;border-radius:12px;padding:30px;background:rgba(255,255,255,.05);backdrop-filter:blur(8px);box-shadow:0 4px 30px rgba(0,0,0,.3)}
+.newsletter-left h1{font-size:2.2rem;margin:0 0 20px;color:#fff}
+.newsletter-left h3{margin:25px 0 10px;font-size:1.4rem;color:#00d1c4}
+.newsletter-left ul{padding-left:20px}
+.newsletter-left li{margin-bottom:10px;line-height:1.5}
+
+/* ===== Right column (form) ===== */
+.newsletter-form-desc{font-size:1.2rem;margin-bottom:20px;line-height:1.4;color:#e6e6e6}
+.newsletter-form{display:flex;flex-direction:column;gap:15px}
+.newsletter-form-row{display:flex;gap:30px;flex-wrap:wrap}
+.newsletter-form label{font-weight:600;margin-bottom:5px;display:block}
+.newsletter-form input[type="text"],.newsletter-form input[type="email"]{padding:12px;border-radius:6px;border:none;outline:none;font-size:1rem;width:100%;background:#1a1f27;color:#f5f5f5}
+.newsletter-form input:focus{box-shadow:0 0 0 2px #00d1c4}
+.newsletter-form-categories{display:flex;flex-wrap:wrap;gap:12px 20px}
+.newsletter-form input[type="checkbox"]{accent-color:#00d1c4}
+.newsletter-form button{background:#00d1c4;border:none;color:#fff;font-weight:bold;padding:12px 28px;border-radius:8px;cursor:pointer;transition:background .2s}
+.newsletter-form button:hover{background:#00a79e}
+.newsletter-success{display:none;background:rgba(0,209,196,.1);padding:15px;border-radius:8px;color:#00d1c4;text-align:center;margin-top:15px}
+
+/* ===== Login/Access banner (keep your existing logic) ===== */
+.directory-access-banner{background:#fff3cd;color:#000;border:1.5px solid #ffe599;border-radius:9px;padding:17px 34px;margin:22px auto 0;max-width:700px;font-size:1.05rem;text-align:center;display:none}
+.directory-access-banner .banner-action{margin-left:13px;background:#00d1c4;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer;text-decoration:none}
+.directory-access-banner .banner-action:hover{background:#00a79e}
+
+/* ===== Footer ===== */
+footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px solid rgba(255,255,255,.1);margin-top:50px}
+
+/* ===== Reveal helpers ===== */
+.animate{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
+.animate.visible{opacity:1;transform:translateY(0)}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== Responsive ===== */
+@media(max-width:1100px){.navbar .container{flex-direction:column;height:auto;padding:10px 3vw;gap:12px}}
+@media(max-width:650px){
+  .nav-links{gap:10px;font-size:.95rem}
+  .newsletter-main{margin:22px auto}
+  .newsletter-left,.newsletter-right{padding:18px}
+  .newsletter-form-row{flex-direction:column;gap:12px}
+  .newsletter-left h1{font-size:1.6rem}
+}
+</style>
+
 </head>
 <body>
   <header>
@@ -424,17 +90,27 @@
 
   <!-- LOGIN REMINDER BANNER -->
   <div id="directory-access-banner" class="directory-access-banner" style="display:none;">
-    <span>Want to access the full AI Directory? <strong>Please login first.</strong></span>
+    <span>Want to access the full AI Marketplace? <strong>Please login or register first.</strong></span>
     <a class="banner-action" href="login">Login</a>
     <a class="banner-action" href="register" style="background:#0077cc;">Register</a>
     <button class="banner-close" onclick="document.getElementById('directory-access-banner').style.display='none';" title="Dismiss">&times;</button>
   </div>
 
   <main>
+    <!-- TEMP: public authoring entry -->
+    <div style="max-width:1200px;margin:18px auto 0;display:flex;justify-content:flex-end;padding:0 24px;">
+      <!-- If you serve the editor via Flask, use href="/newsletter-create".
+          If it’s a static file, use href="/newsletter-create.html". -->
+      <a href="/newsletter-create"
+        id="create-newsletter-link"
+        style="background:#00d1c4;color:#fff;font-weight:800;padding:10px 14px;border-radius:8px;text-decoration:none;">
+        Create Newsletter
+      </a>
+    </div>
     <div class="newsletter-main">
       <!-- LEFT SIDE -->
-      <section class="newsletter-left">
-        <h1 style="font-size:2.85rem;text-align:left;">
+      <section class="newsletter-left animate">
+        <h1 class="animate" style="font-size:2.85rem;text-align:left;">
           Stay Informed, Stay Ahead with<br>
           Digeon.ai<br>
           weekly digest
@@ -455,7 +131,7 @@
         </ul>
       </section>
       <!-- RIGHT SIDE -->
-      <section class="newsletter-right">
+      <section class="newsletter-right animate">
         <div class="newsletter-form-desc">
           Subscribe to our weekly newsletter for exclusive updates on AI developments, expert insights, and practical tips to keep you informed and ahead in the rapidly changing tech landscape.
         </div>
@@ -541,6 +217,12 @@
       btn.disabled = false;
       btn.textContent = "Subscribe";
     }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("next") === "/directory") {
+      window.location.href = "/directory";
+      return;
+  }
   };
 
     // Intercept Directory link in navbar
@@ -553,5 +235,15 @@
       });
     });
   </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded',function(){
+    const obs=new IntersectionObserver((entries)=>{
+      entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('visible'), i*120); }});
+    },{threshold:.15});
+    document.querySelectorAll('.animate').forEach(el=>obs.observe(el));
+  });
+  </script>
+
 </body>
 </html>

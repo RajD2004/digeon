@@ -1,22 +1,23 @@
-# Use official Python image
+# Dockerfile.app  (production-ready)
 FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-# Set work directory
 WORKDIR /app
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt && rm -rf /root/.cache/pip
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy entire project (expects folder "digeon/" containing app.py, templates/, static/)
+COPY . /app
 
-# Copy the project files
-COPY . .
+# Ensure a wsgi entrypoint that imports from the subfolder
+RUN python - <<'PY'
+import pathlib
+p = pathlib.Path('wsgi.py')
+if not p.exists():
+    p.write_text('from digeon.app import app as app\n')
+print('wsgi.py ensured')
+PY
 
-# Expose port (Flask default)
-EXPOSE 5000
-
-# Run the app
-CMD ["python", "app.py"]
+EXPOSE 8000
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "wsgi:app"]

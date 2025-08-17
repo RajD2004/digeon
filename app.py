@@ -4,127 +4,68 @@ import os
 import base64
 import json
 import hashlib
+import requests
+import base64
+import smtplib
+from email.mime.text import MIMEText
+from email.utils import formataddr
+
+
+
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SUPER_SECRET_KEY"
 
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER")           # e.g. your Gmail or SMTP username
+SMTP_PASS = os.getenv("SMTP_PASS")           # app password / SMTP password
+FROM_NAME = os.getenv("DigeonLLC", "Digeon.ai")
+FROM_EMAIL = os.getenv("rajdhull2004@gmail.com", "no-reply@digeon.ai")
 
+# ---- Newsletter author allow-list (lowercase) ----
+NEWSLETTER_AUTHORS = {
+    "rajdhull2004@gmail.com",
+}
 
 def get_db():
     return mysql.connector.connect(
-        host="127.0.0.1",       # or your MySQL server address
-        user="root",       # your MySQL username
-        password="Row90bit_20041803-2022-2026",# your MySQL password
-        database="main_db"      # the correct database name
+        host=os.getenv("DB_HOST", "mysql"),
+        port=int(os.getenv("DB_PORT", "3306")),
+        user=os.getenv("DB_USER", "digeon"),
+        password=os.getenv("DB_PASS", ""),
+        database=os.getenv("DB_NAME", "main_db"),
+        connection_timeout=3,
     )
 
 def get_mkt_db():
     return mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="Row90bit_20041803-2022-2026",
-        database="marketplace_db"
+        host=os.getenv("DB_HOST", "mysql"),
+        port=int(os.getenv("DB_PORT", "3306")),
+        user=os.getenv("DB_USER", "digeon"),
+        password=os.getenv("DB_PASS", ""),
+        database=os.getenv("DB_MKT_NAME", "marketplace_db"),
+        connection_timeout=3,
     )
 
 
+def _is_newsletter_author():
+    email = session.get("marketplace_user")
+    return bool(email and email.lower() in NEWSLETTER_AUTHORS)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-
-@app.route("/newsletter", methods=["GET", "POST"])
-def subscribe():
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT category FROM Categories ORDER BY category")
-    categories = [row[0] for row in cursor.fetchall()]
-    cursor.close()
-    conn.close()
-
-    if request.method == "POST":
-        # ... your subscription logic here ...
-        return render_template("newsletter.html", categories=categories)
-    return render_template("newsletter.html", categories=categories)
-
-@app.route("/newsletter-form")
-def newsletter_form():
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT category FROM Categories ORDER BY category")
-    rows = rows.fetchall()
-    categories = [row[0] for row in rows]
-    cursor.close()
-    conn.close()
-    return render_template("newsletter.html", categories=categories)
-
-@app.route("/api/subscribe", methods=["POST"])
-def api_subscribe():
-    data = request.get_json()
-    name = data.get("name")
-    email = data.get("email")
-    categories = data.get("categories", [])
-
-    conn = get_db()
+def _image_to_dataurl(blob):
+    if not blob:
+        return None
+    # If it's actually text like "data:image..." stored in the BLOB, return as-is
     try:
-        cursor = conn.cursor()
-        cursor.execute("INSERT IGNORE INTO Users (user_name, user_email) VALUES (%s, %s);", (name, email))
-        conn.commit()
-        for cat in categories:
-            cursor.execute("INSERT IGNORE INTO UserCategories (user_email, category) VALUES (%s, %s);", (email, cat))
-            conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({"status": 1})
-    except Exception as e:
-        cursor.close()
-        conn.close()
-        return jsonify({"status": 2, "error": str(e)})
-    finally:
-        cursor.close()
-        conn.close()
-
-
-@app.route("/directory")
-def directory():
-    return render_template("directory.html")
-
-@app.route("/api/categories")
-def api_categories():
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT category_id, category FROM Categories ORDER BY category")
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify([{"id": row[0], "name": row[1]} for row in rows])
-
-@app.route("/api/tools")
-def api_tools():
-    category_id = request.args.get("category_id", type=int)
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT tool_name, description, link FROM Tools WHERE category_id = %s ORDER BY tool_name",
-        (category_id,)
-    )
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify([
-        {"name": row[0], "desc": row[1], "link": row[2]} for row in rows
-    ])
-
-@app.route("/api/tool-link")
-def api_tool_link():
-    name = request.args.get("name")
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT link FROM Tools WHERE tool_name = %s", (name,))
-    row = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return jsonify({"link": row[0]} if row else {"link": None})
+        txt = blob.decode("utf-8")
+        if txt.startswith("data:image"):
+            return txt
+    except Exception:
+        pass
+    # Otherwise it's real bytes: base64 it
+    return "data:image/png;base64," + base64.b64encode(blob).decode("utf-8")
 
 
 def generate_salt(length=16):
@@ -163,6 +104,158 @@ def validate_password(password : str) -> bool:
 
     return True
 
+def _render_body_for_user(body_template: str, name: str | None) -> str:
+    # personalize {{name}} token
+    return body_template.replace("{{name}}", name or "there")
+
+def _send_email(to_name: str | None, to_email: str, subject: str, body_text: str):
+    if not (SMTP_USER and SMTP_PASS):
+        # Dev mode: no SMTP configured; skip actual send
+        print(f"[DEV] Would send to {to_email}: {subject}")
+        return True, None
+
+    msg = MIMEText(body_text, _charset="utf-8")
+    msg["Subject"] = subject
+    msg["From"] = formataddr((FROM_NAME, FROM_EMAIL))
+    msg["To"] = formataddr((to_name or to_email, to_email))
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
+            s.starttls()
+            s.login(SMTP_USER, SMTP_PASS)
+            s.send_message(msg)
+        return True, None
+    except Exception as e:
+        return False, str(e)
+
+def _newsletter_recipients_for_categories(conn, categories: list[str]):
+    """
+    Returns list of (user_name, user_email) who opted into ANY of the selected categories.
+    """
+    if not categories:
+        return []
+
+    cur = conn.cursor()
+    # distinct on email to avoid dupes when a user matches multiple categories
+    q = """
+      SELECT DISTINCT u.user_name, u.user_email
+      FROM Users u
+      JOIN UserCategories uc ON uc.user_email = u.user_email
+      WHERE uc.category IN (%s)
+    """ % (",".join(["%s"] * len(categories)))
+    cur.execute(q, tuple(categories))
+    rows = cur.fetchall()
+    cur.close()
+    return rows
+
+
+
+#APIS
+
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+
+@app.route("/newsletter", methods=["GET", "POST"])
+def subscribe():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT category FROM Categories ORDER BY category")
+    categories = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+
+    if request.method == "POST":
+        # ... your subscription logic here ...
+        return render_template("newsletter.html", categories=categories)
+    return render_template("newsletter.html", categories=categories)
+
+@app.route("/newsletter-form")
+def newsletter_form():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT category FROM Categories ORDER BY category")
+    rows = cursor.fetchall()
+    categories = [row[0] for row in rows]
+    cursor.close()
+    conn.close()
+    return render_template("newsletter.html", categories=categories)
+
+
+@app.route("/api/subscribe", methods=["POST"])
+def api_subscribe():
+    data = request.get_json()
+    name = data.get("name")
+    email = data.get("email")
+    categories = data.get("categories", [])
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT IGNORE INTO Users (user_name, user_email) VALUES (%s, %s);", (name, email))
+        conn.commit()
+        for cat in categories:
+            cursor.execute("INSERT IGNORE INTO UserCategories (user_email, category) VALUES (%s, %s);", (email, cat))
+            conn.commit()
+        cursor.close()
+        conn.close()
+        session["newsletter_signed_up"] = True
+        session["newsletter_email"] = email
+        return jsonify({"status": 1})
+    except Exception as e:
+        cursor.close()
+        conn.close()
+        return jsonify({"status": 2, "error": str(e)})
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route("/directory")
+def directory():
+    if not (session.get("newsletter_signed_up") and session.get("newsletter_email")):
+        return redirect(url_for("subscribe", next="/directory"))
+    return render_template("directory.html")
+
+
+@app.route("/api/categories")
+def api_categories():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT category_id, category FROM Categories ORDER BY category")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify([{"id": row[0], "name": row[1]} for row in rows])
+
+@app.route("/api/tools")
+def api_tools():
+    category_id = request.args.get("category_id", type=int)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+    "SELECT tool_id, tool_name, description, link FROM Tools WHERE category_id = %s ORDER BY tool_name",
+    (category_id,)
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify([
+        {"id": row[0], "name": row[1], "desc": row[2], "link": row[3]} for row in rows
+    ])
+
+@app.route("/api/tool-link")
+def api_tool_link():
+    name = request.args.get("name")
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT link FROM Tools WHERE tool_name = %s", (name,))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return jsonify({"link": row[0]} if row else {"link": None})
 
 
 @app.route("/api/register", methods = ['POST'])
@@ -299,6 +392,7 @@ def agent_register():
         desc = request.form.get("desc")
         agent_type = request.form.get("type")
         price = request.form.get("price")
+        api_url = request.form.get("api_url")
         # input fields: JSON string like [{label:"Email", type:"text"}, ...]
         input_fields = request.form.get("inputs")
         if not agent_name or not agent_type or not price or not input_fields:
@@ -306,8 +400,8 @@ def agent_register():
 
         # 1. Insert agent
         cursor.execute(
-            "INSERT INTO Agents (developer_email, agent_name, description, agentType, price) VALUES (%s, %s, %s, %s, %s)",
-            (dev_email, agent_name, desc, agent_type, float(price))
+            "INSERT INTO Agents (developer_email, agent_name, description, agentType, price, api_url) VALUES (%s, %s, %s, %s, %s, %s)",
+            (dev_email, agent_name, desc, agent_type, float(price), api_url)
         )
         conn.commit()
 
@@ -317,11 +411,11 @@ def agent_register():
             label = field["label"]
             ftype = field["type"]
             cursor.execute(
-                "INSERT INTO AgentInputs (agent_name, inputFieldType) VALUES (%s, %s)",
-                (agent_name, ftype)
+                "INSERT INTO AgentInputs (agent_name, inputFieldName, inputFieldType) VALUES (%s, %s, %s)",
+                (agent_name, label, ftype)
             )
             conn.commit()
-            
+
         cursor.close()
         conn.close()
         return jsonify({"status": 1})
@@ -350,6 +444,66 @@ def api_market_agents():
         }
         for row in agents
     ])
+
+@app.route("/api/run-agent", methods=["POST"])
+def run_agent():
+    # Accept JSON (text-only) or multipart (files + text)
+    if request.is_json:
+        payload = request.get_json(silent=True) or {}
+        agent_name = payload.get("agent_name")
+        out_data = payload.get("inputs", {})  # dict of text inputs
+        in_files = None
+    else:
+        agent_name = request.form.get("agent_name")
+        # all non-agent_name form fields are forwarded as text fields
+        out_data = {k: v for k, v in request.form.items() if k != "agent_name"}
+        in_files = request.files  # ImmutableMultiDict (may be empty)
+
+    if not agent_name:
+        return jsonify({"status": 0, "error": "agent_name required"})
+
+    # Lookup API URL
+    conn = get_mkt_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT api_url FROM Agents WHERE agent_name = %s", (agent_name,))
+    row = cursor.fetchone()
+    cursor.close(); conn.close()
+    if not row:
+        return jsonify({"status": 0, "error": "Agent not found"})
+    api_url = row[0]
+
+    # Forward
+    try:
+        if in_files and len(in_files):
+            files_out = {
+                key: (f.filename, f.stream, f.mimetype or "application/octet-stream")
+                for key, f in in_files.items()
+                if f and f.filename
+            }
+            resp = requests.post(api_url, data=out_data, files=files_out, timeout=30)
+        else:
+            resp = requests.post(api_url, json=out_data, timeout=30)
+
+        resp.raise_for_status()
+        try:
+            result = resp.json()
+        except Exception:
+            result = resp.text
+        return jsonify({"status": 1, "result": result})
+    except Exception as e:
+        return jsonify({"status": 0, "error": str(e)})
+
+
+@app.route("/api/agent-inputs")
+def agent_inputs():
+    agent_name = request.args.get("agent_name")
+    conn = get_mkt_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT inputFieldName, inputFieldType FROM AgentInputs WHERE agent_name = %s", (agent_name,))
+    fields = [{"label": row[0], "type": row[1]} for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    return jsonify(fields)
 
 
 @app.route("/marketplace")
@@ -388,7 +542,257 @@ def developer_register():
 
 @app.route("/blog")
 def blog():
+    if "marketplace_user" not in session:
+        return redirect(url_for("login_page", next=request.path))
     return render_template("blog.html")
+
+@app.route('/run-agent')
+def run_agent_page():
+    return render_template('run-agent.html')
+
+
+@app.route("/api/blogs", methods=["GET", "POST"])
+def api_blogs():
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    if request.method == "POST":
+        data = request.get_json()
+        title = data.get("title")
+        content = data.get("content")
+        image = data.get("imageData")
+
+        # Strip data URL prefix if present
+        if image and image.startswith("data:"):
+            image = image.split(",", 1)[1]
+        
+        if image and image.startswith("data:"):
+            image = image.split(",", 1)[1]
+        
+        cursor.execute(
+            "INSERT INTO Blogs (title, content, image) VALUES (%s, %s, %s)",
+            (title, content, base64.b64decode(image) if image else None)
+        )
+        conn.commit()
+        cursor.close(); conn.close()
+        return jsonify({"status": 1})
+
+    cursor.execute("SELECT blog_id, title, content, image, created_at FROM Blogs ORDER BY blog_id DESC")
+    rows = cursor.fetchall()
+    for row in rows:
+        row["image"] = _image_to_dataurl(row["image"])
+    cursor.close(); conn.close()
+    return jsonify(rows)
+
+
+@app.route('/api/blog/<int:blog_id>')
+def api_blog(blog_id):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM Blogs WHERE blog_id = %s", (blog_id,))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if row:
+        row["image"] = _image_to_dataurl(row["image"])
+
+        return jsonify(row)
+    return jsonify({"error": "Blog not found"}), 404
+
+
+@app.route("/post")
+def post_page():
+    return render_template("post.html")
+    
+@app.route("/newsletter-create")
+def newsletter_create_page():
+    if "marketplace_user" not in session:
+        return redirect(url_for("login_page", next="/newsletter-create"))
+    if not _is_newsletter_author():
+        # not allowed even if logged in
+        return "Forbidden: not authorized to create newsletters.", 403
+    return render_template("newsletter-create.html")
+
+
+
+
+@app.get("/api/tools/<int:tool_id>/rating")
+def get_tool_rating(tool_id):
+    """Return average rating, count, and current user's rating (if newsletter session present)."""
+    conn = get_db()
+    cur  = conn.cursor()
+
+    # Average + count
+    cur.execute("SELECT ROUND(AVG(value), 2) AS avg_val, COUNT(*) AS cnt FROM Ratings WHERE tool_id = %s", (tool_id,))
+    row = cur.fetchone()
+    avg_val = float(row[0]) if row and row[0] is not None else 0.0
+    cnt     = int(row[1]) if row else 0
+
+    # Current user's rating (newsletter identity)
+    user_val = None
+    user_email = session.get("newsletter_email")
+    if user_email:
+        cur.execute("SELECT value FROM Ratings WHERE tool_id = %s AND user_email = %s", (tool_id, user_email))
+        r = cur.fetchone()
+        if r:
+            user_val = int(r[0])
+
+    cur.close()
+    conn.close()
+    return jsonify({"avg": avg_val, "count": cnt, "user": user_val})
+
+
+@app.post("/api/tools/<int:tool_id>/rating")
+def set_tool_rating(tool_id):
+    """Create/update the current newsletter user's rating for a tool."""
+    # Require newsletter session (same gate you use for directory)
+    if not session.get("newsletter_signed_up") or not session.get("newsletter_email"):
+        return jsonify({"error": "newsletter signup required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        v = int(data.get("value"))
+    except Exception:
+        v = None
+
+    if v is None or v < 1 or v > 5:
+        return jsonify({"error": "value must be an integer 1..5"}), 400
+
+    user_email = session["newsletter_email"]
+
+    conn = get_db()
+    cur  = conn.cursor()
+
+    # Upsert on (user_email, tool_id)
+    # MySQL 8+ syntax with unique key on (user_email, tool_id)
+    cur.execute("""
+        INSERT INTO Ratings (user_email, tool_id, value)
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE value = VALUES(value), updated_at = CURRENT_TIMESTAMP
+    """, (user_email, tool_id, v))
+    conn.commit()
+
+    # Return fresh summary
+    cur.execute("SELECT ROUND(AVG(value), 2) AS avg_val, COUNT(*) AS cnt FROM Ratings WHERE tool_id = %s", (tool_id,))
+    row = cur.fetchone()
+    avg_val = float(row[0]) if row and row[0] is not None else 0.0
+    cnt     = int(row[1]) if row else 0
+
+    cur.close()
+    conn.close()
+    return jsonify({"avg": avg_val, "count": cnt, "user": v})
+
+@app.post("/api/newsletter/create")
+def api_newsletter_create():
+    """
+    JSON: {subject, body, categories: [..], status: 'draft'|'published' (optional)}
+    Saves a post (draft by default) and its category mapping.
+    """
+
+    if not _is_newsletter_author():
+        return jsonify({"status": 2, "error": "forbidden"}), 403
+    
+
+    data = request.get_json(silent=True) or {}
+    subject = (data.get("subject") or "").strip()
+    body    = data.get("body") or ""
+    cats    = data.get("categories") or []
+    status  = data.get("status") or "draft"
+
+    if not subject or not body:
+        return jsonify({"status": 2, "error": "subject and body required"}), 400
+
+    conn = get_db()
+    cur  = conn.cursor()
+
+    try:
+        cur.execute("INSERT INTO NewsletterPosts (subject, body, status) VALUES (%s,%s,%s)", (subject, body, status))
+        post_id = cur.lastrowid
+
+        for c in cats:
+            cur.execute("INSERT INTO NewsletterPostCategories (post_id, category) VALUES (%s,%s)", (post_id, c))
+
+        conn.commit()
+        return jsonify({"status": 1, "post_id": post_id})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": 2, "error": str(e)}), 500
+    finally:
+        cur.close(); conn.close()
+
+
+@app.post("/api/newsletter/publish")
+def api_newsletter_publish():
+    """
+    JSON: {post_id}  OR  {subject, body, categories}
+    If post_id is given, loads from DB and sends.
+    Otherwise, creates a new 'published' post and sends.
+    Records deliveries in NewsletterDeliveries.
+    """
+
+    if not _is_newsletter_author():
+        return jsonify({"status": 2, "error": "forbidden"}), 403
+    
+
+    data = request.get_json(silent=True) or {}
+    post_id = data.get("post_id")
+
+    conn = get_db()
+    cur  = conn.cursor(dictionary=True)
+
+    try:
+        if post_id:
+            cur.execute("""
+                SELECT p.post_id, p.subject, p.body
+                FROM NewsletterPosts p
+                WHERE p.post_id = %s
+            """, (post_id,))
+            post = cur.fetchone()
+            if not post:
+                return jsonify({"status": 2, "error": "post not found"}), 404
+
+            cur.execute("SELECT category FROM NewsletterPostCategories WHERE post_id = %s", (post_id,))
+            cats = [r[0] for r in cur.fetchall()]
+            subject, body = post["subject"], post["body"]
+        else:
+            # create a published post on the fly
+            subject = (data.get("subject") or "").strip()
+            body    = data.get("body") or ""
+            cats    = data.get("categories") or []
+            if not subject or not body or not cats:
+                return jsonify({"status": 2, "error": "subject, body, categories required"}), 400
+
+            cur.execute("INSERT INTO NewsletterPosts (subject, body, status, published_at) VALUES (%s,%s,'published', NOW())", (subject, body))
+            post_id = cur.lastrowid
+            for c in cats:
+                cur.execute("INSERT INTO NewsletterPostCategories (post_id, category) VALUES (%s,%s)", (post_id, c))
+            conn.commit()
+
+        # load recipients
+        recipients = _newsletter_recipients_for_categories(conn, cats)
+        sent_ok = 0
+        sent_fail = 0
+
+        # send + record delivery rows
+        for (name, email) in recipients:
+            personalized = _render_body_for_user(body, name)
+            ok, err = _send_email(name, email, subject, personalized)
+            if ok:
+                sent_ok += 1
+                cur.execute("INSERT INTO NewsletterDeliveries (post_id, user_email, success) VALUES (%s,%s,1)", (post_id, email))
+            else:
+                sent_fail += 1
+                cur.execute("INSERT INTO NewsletterDeliveries (post_id, user_email, success, error_text) VALUES (%s,%s,0,%s)", (post_id, email, err))
+        # ensure post is marked published
+        cur.execute("UPDATE NewsletterPosts SET status='published', published_at = COALESCE(published_at, NOW()) WHERE post_id=%s", (post_id,))
+        conn.commit()
+
+        return jsonify({"status": 1, "post_id": post_id, "sent": sent_ok, "failed": sent_fail})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"status": 2, "error": str(e)}), 500
+    finally:
+        cur.close(); conn.close()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,10 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS market;
+DROP TABLE IF EXISTS developers;
+DROP TABLE IF EXISTS Agents;
+DROP TABLE IF EXISTS AgentInputs;
+
+
 CREATE TABLE users(
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -28,12 +35,14 @@ CREATE TABLE Agents(
     description TEXT,
     agentType VARCHAR(255) NOT NULL,
     price FLOAT NOT NULL,
+    api_url VARCHAR(512),
     FOREIGN KEY (developer_email) REFERENCES developers(email)
 );
 
 CREATE TABLE AgentInputs(
     AgInID INT AUTO_INCREMENT PRIMARY KEY,
     agent_name VARCHAR(255) NOT NULL,
+    inputFieldName VARCHAR(255) NOT NULL,
     inputFieldType VARCHAR(255) NOT NULL,
     FOREIGN KEY (agent_name) REFERENCES Agents(agent_name)
 );

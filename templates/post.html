@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digeon AI - Blog Post</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="icon.png" type="image/png">
+  <style>
+    body {
+      background: #0e0f12;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #eaeaea;
+    }
+    /* NAVBAR */
+    .navbar {
+      background: rgba(20, 20, 25, 0.9);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+    }
+    .navbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+    }
+    .logo img {
+      height: 44px;
+      border-radius: 6px;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #eaeaea;
+      font-weight: bold;
+      font-size: 1.07rem;
+      letter-spacing: 0.01em;
+      border-bottom: 2px solid transparent;
+      transition: color 0.22s, border-bottom 0.22s;
+    }
+    .nav-links a:hover {
+      color: #19b6ad;
+      border-bottom: 2px solid #19b6ad;
+    }
+
+    /* MAIN */
+    main.container {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+    .post-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .post-date {
+      color: #aaa;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+    .post-image {
+      max-width: 100%;
+      height: auto;       /* add this */
+      display: block;     /* add this */
+      margin: 20px 0;
+    }
+
+    .post-content {
+      font-size: 1.15rem;
+      color: #ddd;
+      line-height: 1.65;
+      word-break: break-word;
+    }
+
+    .error-msg {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 1.3rem;
+      color: #999;
+    }
+
+
+    /* FOOTER */
+    footer {
+      background: rgba(20, 20, 25, 0.95);
+      padding: 20px;
+      text-align: center;
+    }
+    .footer-social-bar {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .footer-social-bar img, .footer-social-bar svg {
+      width: 28px; height: 28px; opacity: 0.88;
+      transition: opacity 0.16s, transform 0.16s;
+    }
+    .footer-social-bar img:hover, .footer-social-bar svg:hover {
+      opacity: 1; transform: translateY(-3px) scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo">
+          <img src="/static/images/logo.png" alt="Digeon.ai logo">
+        </a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container">
+    <div id="post-container"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    <div class="footer-social-bar">
+      <a href="https://x.com/digeonAI" target="_blank">
+        <img src="https://cdn.simpleicons.org/x/FFFFFF" alt="X">
+      </a>
+      <a href="https://www.instagram.com/digeon.ai/" target="_blank">
+        <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram">
+      </a>
+      <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zM4.091 9H.535V20.452h3.556V9zM2.313 2.526c-1.144 0-2.067.927-2.067 2.065 0 1.139.923 2.065 2.067 2.065 1.143 0 2.066-.926 2.066-2.065 0-1.138-.923-2.065-2.066-2.065z"/></svg>
+      </a>
+      <a href="mailto:Digeon.technologies@gmail.com">
+        <img src="https://cdn.simpleicons.org/gmail/FFFFFF" alt="Gmail">
+      </a>
+    </div>
+  </footer>
+  <script>
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[<>&"']/g, m => (
+        {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[m]
+      ));
+    }
+
+    async function renderPost() {
+      const id = getQueryParam('id');
+      const container = document.getElementById('post-container');
+      if (!id) {
+        container.innerHTML = `<div class="error-msg">Invalid post link.</div>`;
+        return;
+      }
+      const res = await fetch(`/api/blog/${id}`);
+      if (!res.ok) {
+        container.innerHTML = `<div class="error-msg">This blog post could not be found.</div>`;
+        return;
+      }
+      const post = await res.json();
+      container.innerHTML = `
+        <div class="post-title">${escapeHTML(post.title)}</div>
+        <div class="post-date">${post.created_at}</div>
+        ${post.image ? `<img src="${post.image}" class="post-image">` : ''}
+        <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+      `;
+    }
+
+    renderPost();
+  </script>
+  
+</body>
+</html>
