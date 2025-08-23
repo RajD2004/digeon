@@ -1,40 +1,58 @@
-version: "3.9"
-
 services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: Row90bit_20041803-2022-2026
-      MYSQL_DATABASE: main_db
-      MYSQL_USER: digeon
-      MYSQL_PASSWORD: Row90bit_20041803-2022-2026   # same as DB_PASS
+      MYSQL_ROOT_PASSWORD: "Row90bit_20041803-2022-2026"
+    command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
+    ports:
+      - "3306:3306"            # so you can CLI into it if needed
     volumes:
-      - db_data:/var/lib/mysql
-      # optional init file if you want to create marketplace_db too:
-      # - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -pRow90bit_20041803-2022-2026 --silent"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pRow90bit_20041803-2022-2026"]
       interval: 5s
       timeout: 3s
-      retries: 30
+      retries: 20
 
-  web:
+  app:
     build:
       context: .
       dockerfile: Dockerfile.app
-    environment:
-      DB_HOST: mysql
-      DB_PORT: "3306"
-      DB_USER: digeon
-      DB_PASS: Row90bit_20041803-2022-2026   # matches MYSQL_PASSWORD above
-      DB_NAME: main_db
-      DB_MKT_NAME: marketplace_db
     depends_on:
       mysql:
         condition: service_healthy
+    environment:
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_USER: "root"
+      DB_PASS: "Row90bit_20041803-2022-2026"
+      DB_NAME: "main_db"
+      DB_MKT_NAME: "marketplace_db"
+      FLASK_ENV: "production"
+      SECRET_KEY: "change-me"
     ports:
-      - "8000:8000"
-    restart: unless-stopped
+      - "80:5000"              # public HTTP -> your Gunicorn :5000
+    env_file:
+      - .env
+    volumes:
+      - .:/app                 # live-reload your code in the container
+
+  dbinit:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: "mysql"
+      DB_USER: "root"
+      DB_PASSWORD: "Row90bit_20041803-2022-2026"
+      DB_NAME: "main_db"
+    command: ["python", "init_database.py"]
+    volumes:
+      - .:/app
 
 volumes:
-  db_data:
+  mysql-data:
+

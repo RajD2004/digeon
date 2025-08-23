@@ -26,6 +26,7 @@ FROM_EMAIL = os.getenv("rajdhull2004@gmail.com", "no-reply@digeon.ai")
 # ---- Newsletter author allow-list (lowercase) ----
 NEWSLETTER_AUTHORS = {
     "rajdhull2004@gmail.com",
+    "dt.newsletter@digeon.ai",
 }
 
 def get_db():
@@ -793,6 +794,11 @@ def api_newsletter_publish():
         return jsonify({"status": 2, "error": str(e)}), 500
     finally:
         cur.close(); conn.close()
+
+
+@app.route("/<path:page>.html")
+def html_alias(page):
+    return redirect(f"/{page}", code=301)
 
 
 if __name__ == "__main__":

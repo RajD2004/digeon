@@ -2,16 +2,18 @@ from pathlib import Path
 import pandas as pd
 import mysql.connector
 import re
+import os
 
 # --- Config ---
 excel_folder = "excel"
 
 conn = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    password="Row90bit_20041803-2022-2026",
-    database="main_db",
+    host=os.getenv("DB_HOST", "mysql"),
+    user=os.getenv("DB_USER", "root"),
+    password=os.getenv("DB_PASSWORD", "Row90bit_20041803-2022-2026"),
+    database=os.getenv("DB_NAME", "main_db"),
 )
+
 cur = conn.cursor()
 
 # ---------- DDL: tables ----------

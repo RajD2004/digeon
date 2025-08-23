@@ -1,23 +1,24 @@
-# Dockerfile.app  (production-ready)
+# Dockerfile.app
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-
 WORKDIR /app
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt && rm -rf /root/.cache/pip
 
-# Copy entire project (expects folder "digeon/" containing app.py, templates/, static/)
-COPY . /app
+# System deps (optional but handy for timezones, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
-# Ensure a wsgi entrypoint that imports from the subfolder
-RUN python - <<'PY'
-import pathlib
-p = pathlib.Path('wsgi.py')
-if not p.exists():
-    p.write_text('from digeon.app import app as app\n')
-print('wsgi.py ensured')
-PY
+# Copy and install deps first (better layer caching)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8000
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "wsgi:app"]
+# Copy app code
+COPY . .
+
+# Gunicorn for production
+ENV PORT=5000
+EXPOSE 5000
+
+# Default: run the WSGI app
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "wsgi:app"]
+
