@@ -22,6 +22,10 @@ SMTP_USER = os.getenv("SMTP_USER")           # e.g. your Gmail or SMTP username
 SMTP_PASS = os.getenv("SMTP_PASS")           # app password / SMTP password
 FROM_NAME = os.getenv("DigeonLLC", "Digeon.ai")
 FROM_EMAIL = os.getenv("rajdhull2004@gmail.com", "no-reply@digeon.ai")
+# Who receives messages from /api/contact
+CONTACT_TO = os.getenv("CONTACT_TO") or os.getenv("SMTP_USER") or "digeon.technologies@gmail.com"
+CONTACT_TO_NAME = os.getenv("CONTACT_TO_NAME", "Digeon Contact")
+
 
 # ---- Newsletter author allow-list (lowercase) ----
 NEWSLETTER_AUTHORS = {
@@ -795,10 +799,41 @@ def api_newsletter_publish():
     finally:
         cur.close(); conn.close()
 
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.post("/api/contact")
+def api_contact():
+    data = request.get_json(silent=True) or request.form
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip()
+    phone = (data.get("phone") or "").strip()
+    message = (data.get("message") or "").strip()
+
+    if not (name and email and phone and message):
+        return jsonify({"ok": False, "error": "All fields required"}), 400
+
+    subject = f"[Contact] New message from {name}"
+    body = (
+        f"Name: {name}\n"
+        f"Email: {email}\n"
+        f"Phone: {phone}\n\n"
+        f"Message:\n{message}\n"
+    )
+
+    # Always send to YOU (site owner)
+    ok, err = _send_email("Digeon Admin", "digeon.technologies@gmail.com", subject, body)
+    if not ok:
+        return jsonify({"ok": False, "error": err}), 500
+
+    return jsonify({"ok": True})
+
 
 @app.route("/<path:page>.html")
 def html_alias(page):
     return redirect(f"/{page}", code=301)
+
 
 
 if __name__ == "__main__":

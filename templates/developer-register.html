@@ -48,7 +48,12 @@
     .add-field-btn:hover { background: #138c86; }
     .dev-form button[type="submit"] { margin-top: 11px; }
 
-    /* Preview Card Styles */
+    /* Preview fields styling */
+    #prev-inputs .prev-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    #prev-inputs label { font-weight: 600; color: #15304a; }
+    #prev-inputs input[disabled] { background: #eef5f7; border: 1px solid #cfdbe2; border-radius: 6px; padding: 9px 10px; }
+
+    /* Preview Card */
     .agent-preview-card { background: #f3f7fa; border: 1.4px solid #d3e2ea; border-radius: 13px; padding: 24px 18px 20px 18px; box-shadow: 0 2px 10px rgba(40,60,80,0.07); min-height: 120px; }
     .agent-preview-card h3 { margin: 0 0 7px 0; font-size: 1.32rem; font-weight: 700; color: #15304a; }
     .agent-preview-card p { margin: 0 0 12px 0; color: #222; font-size: 1.04rem; line-height: 1.5; }
@@ -107,10 +112,12 @@
         <div class="auth-msg" id="dev-register-msg"></div>
       </div>
     </div>
+
     <!-- Main Agent Registration, hidden until dev logged in -->
     <div id="main-dev-container" class="main-dev-container" style="display:none;">
       <h2>Register Your Agent</h2>
       <div class="dev-form-flex">
+        <!-- Left: form -->
         <div class="dev-form-side">
           <form id="agent-form" class="dev-form" autocomplete="off">
             <label for="agent-name">Agent Name</label>
@@ -143,193 +150,169 @@
           </form>
           <div id="agent-msg" class="auth-msg" style="margin-top:10px;"></div>
         </div>
+
+        <!-- Right: live preview -->
+        <div class="preview-side">
+          <div class="agent-preview-card">
+            <h3 id="prev-name">Agent name</h3>
+            <p id="prev-desc">Short description…</p>
+            <div class="agent-type" id="prev-type">Type: —</div>
+            <div class="agent-price" id="prev-price">$0.00</div>
+            <hr style="margin:12px 0;border:none;border-top:1px solid #d3e2ea;">
+            <div id="prev-inputs"></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
+
   <footer>
     <div class="container">
       <p>&copy; 2025 Digeon AI. All rights reserved.</p>
     </div>
   </footer>
+
   <script>
-    // Tab logic for developer login/register
+    // Tabs
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
     const devLoginSection = document.getElementById('dev-login-section');
     const devRegisterSection = document.getElementById('dev-register-section');
-    tabLogin.onclick = () => {
-      tabLogin.classList.add('active');
-      tabRegister.classList.remove('active');
-      devLoginSection.style.display = '';
-      devRegisterSection.style.display = 'none';
-    };
-    tabRegister.onclick = () => {
-      tabLogin.classList.remove('active');
-      tabRegister.classList.add('active');
-      devLoginSection.style.display = 'none';
-      devRegisterSection.style.display = '';
-    };
+    tabLogin.onclick = () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); devLoginSection.style.display = ''; devRegisterSection.style.display = 'none'; };
+    tabRegister.onclick = () => { tabLogin.classList.remove('active'); tabRegister.classList.add('active'); devLoginSection.style.display = 'none'; devRegisterSection.style.display = ''; };
 
-    // Developer login
-    document.getElementById('dev-login-form').onsubmit = function(e) {
+    // Dev login
+    document.getElementById('dev-login-form').onsubmit = function(e){
       e.preventDefault();
       const email = document.getElementById('dev-login-email').value.trim();
       const pw = document.getElementById('dev-login-password').value;
       const msg = document.getElementById('dev-login-msg');
       msg.style.color = "#e63946";
-      if (!email || !pw) {
-        msg.textContent = "All fields are required.";
-        return;
-      }
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("password", pw);
-      fetch("/api/dev-login", {
-        method: "POST",
-        body: formData
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 1) {
-          msg.style.color = "#19b6ad";
-          msg.textContent = "Login successful! Loading agent registration...";
-          setTimeout(() => {
-            document.getElementById('dev-auth-section').style.display = "none";
-            document.getElementById('main-dev-container').style.display = "";
-          }, 800);
-        } else {
-          msg.textContent = data.Except || "Invalid credentials or developer not registered.";
-        }
+      if(!email || !pw){ msg.textContent="All fields are required."; return; }
+      const formData = new FormData(); formData.append("email",email); formData.append("password",pw);
+      fetch("/api/dev-login",{method:"POST",body:formData}).then(r=>r.json()).then(data=>{
+        if(data.status===1){ msg.style.color="#19b6ad"; msg.textContent="Login successful! Loading agent registration..."; setTimeout(()=>{document.getElementById('dev-auth-section').style.display="none"; document.getElementById('main-dev-container').style.display="";},800); }
+        else { msg.textContent = data.Except || "Invalid credentials or developer not registered."; }
       });
-  };
+    };
 
-    // Developer register
-    document.getElementById('dev-register-form').onsubmit = function(e) {
+    // Dev register
+    document.getElementById('dev-register-form').onsubmit = function(e){
       e.preventDefault();
       const email = document.getElementById('dev-register-email').value.trim();
       const pw = document.getElementById('dev-register-password').value;
       const pw2 = document.getElementById('dev-register-password2').value;
       const msg = document.getElementById('dev-register-msg');
       msg.style.color = "#e63946";
-      if (!email || !pw || !pw2) {
-        msg.textContent = "All fields are required.";
-        return;
-      }
-      if (pw !== pw2) {
-        msg.textContent = "Passwords do not match.";
-        return;
-      }
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("password", pw);
-      fetch("/api/dev-register", {
-        method: "POST",
-        body: formData
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 1) {
-          msg.style.color = "#19b6ad";
-          msg.textContent = "Registration successful! Loading agent registration...";
-          setTimeout(() => {
-            document.getElementById('dev-auth-section').style.display = "none";
-            document.getElementById('main-dev-container').style.display = "";
-          }, 800);
-        } else {
-          msg.textContent = data.Except || "Registration failed.";
-        }
+      if(!email || !pw || !pw2){ msg.textContent="All fields are required."; return; }
+      if(pw!==pw2){ msg.textContent="Passwords do not match."; return; }
+      const formData=new FormData(); formData.append("email",email); formData.append("password",pw);
+      fetch("/api/dev-register",{method:"POST",body:formData}).then(r=>r.json()).then(data=>{
+        if(data.status===1){ msg.style.color="#19b6ad"; msg.textContent="Registration successful! Loading agent registration..."; setTimeout(()=>{document.getElementById('dev-auth-section').style.display="none"; document.getElementById('main-dev-container').style.display="";},800); }
+        else { msg.textContent=data.Except || "Registration failed."; }
       });
     };
 
-
-    // ============ Agent Registration Dynamic Fields and Preview ============
-    let fieldId = 0;
+    // ===== Agent Registration + Live Preview =====
     const dynamicFields = document.getElementById('dynamic-fields');
-    const previewInputs = document.getElementById('preview-inputs');
-    const agentForm = document.getElementById('agent-form');
+    const agentForm   = document.getElementById('agent-form');
     const fieldConfig = document.getElementById('field-config');
-    const agentMsg = document.getElementById('agent-msg');
+    const agentMsg    = document.getElementById('agent-msg');
 
-    
-    // Helper to get field config as array
-    function getFieldArray() {
+    const prevName   = document.getElementById('prev-name');
+    const prevDesc   = document.getElementById('prev-desc');
+    const prevType   = document.getElementById('prev-type');
+    const prevPrice  = document.getElementById('prev-price');
+    const prevInputs = document.getElementById('prev-inputs');
+
+    // build fields array
+    function getFieldArray(){
       const arr = [];
-      for (const row of dynamicFields.children) {
+      for(const row of dynamicFields.children){
         const label = row.querySelector('.field-label').value;
-        const type = row.querySelector('.field-type').value;
-        if (label && type) arr.push({label, type});
+        const type  = row.querySelector('.field-type').value;
+        if(label && type) arr.push({label, type});
       }
       return arr;
     }
 
-    function saveFieldConfig() {
+    // persist + trigger preview
+    function saveFieldConfig(){
       fieldConfig.value = JSON.stringify(getFieldArray());
+      renderPreview();
     }
 
-    function addField(label = '', type = 'text') {
-      const row = document.createElement('div');
-      row.className = 'dyn-field-row';
-      row.innerHTML = `
-        <input type="text" class="field-label" placeholder="Label" value="${label}" required maxlength="32">
+    // live preview
+    function renderPreview(){
+      prevName.textContent  = document.getElementById('agent-name').value || 'Agent name';
+      prevDesc.textContent  = document.getElementById('agent-desc').value || 'Short description…';
+      const t = document.getElementById('agent-type').value || '—';
+      prevType.textContent  = `Type: ${t}`;
+      const price = document.getElementById('agent-price').value;
+      prevPrice.textContent = price ? `$${Number(price).toFixed(2)}` : '$0.00';
+
+      prevInputs.innerHTML = '';
+      const fields = getFieldArray();
+      if(!fields.length){
+        const p=document.createElement('p'); p.style.color='#789'; p.textContent='Add input fields to preview…';
+        prevInputs.appendChild(p); return;
+      }
+      fields.forEach(({label,type})=>{
+        const wrap=document.createElement('div'); wrap.className='prev-field';
+        const lab=document.createElement('label'); lab.textContent=label || 'Field';
+        const ctrl=document.createElement('input'); ctrl.disabled=true; ctrl.type=(type==='file')?'file':'text'; if(type!=='file') ctrl.placeholder='Sample input';
+        wrap.appendChild(lab); wrap.appendChild(ctrl); prevInputs.appendChild(wrap);
+      });
+    }
+
+    // add/remove dynamic rows
+    function addField(label='', type='text'){
+      const row=document.createElement('div');
+      row.className='dyn-field-row';
+      row.innerHTML=`
+        <input type="text" class="field-label" placeholder="Enter label (e.g., Prompt, Upload PDF)" value="${label}" required maxlength="32">
         <select class="field-type">
           <option value="text" ${type==='text'?'selected':''}>Text</option>
           <option value="file" ${type==='file'?'selected':''}>File</option>
         </select>
         <button type="button" class="remove-field-btn" title="Remove Field">&times;</button>
       `;
-      // Remove handler
-      row.querySelector('.remove-field-btn').onclick = function() {
-        dynamicFields.removeChild(row);
-        saveFieldConfig();
-      };
-      // Change handlers
-      row.querySelector('.field-label').oninput = saveFieldConfig;
+      row.querySelector('.remove-field-btn').onclick = function(){ dynamicFields.removeChild(row); saveFieldConfig(); };
+      row.querySelector('.field-label').oninput  = saveFieldConfig;
       row.querySelector('.field-type').onchange = saveFieldConfig;
       dynamicFields.appendChild(row);
       saveFieldConfig();
     }
     document.getElementById('add-field-btn').onclick = () => addField();
 
-    
-
-    // ============ Handle Agent Form Submit ============
-    agentForm.onsubmit = function(e) {
+    // submit
+    agentForm.onsubmit = function(e){
       e.preventDefault();
-      if (getFieldArray().length === 0) {
-        agentMsg.style.color = "#e63946";
-        agentMsg.textContent = "Add at least one agent input field!";
-        return;
-      }
-      agentMsg.style.color = "#19b6ad";
-      agentMsg.textContent = "Submitting agent...";
-
-      const formData = new FormData();
-      formData.append("name", document.getElementById('agent-name').value);
-      formData.append("desc", document.getElementById('agent-desc').value);
-      formData.append("type", document.getElementById('agent-type').value);
+      if(getFieldArray().length===0){ agentMsg.style.color="#e63946"; agentMsg.textContent="Add at least one agent input field!"; return; }
+      agentMsg.style.color="#19b6ad"; agentMsg.textContent="Submitting agent...";
+      const formData=new FormData();
+      formData.append("name",  document.getElementById('agent-name').value);
+      formData.append("desc",  document.getElementById('agent-desc').value);
+      formData.append("type",  document.getElementById('agent-type').value);
       formData.append("price", document.getElementById('agent-price').value);
       formData.append("api_url", document.getElementById('agent-api-url').value);
       formData.append("inputs", JSON.stringify(getFieldArray()));
-
-      fetch("/api/agent-register", {
-        method: "POST",
-        body: formData
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 1) {
-          window.location.href = "/marketplace";
-        } else {
-          agentMsg.style.color = "#e63946";
-          agentMsg.textContent = data.Except || "Failed to register agent.";
-      }
-});
-
+      fetch("/api/agent-register",{method:"POST",body:formData})
+        .then(r=>r.json()).then(data=>{
+          if(data.status===1){ window.location.href="/marketplace"; }
+          else { agentMsg.style.color="#e63946"; agentMsg.textContent=data.Except || "Failed to register agent."; }
+        });
     };
 
+    // hook top-level inputs to preview
+    ['agent-name','agent-desc','agent-type','agent-price'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', renderPreview);
+      document.getElementById(id).addEventListener('change', renderPreview);
+    });
 
-    // On page load, setup preview and a default field
-    addField("User Input", "text");
+    // init
+    addField("User Input","text");
+    renderPreview();
   </script>
 </body>
 </html>
