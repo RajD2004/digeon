@@ -829,6 +829,29 @@ def api_contact():
 
     return jsonify({"ok": True})
 
+@app.route("/ops-9c1f0a6b7d2e4c8a3f1b9d7e5c2a0f4e", endpoint="admin_page")
+def admin_page():
+    return render_template("admin-dashboard.html")
+
+@app.get("/api/newsletter/posts")
+def api_newsletter_posts():
+    if not _is_newsletter_author():
+        return jsonify([]), 403
+    conn = get_db()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("""
+      SELECT post_id, subject, status,
+             COALESCE(updated_at, published_at, created_at) AS updated_at
+      FROM NewsletterPosts
+      ORDER BY COALESCE(updated_at, published_at, created_at) DESC
+    """)
+    rows = cur.fetchall()
+    cur.close(); conn.close()
+    return jsonify(rows)
+
+
+
+
 
 @app.route("/<path:page>.html")
 def html_alias(page):
