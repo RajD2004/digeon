@@ -11,8 +11,6 @@ from email.mime.text import MIMEText
 from email.utils import formataddr
 
 
-
-
 app = Flask(__name__)
 app.secret_key = "YOUR_SUPER_SECRET_KEY"
 
@@ -153,10 +151,7 @@ def _newsletter_recipients_for_categories(conn, categories: list[str]):
     cur.close()
     return rows
 
-
-
 #APIS
-
 
 @app.route('/')
 def home():
@@ -850,13 +845,9 @@ def api_newsletter_posts():
     return jsonify(rows)
 
 
-
-
-
 @app.route("/<path:page>.html")
 def html_alias(page):
     return redirect(f"/{page}", code=301)
-
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+/* Global fluid defaults */
+html { box-sizing: border-box; }
+*,*::before,*::after { box-sizing: inherit; }
+img,video,canvas,svg { max-width: 100%; height: auto; display: block; }
+
+/* Container & gutters */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* Kill accidental horizontal scroll */
+html, body { overflow-x: hidden; }
+
+/* Nav collapse on small screens */
+.navbar .container,
+.nav, .nav-links { display: flex; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .nav-links { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+
+/* Grids that should wrap nicely on phones */
+.agents-grid, .card-grid, .grid, [class*="grid"] {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* Forms & tables */
+input,select,textarea,button { max-width: 100%; }
+.table-wrap { overflow-x: auto; }
+
+/* Nuke rigid components if they exist inline */
+[class*="card"] { height: auto !important; }      /* avoids fixed heights */
+img[width], img[height] { height:auto !important; width:auto !important; }
