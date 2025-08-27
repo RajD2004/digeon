@@ -1,0 +1,4 @@
+digeon.ai, www.digeon.ai {
+    reverse_proxy app:5000
+    encode gzip
+}

@@ -4,10 +4,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "Row90bit_20041803-2022-2026"
     command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
-    ports:
-      - "3306:3306"            # so you can CLI into it if needed
-    volumes:
-      - mysql-data:/var/lib/mysql
+    ports: ["3306:3306"]
+    volumes: [ "mysql-data:/var/lib/mysql" ]
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pRow90bit_20041803-2022-2026"]
       interval: 5s
@@ -15,12 +13,9 @@ services:
       retries: 20
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.app
+    build: { context: ., dockerfile: Dockerfile.app }
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql: { condition: service_healthy }
     environment:
       DB_HOST: "mysql"
       DB_PORT: "3306"
@@ -30,29 +25,35 @@ services:
       DB_MKT_NAME: "marketplace_db"
       FLASK_ENV: "production"
       SECRET_KEY: "change-me"
-    ports:
-      - "80:5000"              # public HTTP -> your Gunicorn :5000
-    env_file:
-      - .env
-    volumes:
-      - .:/app                 # live-reload your code in the container
+    expose: ["5000"]               # internal only; Caddy will proxy to this
+    env_file: [ .env ]
+    volumes: [ ".:/app" ]
 
   dbinit:
-    build:
-      context: .
-      dockerfile: Dockerfile.app
+    build: { context: ., dockerfile: Dockerfile.app }
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql: { condition: service_healthy }
     environment:
       DB_HOST: "mysql"
       DB_USER: "root"
       DB_PASSWORD: "Row90bit_20041803-2022-2026"
       DB_NAME: "main_db"
     command: ["python", "init_database.py"]
+    volumes: [ ".:/app" ]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [ app ]
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - .:/app
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   mysql-data:
-
+  caddy_data:
+  caddy_config:
