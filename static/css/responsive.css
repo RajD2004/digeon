@@ -1,32 +1,180 @@
-/* ==== MOBILE-ONLY FIXES (leave desktop as-is) ==== */
+/* ========== Safe global defaults (do not change desktop layout) ========== */
+html { box-sizing: border-box; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+img, video, canvas, svg { max-width: 100%; height: auto; display: block; }
+html, body { margin: 0; overflow-x: hidden; }
+
+/* Optional container helper if you use it anywhere */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* ========== MOBILE ONLY (≤700px) — keep desktop unchanged ========== */
 @media (max-width: 700px) {
-  /* NAV: let it grow + stack links so it stops overlapping */
-  .navbar .container { 
-    height: auto !important; 
-    padding-top: 8px !important; 
-    padding-bottom: 8px !important; 
-    align-items: flex-start !important; 
+
+  /* ---- Navbar: grow and stack links, no overlap ---- */
+  .navbar .container {
+    height: auto !important;
+    padding: 8px 16px !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
   }
+
+  /* your right-aligned links list */
   .nav-links {
     display: flex !important;
     flex-direction: column !important;
-    align-items: flex-end !important;   /* keeps your right-aligned look */
+    align-items: flex-end !important;
     gap: 10px !important;
     margin: 0 !important;
     padding: 0 !important;
+    list-style: none !important;
   }
   .nav-links a { display: block !important; padding: 8px 0 !important; }
 
-  /* INDEX “three pills” (and any similar feature row): single column, readable */
-  .features-row { 
-    flex-direction: column !important; 
-    align-items: stretch !important; 
-    gap: 16px !important; 
+  /* If any page forced absolute/right positioning on the list, neutralize it */
+  .nav-links, .navbar ul { position: static !important; float: none !important; }
+
+  /* ---- Homepage feature cards: single column, centered ---- */
+  .feature-columns, .features-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    justify-items: center !important;
   }
-  .feature-btn { 
-    width: 100% !important; 
-    max-width: none !important; 
-    height: auto !important; 
-    white-space: normal !important; 
+  .feature-columns > *, .features-row > * {
+    max-width: 340px;   /* tweak to 320/360 if you prefer */
+    width: 100%;
+    height: auto !important;
+    white-space: normal !important;
+  }
+
+  /* ---- Marketplace header buttons: stack, no overlap with title/cards ---- */
+  /* Try common wrappers; whichever exists will apply, others are harmless */
+  .marketplace .header-actions,
+  #marketplace .header-actions,
+  .marketplace-page .header-actions,
+  [data-page="marketplace"] .header-actions,
+  .marketplace .btn-group,        #marketplace .btn-group,
+  .marketplace .cta-group,        #marketplace .cta-group,
+  .marketplace .button-row,       #marketplace .button-row {
+    position: static !important;
+    float: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: flex-start !important;
+    margin-top: 8px !important;
+  }
+  .marketplace .header-actions > *,
+  #marketplace .header-actions > *,
+  .marketplace .btn-group > *,    #marketplace .btn-group > *,
+  .marketplace .cta-group > *,    #marketplace .cta-group > *,
+  .marketplace .button-row > *,   #marketplace .button-row > * {
+    width: 100% !important;   /* full-width tap targets on phones */
+  }
+
+  /* ---- Marketplace cards: single column on phones ---- */
+  .marketplace .card-grid,  #marketplace .card-grid,
+  .marketplace .tools-grid, #marketplace .tools-grid,
+  .marketplace .agents-grid,#marketplace .agents-grid,
+  .card-grid, .tools-grid, .agents-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+/* ===== Marketplace: CTA wrap on phones ===== */
+@media (max-width: 680px) {
+  /* stop any absolute/right floats in the CTA area */
+  .marketplace .header-actions,
+  .marketplace .actions,
+  .marketplace .cta-group,
+  .marketplace .button-row,
+  .marketplace h1 + div {
+    position: static !important;
+    float: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;       /* <-- key: allow wrapping */
+    gap: 12px !important;
+    justify-content: flex-start !important;
+    margin-top: 8px !important;
+  }
+
+  /* make buttons fit on a narrow screen */
+  .marketplace .header-actions > a,
+  .marketplace .header-actions > button,
+  .marketplace .actions > a,
+  .marketplace .actions > button,
+  .marketplace .cta-group > a,
+  .marketplace .cta-group > button,
+  .marketplace .button-row > a,
+  .marketplace .button-row > button,
+  .marketplace h1 + div > a,
+  .marketplace h1 + div > button {
+    flex: 1 1 240px;                   /* two per row when space allows */
+    max-width: 100%;
+  }
+
+  /* ensure the title and CTAs are on separate rows if needed */
+  .marketplace .section-header,
+  .marketplace .header {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: start !important;
+    row-gap: 8px !important;
   }
 }
+/* ===== Marketplace (portrait): make header CTAs wrap & fit ===== */
+@media (max-width: 680px) {
+
+  /* 1) Treat the Marketplace title and all siblings as a stacked header */
+  /* Select the section that contains the big "Marketplace" H1 */
+  .marketplace h1, 
+  .marketplace h1 ~ * {
+    position: static !important;
+  }
+
+  /* 2) Any DIRECT sibling after the H1 becomes a flex row that can wrap */
+  .marketplace h1 ~ div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: flex-start !important;
+    margin-top: 8px !important;
+    width: 100% !important;     /* so it uses the full line under the title */
+  }
+
+  /* 3) Buttons/links inside that sibling: flexible width so they wrap */
+  .marketplace h1 ~ div > a,
+  .marketplace h1 ~ div > button {
+    flex: 1 1 240px !important; /* 1 per row on narrow phones, 2 per row if room */
+    max-width: 100% !important;
+  }
+
+  /* 4) Safety net: if you used an "actions/cta/header" container, catch it too */
+  .marketplace [class*="action"],
+  .marketplace [class*="cta"],
+  .marketplace [class*="header"] > div {
+    position: static !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+  .marketplace [class*="action"] > a,
+  .marketplace [class*="action"] > button,
+  .marketplace [class*="cta"] > a,
+  .marketplace [class*="cta"] > button {
+    flex: 1 1 240px !important;
+    max-width: 100% !important;
+  }
+
+  /* 5) Ensure the card grid stays below the header area cleanly */
+  .marketplace .card-grid,
+  .marketplace .tools-grid,
+  .marketplace .agents-grid {
+    margin-top: 12px !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+
