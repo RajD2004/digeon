@@ -134,3 +134,10 @@ modalForm.onsubmit = async (e) => {
     modalOutput.innerText = 'Network error: ' + err;
   }
 };
+
+// Allow ESC key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('modal-close').click();
+  }
+});

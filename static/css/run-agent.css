@@ -145,3 +145,22 @@ footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 2
 .modal-output.error { color: #e63946; background: #fdebec; border-color: #e9b2b8; }
 .modal-output img { max-width: 100%; border-radius: 6px; margin-top: 9px; }
 /* === END OVERRIDES === */
+
+/* --- Scrollable modal sizing fix --- */
+.agent-modal {
+  max-height: 85vh;          /* cap modal height */
+  width: min(97vw, 520px);   /* responsive width */
+  overflow: hidden;          /* don't let it grow past cap */
+  display: flex;
+  flex-direction: column;
+}
+
+#modal-form {
+  overflow-y: auto;
+  max-height: 35vh;          /* form scrolls if long */
+}
+
+#modal-output {
+  max-height: 45vh;          /* output scrolls if long */
+  overflow: auto;
+}
