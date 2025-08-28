@@ -1,6 +1,7 @@
-// ----- Blog list: render posts, with guarded bindings -----
+// ----- Blog list: render posts (view-only safe) -----
 const modal = document.getElementById('post-modal');
 
+// guard any optional admin bindings so they never break viewing
 const createBtn = document.getElementById('create-post-btn');
 if (createBtn) createBtn.onclick = () => { modal.style.display = 'flex'; };
 
@@ -31,10 +32,11 @@ async function savePost(title, content, imageData) {
   await fetch("/api/blogs", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
     body: JSON.stringify({ title, content, imageData })
   });
   modal.style.display = 'none';
-  document.getElementById('post-form').reset();
+  if (postForm) postForm.reset();
   const prev = document.getElementById('img-preview');
   if (prev) prev.style.display = 'none';
   renderBlog();
@@ -51,17 +53,18 @@ async function renderBlog() {
   try {
     const res = await fetch("/api/blogs", { credentials: "same-origin" });
     const ct = res.headers.get("content-type") || "";
-    const raw = await res.text();
+    const text = await res.text();
 
+    // If we got redirected HTML (e.g., login) or anything non-JSON, show a message instead of silently failing.
     if (!ct.includes("application/json")) {
-      // e.g., got redirected HTML instead of JSON
       list.innerHTML = `<div style="text-align:center;color:#888;font-size:1.18rem;margin-top:36px;">
-        Couldn’t load posts. Try refreshing (Ctrl/Cmd+Shift+R) or log in again.</div>`;
-      console.error("Unexpected /api/blogs response:", raw);
+        Couldn’t load posts. Try a hard refresh (Ctrl/Cmd+Shift+R) and make sure you’re logged in.
+      </div>`;
+      console.error("Unexpected /api/blogs response:", text);
       return;
     }
 
-    const posts = JSON.parse(raw);
+    const posts = JSON.parse(text);
 
     if (!Array.isArray(posts) || posts.length === 0) {
       list.innerHTML = `<div style="text-align:center;color:#888;font-size:1.18rem;margin-top:36px;">No blog posts yet.</div>`;
@@ -102,8 +105,8 @@ async function renderBlog() {
   }
 }
 
-// close modal on outside click
+// close modal when clicking outside
 window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
-// kick off
+// load posts
 renderBlog();
