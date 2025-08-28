@@ -5,66 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Digeon AI - Developer Agent Registration</title>
   <link rel="icon" href="/static/images/icon.png" type="image/png">
-  <style>
-    /* Navbar Styles */
-    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
-    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
-    .logo img { height: 44px; border-radius: 6px; }
-    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
-    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
-    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
 
-    /* Tabs for Dev Auth */
-    .tab-row { display: flex; justify-content: center; gap: 16px; margin: 32px 0 0 0;}
-    .tab-row button { background: #f5fcfd; color: #19b6ad; border: none; padding: 14px 30px; font-size: 1.14rem; border-radius: 10px 10px 0 0; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent;}
-    .tab-row button.active { background: #fff; color: #15304a; border-bottom: 2px solid #19b6ad;}
-
-    .auth-container { max-width: 420px; margin: 0 auto; background: #fff; padding: 38px 28px 32px 28px; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.10);}
-    .auth-container h2 { text-align: center; margin-bottom: 16px; font-size: 2.0rem; color: #19b6ad;}
-    .auth-form { display: flex; flex-direction: column; gap: 14px;}
-    .auth-form input { padding: 12px 13px; border-radius: 8px; border: 1.2px solid #bbc; font-size: 1.08rem; background: #f8fbfc;}
-    .auth-form button { background: #0077cc; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 14px 0; font-size: 1.18rem; cursor: pointer; margin-top: 6px;}
-    .auth-form button:hover { background: #005fa3; }
-    .form-link-row { display: flex; justify-content: flex-end; margin-top: 8px; }
-    .form-link-row a { color: #19b6ad; text-decoration: none; font-size: 1rem;}
-    .form-link-row a:hover { text-decoration: underline; }
-    .auth-msg { color: #e63946; font-size: 1.06rem; min-height: 22px; }
-
-    /* Agent Form Styles */
-    .main-dev-container { max-width: 880px; margin: 38px auto 38px auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 18px rgba(30,70,90,0.08); padding: 38px 32px 32px 32px; }
-    .dev-form-flex { display: flex; gap: 36px; flex-wrap: wrap; }
-    .dev-form-side { flex: 1 1 340px; min-width: 290px; }
-    .preview-side { flex: 1 1 300px; min-width: 260px; }
-    .dev-form { display: flex; flex-direction: column; gap: 15px; }
-    .dev-form label { font-weight: 700; margin-bottom: 3px; color: #15304a; }
-    .dev-form input[type="text"], .dev-form textarea, .dev-form input[type="number"], .dev-form select { width: 100%; padding: 11px 12px; border-radius: 7px; border: 1.2px solid #bbc; font-size: 1.06rem; background: #f8fbfc;}
-    .dev-form textarea { resize: vertical; min-height: 45px; }
-    .dynamic-fields { display: flex; flex-direction: column; gap: 13px; margin-bottom: 0;}
-    .dyn-field-row { display: flex; gap: 9px; align-items: center;}
-    .dyn-field-row input[type="text"] { flex: 1; }
-    .remove-field-btn { background: #e63946; color: #fff; border: none; border-radius: 5px; padding: 4px 9px; font-weight: bold; cursor: pointer; }
-    .remove-field-btn:hover { background: #b82334; }
-    .add-field-btn { background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 9px 18px; font-weight: bold; font-size: 1.08rem; cursor: pointer;}
-    .add-field-btn:hover { background: #138c86; }
-    .dev-form button[type="submit"] { margin-top: 11px; }
-
-    /* Preview fields styling */
-    #prev-inputs .prev-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    #prev-inputs label { font-weight: 600; color: #15304a; }
-    #prev-inputs input[disabled] { background: #eef5f7; border: 1px solid #cfdbe2; border-radius: 6px; padding: 9px 10px; }
-
-    /* Preview Card */
-    .agent-preview-card { background: #f3f7fa; border: 1.4px solid #d3e2ea; border-radius: 13px; padding: 24px 18px 20px 18px; box-shadow: 0 2px 10px rgba(40,60,80,0.07); min-height: 120px; }
-    .agent-preview-card h3 { margin: 0 0 7px 0; font-size: 1.32rem; font-weight: 700; color: #15304a; }
-    .agent-preview-card p { margin: 0 0 12px 0; color: #222; font-size: 1.04rem; line-height: 1.5; }
-    .agent-type { font-size: 0.97rem; color: #1997b6; font-weight: 600; margin-top: auto;}
-    .agent-price { font-size: 1.1rem; color: #0077cc; font-weight: 700; margin-top: 8px;}
-
-    /* Footer */
-    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
-  </style>
+  <!-- externalized CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/developer-register.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v=6">
-
 </head>
 <body>
   <header>
@@ -80,12 +24,14 @@
       </div>
     </nav>
   </header>
+
   <main>
     <!-- Tabs for Developer Auth -->
     <div class="tab-row" id="tab-row">
       <button id="tab-login" class="active">Developer Login</button>
       <button id="tab-register">Developer Register</button>
     </div>
+
     <!-- Auth Forms -->
     <div id="dev-auth-section">
       <div class="auth-container" id="dev-login-section">
@@ -100,6 +46,7 @@
         </div>
         <div class="auth-msg" id="dev-login-msg"></div>
       </div>
+
       <div class="auth-container" id="dev-register-section" style="display:none;">
         <h2>Developer Registration</h2>
         <form id="dev-register-form" class="auth-form" autocomplete="off">
@@ -174,147 +121,7 @@
     </div>
   </footer>
 
-  <script>
-    // Tabs
-    const tabLogin = document.getElementById('tab-login');
-    const tabRegister = document.getElementById('tab-register');
-    const devLoginSection = document.getElementById('dev-login-section');
-    const devRegisterSection = document.getElementById('dev-register-section');
-    tabLogin.onclick = () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); devLoginSection.style.display = ''; devRegisterSection.style.display = 'none'; };
-    tabRegister.onclick = () => { tabLogin.classList.remove('active'); tabRegister.classList.add('active'); devLoginSection.style.display = 'none'; devRegisterSection.style.display = ''; };
-
-    // Dev login
-    document.getElementById('dev-login-form').onsubmit = function(e){
-      e.preventDefault();
-      const email = document.getElementById('dev-login-email').value.trim();
-      const pw = document.getElementById('dev-login-password').value;
-      const msg = document.getElementById('dev-login-msg');
-      msg.style.color = "#e63946";
-      if(!email || !pw){ msg.textContent="All fields are required."; return; }
-      const formData = new FormData(); formData.append("email",email); formData.append("password",pw);
-      fetch("/api/dev-login",{method:"POST",body:formData}).then(r=>r.json()).then(data=>{
-        if(data.status===1){ msg.style.color="#19b6ad"; msg.textContent="Login successful! Loading agent registration..."; setTimeout(()=>{document.getElementById('dev-auth-section').style.display="none"; document.getElementById('main-dev-container').style.display="";},800); }
-        else { msg.textContent = data.Except || "Invalid credentials or developer not registered."; }
-      });
-    };
-
-    // Dev register
-    document.getElementById('dev-register-form').onsubmit = function(e){
-      e.preventDefault();
-      const email = document.getElementById('dev-register-email').value.trim();
-      const pw = document.getElementById('dev-register-password').value;
-      const pw2 = document.getElementById('dev-register-password2').value;
-      const msg = document.getElementById('dev-register-msg');
-      msg.style.color = "#e63946";
-      if(!email || !pw || !pw2){ msg.textContent="All fields are required."; return; }
-      if(pw!==pw2){ msg.textContent="Passwords do not match."; return; }
-      const formData=new FormData(); formData.append("email",email); formData.append("password",pw);
-      fetch("/api/dev-register",{method:"POST",body:formData}).then(r=>r.json()).then(data=>{
-        if(data.status===1){ msg.style.color="#19b6ad"; msg.textContent="Registration successful! Loading agent registration..."; setTimeout(()=>{document.getElementById('dev-auth-section').style.display="none"; document.getElementById('main-dev-container').style.display="";},800); }
-        else { msg.textContent=data.Except || "Registration failed."; }
-      });
-    };
-
-    // ===== Agent Registration + Live Preview =====
-    const dynamicFields = document.getElementById('dynamic-fields');
-    const agentForm   = document.getElementById('agent-form');
-    const fieldConfig = document.getElementById('field-config');
-    const agentMsg    = document.getElementById('agent-msg');
-
-    const prevName   = document.getElementById('prev-name');
-    const prevDesc   = document.getElementById('prev-desc');
-    const prevType   = document.getElementById('prev-type');
-    const prevPrice  = document.getElementById('prev-price');
-    const prevInputs = document.getElementById('prev-inputs');
-
-    // build fields array
-    function getFieldArray(){
-      const arr = [];
-      for(const row of dynamicFields.children){
-        const label = row.querySelector('.field-label').value;
-        const type  = row.querySelector('.field-type').value;
-        if(label && type) arr.push({label, type});
-      }
-      return arr;
-    }
-
-    // persist + trigger preview
-    function saveFieldConfig(){
-      fieldConfig.value = JSON.stringify(getFieldArray());
-      renderPreview();
-    }
-
-    // live preview
-    function renderPreview(){
-      prevName.textContent  = document.getElementById('agent-name').value || 'Agent name';
-      prevDesc.textContent  = document.getElementById('agent-desc').value || 'Short description…';
-      const t = document.getElementById('agent-type').value || '—';
-      prevType.textContent  = `Type: ${t}`;
-      const price = document.getElementById('agent-price').value;
-      prevPrice.textContent = price ? `$${Number(price).toFixed(2)}` : '$0.00';
-
-      prevInputs.innerHTML = '';
-      const fields = getFieldArray();
-      if(!fields.length){
-        const p=document.createElement('p'); p.style.color='#789'; p.textContent='Add input fields to preview…';
-        prevInputs.appendChild(p); return;
-      }
-      fields.forEach(({label,type})=>{
-        const wrap=document.createElement('div'); wrap.className='prev-field';
-        const lab=document.createElement('label'); lab.textContent=label || 'Field';
-        const ctrl=document.createElement('input'); ctrl.disabled=true; ctrl.type=(type==='file')?'file':'text'; if(type!=='file') ctrl.placeholder='Sample input';
-        wrap.appendChild(lab); wrap.appendChild(ctrl); prevInputs.appendChild(wrap);
-      });
-    }
-
-    // add/remove dynamic rows
-    function addField(label='', type='text'){
-      const row=document.createElement('div');
-      row.className='dyn-field-row';
-      row.innerHTML=`
-        <input type="text" class="field-label" placeholder="Enter label (e.g., Prompt, Upload PDF)" value="${label}" required maxlength="32">
-        <select class="field-type">
-          <option value="text" ${type==='text'?'selected':''}>Text</option>
-          <option value="file" ${type==='file'?'selected':''}>File</option>
-        </select>
-        <button type="button" class="remove-field-btn" title="Remove Field">&times;</button>
-      `;
-      row.querySelector('.remove-field-btn').onclick = function(){ dynamicFields.removeChild(row); saveFieldConfig(); };
-      row.querySelector('.field-label').oninput  = saveFieldConfig;
-      row.querySelector('.field-type').onchange = saveFieldConfig;
-      dynamicFields.appendChild(row);
-      saveFieldConfig();
-    }
-    document.getElementById('add-field-btn').onclick = () => addField();
-
-    // submit
-    agentForm.onsubmit = function(e){
-      e.preventDefault();
-      if(getFieldArray().length===0){ agentMsg.style.color="#e63946"; agentMsg.textContent="Add at least one agent input field!"; return; }
-      agentMsg.style.color="#19b6ad"; agentMsg.textContent="Submitting agent...";
-      const formData=new FormData();
-      formData.append("name",  document.getElementById('agent-name').value);
-      formData.append("desc",  document.getElementById('agent-desc').value);
-      formData.append("type",  document.getElementById('agent-type').value);
-      formData.append("price", document.getElementById('agent-price').value);
-      formData.append("api_url", document.getElementById('agent-api-url').value);
-      formData.append("inputs", JSON.stringify(getFieldArray()));
-      fetch("/api/agent-register",{method:"POST",body:formData})
-        .then(r=>r.json()).then(data=>{
-          if(data.status===1){ window.location.href="/marketplace"; }
-          else { agentMsg.style.color="#e63946"; agentMsg.textContent=data.Except || "Failed to register agent."; }
-        });
-    };
-
-    // hook top-level inputs to preview
-    ['agent-name','agent-desc','agent-type','agent-price'].forEach(id=>{
-      document.getElementById(id).addEventListener('input', renderPreview);
-      document.getElementById(id).addEventListener('change', renderPreview);
-    });
-
-    // init
-    addField("User Input","text");
-    renderPreview();
-  </script>
+  <!-- externalized JS -->
+  <script src="{{ url_for('static', filename='js/developer-register.js') }}"></script>
 </body>
 </html>

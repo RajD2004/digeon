@@ -1,0 +1,22 @@
+/* Navbar Styles (from marketplace.html) */
+.navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
+.navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+.logo img { height: 44px; border-radius: 6px; }
+.nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+.nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
+.nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
+
+/* Auth Container Styles */
+.auth-container { max-width: 410px; margin: 60px auto 0 auto; background: #fff; padding: 38px 28px 32px 28px; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.10);}
+.auth-container h2 { text-align: center; margin-bottom: 16px; font-size: 2.2rem; color: #19b6ad;}
+.auth-form { display: flex; flex-direction: column; gap: 14px;}
+.auth-form input { padding: 12px 13px; border-radius: 8px; border: 1.2px solid #bbc; font-size: 1.08rem; background: #f8fbfc;}
+.auth-form button { background: #0077cc; color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 14px 0; font-size: 1.18rem; cursor: pointer; margin-top: 6px;}
+.auth-form button:hover { background: #005fa3; }
+.form-link-row { display: flex; justify-content: space-between; margin-top: 8px; }
+.form-link-row a { color: #19b6ad; text-decoration: none; font-size: 1rem;}
+.form-link-row a:hover { text-decoration: underline; }
+#register-msg { color: #e63946; font-size: 1.06rem; min-height: 22px; }
+
+/* Footer */
+footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}

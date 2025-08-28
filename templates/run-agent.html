@@ -1,162 +1,15 @@
-<!-- run-agent.html -->
+<!-- templates/run-agent.html -->
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Digeon AI - Run Agent</title>
 <link href="/static/images/icon.png" rel="icon" type="image/png"/>
-<style>
-    body {
-      background: #b5c5c9;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      color: #234;
-    }
-    /* NAVBAR (matches marketplace) */
-    .navbar { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100; }
-    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
-    .logo img { height: 44px; border-radius: 6px; }
-    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
-    .nav-links a { text-decoration: none; color: #234; font-weight: bold; font-size: 1.07rem; letter-spacing: 0.01em; padding: 7px 0; transition: color 0.22s; border-bottom: 2px solid transparent; }
-    .nav-links a:hover, .nav-links a:focus { color: #19b6ad; border-bottom: 2px solid #19b6ad; }
-    #site-search { display: flex; align-items: center; margin-left: 30px; }
-    #search-input { padding: 7px 12px; border: 1px solid #bbc; border-radius: 5px 0 0 5px; outline: none; font-size: 1rem; }
-    #site-search button { padding: 7px 18px; border: none; background-color: #19b6ad; color: #fff; border-radius: 0 5px 5px 0; cursor: pointer; font-weight: bold; transition: background 0.15s; font-size: 1rem; }
-    #site-search button:hover { background-color: #138c86; }
-    /* MAIN CONTAINER */
-    .main-container { max-width: 1100px; margin: 42px auto 0 auto; padding: 34px 18px 40px 18px; background: #fff; border-radius: 14px; box-shadow: 0 2px 18px rgba(30,70,90,0.06);}
-    .agents-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; gap: 16px;}
-    .agents-title { font-size: 2.7rem; font-weight: 800; letter-spacing: -1px; color: #15304a; margin: 0; }
-    .header-btns { display: flex; gap: 16px; }
-    .header-btn {
-      background: #0077cc;
-      color: #fff;
-      padding: 11px 28px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.13rem;
-      cursor: pointer;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: inline-block;
-      margin-left: 0;
-    }
-    .header-btn:hover { background: #005fa3; }
-    /* AGENT GRID & CARD */
-    .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 32px; }
-    .agent-card {
-      background: #f3f7fa;
-      border: 1.4px solid #d3e2ea;
-      border-radius: 13px;
-      padding: 26px 22px 22px 22px;
-      box-shadow: 0 2px 10px rgba(40,60,80,0.07);
-      min-height: 180px;
-      display: flex; flex-direction: column; align-items: flex-start;
-      position: relative;
-      transition: box-shadow 0.17s;
-    }
-    .agent-card:hover { box-shadow: 0 4px 16px rgba(30,70,90,0.12);}
-    .agent-card .agent-icon {
-      width: 44px; height: 44px; border-radius: 9px; object-fit: cover; margin-bottom: 10px; background: #e4ecef;
-      display: block;
-    }
-    .agent-card h3 { margin: 0 0 8px 0; font-size: 1.38rem; font-weight: 700; color: #15304a; }
-    .agent-card p { margin: 0 0 12px 0; color: #222; font-size: 1.06rem; line-height: 1.5; }
-    .agent-card .agent-type { font-size: 0.99rem; color: #1997b6; font-weight: 600; margin-top: auto;}
-    .agent-card .agent-price { font-size: 1.08rem; color: #0077cc; font-weight: 700; margin: 10px 0 0 0; }
-    .run-btn {
-      background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 13px 0; margin-top: 15px; font-weight: 700; font-size: 1.14rem; cursor: pointer; transition: background 0.14s; width: 100%;
-    }
-    .run-btn:hover { background: #138c86; }
-    
-    /* Footer (matches marketplace) */
-    footer .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: #789;}
-    .footer-row { text-align: center; margin-top: 28px; }
-    .footer-social-bar {
-      display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 26px; margin-bottom: 8px;
-    }
-    .footer-social-bar img, .footer-social-bar svg {
-      width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; vertical-align: middle; filter: none;
-    }
-    .footer-social-bar img:hover, .footer-social-bar svg:hover {
-      opacity: 1; transform: translateY(-3px) scale(1.1);
-    }
-    @media (max-width: 700px) {
-      .footer-social-bar { gap: 18px; margin-top: 17px; margin-bottom: 4px; }
-    }
-  
 
-/* === OVERRIDES: force the design on the modal === */
-.modal-bg {
-  display: none;
-  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
-  z-index: 1002; background: rgba(20,40,60,0.12);
-  align-items: center; justify-content: center;
-}
-.modal-bg.active { display: flex; }
+<!-- moved from inline <style> to static/css/run-agent.css -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/run-agent.css') }}">
 
-.agent-modal {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 28px rgba(30,70,90,0.16);
-  padding: 34px 32px 30px 32px;
-  max-width: 420px; width: 97vw;
-  display: flex; flex-direction: column; align-items: stretch;
-  position: relative;
-  min-height: 100px;
-  animation: popup 0.23s cubic-bezier(.34,1.56,.64,1) 1;
-}
-
-@keyframes popup { 0% { transform: scale(0.92); } 100% { transform: scale(1); } }
-
-.modal-close {
-  position: absolute; right: 18px; top: 16px;
-  font-size: 1.6rem; color: #bbb;
-  background: none; border: none; cursor: pointer;
-  padding: 0; line-height: 1;
-}
-.modal-close:hover { color: #19b6ad; }
-
-.agent-modal .agent-modal-icon {
-  width: 55px; height: 55px; border-radius: 11px;
-  object-fit: cover; background: #e4ecef;
-  display: block; margin-bottom: 13px; align-self: center;
-}
-
-.agent-modal h2 { font-size: 1.42rem; font-weight: 700; color: #15304a; margin: 0 0 5px 0; text-align: center; }
-.agent-modal .modal-desc { color: #222; margin-bottom: 13px; text-align: center; font-size: 1.07rem; }
-.agent-modal .modal-type { color: #1997b6; font-size: 1.01rem; text-align: center; margin-bottom: 9px; }
-
-.agent-modal label { font-weight: 700; color: #15304a; margin-top: 6px; }
-
-.agent-modal input[type="text"],
-.agent-modal input[type="file"] {
-  padding: 11px 12px; border-radius: 7px;
-  border: 1.2px solid #bbc; font-size: 1.06rem; background: #f8fbfc;
-}
-
-.agent-modal .modal-run-btn {
-  background: #0077cc; color: #fff; font-weight: 700;
-  border: none; border-radius: 8px; padding: 14px 0;
-  font-size: 1.13rem; cursor: pointer; margin-top: 10px;
-  transition: background 0.15s;
-}
-.agent-modal .modal-run-btn:hover { background: #005fa3; }
-
-.modal-output {
-  margin-top: 18px; padding: 16px 13px; background: #f3f7fa;
-  border-radius: 8px; border: 1.2px solid #d3e2ea; min-height: 44px;
-  font-size: 1.07rem; color: #15304a; box-shadow: 0 2px 7px rgba(30,70,90,0.05);
-  white-space: pre-wrap;
-}
-.modal-output.error { color: #e63946; background: #fdebec; border-color: #e9b2b8; }
-.modal-output img { max-width: 100%; border-radius: 6px; margin-top: 9px; }
-/* === END OVERRIDES === */
-
-</style>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v=6">
 </head>
 <body>
@@ -216,7 +69,7 @@
 <img alt="Instagram" src="https://cdn.simpleicons.org/instagram/23272A"/>
 </a>
 <a href="https://www.linkedin.com/company/digeon-ai/" style="display:inline-block;" target="_blank" title="LinkedIn">
-<svg fill="#23272A" height="28" role="img" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<svg fill="#23272A" height="28" role="img" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
 <title>LinkedIn</title>
 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zm-16.356-11.41c-1.144 0-2.067-.926-2.067-2.065 0-1.138.923-2.065 2.067-2.065 1.143 0 2.066.927 2.066 2.065 0 1.139-.923 2.065-2.066 2.065zm1.778 11.41H2.313V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .771 0 1.723v20.549C0 23.229.792 24 1.771 24h20.451C23.2 24 24 23.229 24 22.271V1.723C24 .771 23.2 0 22.222 0z"></path>
 </svg>
@@ -227,144 +80,8 @@
 </div>
 </div>
 </footer>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  // Read ?name=...
-  const params = new URLSearchParams(location.search);
-  const agentName = params.get('name');
-  if (!agentName) {
-    alert('No agent specified. Return to the marketplace and choose an agent.');
-    return;
-  }
 
-  // Fetch the agent's input fields and metadata
-  try {
-    const [fields, agents] = await Promise.all([
-      fetch(`/api/agent-inputs?agent_name=${encodeURIComponent(agentName)}`).then(r => r.json()),
-      fetch('/api/market-agents').then(r => r.json())
-    ]);
-    const meta = (agents || []).find(a => a.name === agentName) || { name: agentName };
-
-    // Build agent object for the modal
-    const agent = {
-      id: meta.id,
-      name: meta.name || agentName,
-      desc: meta.description || '',
-      type: meta.type || '',
-      price: meta.price || '',
-      fields: fields || []
-    };
-    openModal(agent);
-  } catch (e) {
-    console.error(e);
-    alert('Failed to load agent configuration.');
-  }
-});
-
-// Modal wiring (re-using your existing modal HTML/CSS)
-const modalBg   = document.getElementById('agent-modal-bg');
-const modal     = document.getElementById('agent-modal');
-const modalIcon = document.getElementById('modal-icon');
-const modalTitle= document.getElementById('modal-title');
-const modalType = document.getElementById('modal-type');
-const modalDesc = document.getElementById('modal-desc');
-const modalForm = document.getElementById('modal-form');
-const modalOutput = document.getElementById('modal-output');
-let currentAgent = null;
-
-function openModal(agent) {
-  currentAgent = agent;
-
-  // Header
-  modalIcon.style.display = 'none'; // show your brand icon if you have one
-  modalTitle.textContent = agent.name || '';
-  modalType.textContent  = agent.type ? `Type: ${agent.type}` : '';
-  modalDesc.textContent  = agent.desc || '';
-
-  // Build dynamic inputs
-  modalForm.innerHTML = '';
-  modalOutput.style.display = 'none';
-  modalOutput.textContent = '';
-
-  (agent.fields || []).forEach((f, i) => {
-    const label = document.createElement('label');
-    label.textContent = f.label;
-    label.setAttribute('for', 'modal-input-' + i);
-    modalForm.appendChild(label);
-
-    const input = document.createElement('input');
-    input.id = 'modal-input-' + i;
-    input.name = f.label;
-    input.type = (f.type === 'file') ? 'file' : 'text';
-    modalForm.appendChild(input);
-  });
-
-  // Run button
-  const runBtn = document.createElement('button');
-  runBtn.type = 'submit';
-  runBtn.className = 'modal-run-btn';
-  runBtn.textContent = 'Run Agent';
-  modalForm.appendChild(runBtn);
-
-  // Show
-  modalBg.classList.add('active');
-}
-
-document.getElementById('modal-close').onclick = () => {
-  modalBg.classList.remove('active');
-  setTimeout(() => { modalOutput.textContent = ''; modalOutput.style.display = 'none'; }, 250);
-};
-modalBg.onclick = (e) => { if (e.target === modalBg) document.getElementById('modal-close').click(); };
-
-modalForm.onsubmit = async (e) => {
-  e.preventDefault();
-  if (!currentAgent) return;
-
-  const inputs = Array.from(modalForm.querySelectorAll('input'));
-  const hasFile = inputs.some(inp => inp.type === 'file' && inp.files.length > 0);
-
-  modalOutput.className = 'modal-output';
-  modalOutput.style.display = 'block';
-  modalOutput.innerHTML = '<span style="color:#19b6ad;">Processing...</span>';
-
-  try {
-    let res;
-    if (hasFile) {
-      const fd = new FormData();
-      fd.append('agent_name', currentAgent.name);
-      inputs.forEach(inp => {
-        if (inp.type === 'file') {
-          if (inp.files[0]) fd.append(inp.name, inp.files[0]);
-        } else {
-          fd.append(inp.name, inp.value);
-        }
-      });
-      res = await fetch('/api/run-agent', { method: 'POST', body: fd }).then(r => r.json());
-    } else {
-      const data = {};
-      inputs.forEach(inp => (data[inp.name] = inp.value));
-      res = await fetch('/api/run-agent', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ agent_name: currentAgent.name, inputs: data })
-      }).then(r => r.json());
-    }
-    if (res.status === 1) {
-      modalOutput.className = 'modal-output';
-      modalOutput.innerText = (typeof res.result === 'object')
-        ? JSON.stringify(res.result, null, 2)
-        : String(res.result);
-    } else {
-      modalOutput.className = 'modal-output error';
-      modalOutput.innerText = 'Error: ' + res.error;
-    }
-  } catch (err) {
-    modalOutput.className = 'modal-output error';
-    modalOutput.innerText = 'Network error: ' + err;
-  }
-};
-</script>
-
-
+<!-- moved from inline <script> to static/js/run-agent.js -->
+<script src="{{ url_for('static', filename='js/run-agent.js') }}"></script>
 </body>
 </html>
