@@ -1,9 +1,14 @@
 const modal = document.getElementById('post-modal');
 
-document.getElementById('create-post-btn').onclick = () => { modal.style.display = 'flex'; };
-document.getElementById('close-modal-btn').onclick = () => { modal.style.display = 'none'; };
+// Optional admin modal bits — guarded so they won’t break page
+const createBtn = document.getElementById('create-post-btn');
+if (createBtn) createBtn.onclick = () => { modal.style.display = 'flex'; };
 
-document.getElementById('post-form').onsubmit = async function(e) {
+const closeBtn = document.getElementById('close-modal-btn');
+if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
+
+const postForm = document.getElementById('post-form');
+if (postForm) postForm.onsubmit = async function (e) {
   e.preventDefault();
   const title = document.getElementById('post-title').value.trim();
   const content = document.getElementById('post-content').value.trim();
@@ -21,12 +26,12 @@ document.getElementById('post-form').onsubmit = async function(e) {
   }
 };
 
-async function savePost(title, content, imageData){
+async function savePost(title, content, imageData) {
   if (!title || !content) return alert("Title and content are required!");
   await fetch("/api/blogs", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({title, content, imageData})
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, content, imageData })
   });
   modal.style.display = 'none';
   document.getElementById('post-form').reset();
@@ -34,24 +39,11 @@ async function savePost(title, content, imageData){
   renderBlog();
 }
 
-// Re-run animation observer for new posts
-document.querySelectorAll('.blog-card').forEach(el => {
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) entry.target.classList.add('visible');
-    });
-  }, { threshold: 0.15 });
-  observer.observe(el);
-});
-
 function escapeHTML(str) {
-  return String(str).replace(/[<>&"']/g, m => (
-    {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[m]
-  ));
+  return String(str).replace(/[<>&"']/g, m =>
+    ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[m])
+  );
 }
-
-renderBlog();
-window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
 async function renderBlog() {
   const res = await fetch("/api/blogs");
@@ -85,12 +77,16 @@ async function renderBlog() {
 
   // fade-in animation
   document.querySelectorAll('.blog-card').forEach(el => {
-    const ob = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), {threshold:0.15});
+    const ob = new IntersectionObserver(es =>
+      es.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+      { threshold: 0.15 }
+    );
     ob.observe(el);
   });
 }
 
-function escapeHTML(str){
-  return String(str).replace(/[<>&"']/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[m]));
-}
+// modal close if clicking outside
+window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+
+// finally, load posts
 renderBlog();
