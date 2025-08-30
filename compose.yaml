@@ -1,50 +1,16 @@
+version: "3.9"
+
 services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: "Row90bit_20041803-2022-2026"
-    command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
-    ports: ["3306:3306"]
-    volumes: [ "mysql-data:/var/lib/mysql" ]
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-pRow90bit_20041803-2022-2026"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-
   app:
-    build: { context: ., dockerfile: Dockerfile.app }
-    depends_on:
-      mysql: { condition: service_healthy }
-    environment:
-      DB_HOST: "mysql"
-      DB_PORT: "3306"
-      DB_USER: "root"
-      DB_PASS: "Row90bit_20041803-2022-2026"
-      DB_NAME: "main_db"
-      DB_MKT_NAME: "marketplace_db"
-      FLASK_ENV: "production"
-      SECRET_KEY: "change-me"
-    expose: ["5000"]               # internal only; Caddy will proxy to this
-    env_file: [ .env ]
-    volumes: [ ".:/app" ]
-
-  dbinit:
-    build: { context: ., dockerfile: Dockerfile.app }
-    depends_on:
-      mysql: { condition: service_healthy }
-    environment:
-      DB_HOST: "mysql"
-      DB_USER: "root"
-      DB_PASSWORD: "Row90bit_20041803-2022-2026"
-      DB_NAME: "main_db"
-    command: ["python", "init_database.py"]
-    volumes: [ ".:/app" ]
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    env_file:
+      - .env
+    restart: unless-stopped
 
   caddy:
     image: caddy:2
-    restart: unless-stopped
-    depends_on: [ app ]
     ports:
       - "80:80"
       - "443:443"
@@ -52,8 +18,10 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
 
 volumes:
-  mysql-data:
   caddy_data:
   caddy_config:
