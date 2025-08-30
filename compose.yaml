@@ -4,32 +4,14 @@ services:
       context: .
       dockerfile: Dockerfile.app
     environment:
-      DB_HOST: mysql
+      DB_HOST: database-1.c0zucywagdl4.us-east-1.rds.amazonaws.com
       DB_PORT: "3306"
       DB_NAME: main_db
       DB_MKT_NAME: marketplace_db
-      DB_USER: digeon
-      DB_PASS: supersecret
-    depends_on:
-      - mysql
+      DB_USER: admin
+      DB_PASS: Row90bit_20041803-2022-2026
     volumes:
       - ./excel:/app/excel
-
-  mysql:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: main_db
-      MYSQL_USER: digeon
-      MYSQL_PASSWORD: supersecret
-      MYSQL_ROOT_PASSWORD: rootsecret
-    volumes:
-      - dbdata:/var/lib/mysql
-    healthcheck:
-      test: ["CMD","mysqladmin","ping","-h","127.0.0.1"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
 
   caddy:
     image: caddy:2
@@ -44,6 +26,5 @@ services:
       - app
 
 volumes:
-  dbdata:
   caddy_data:
   caddy_config:
