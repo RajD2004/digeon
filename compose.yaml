@@ -1,27 +1,45 @@
-version: "3.9"
-
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.app
-    env_file:
-      - .env
-    restart: unless-stopped
+    build: .
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: main_db
+      DB_MKT_NAME: marketplace_db
+      DB_USER: digeon
+      DB_PASS: supersecret
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: main_db
+      MYSQL_USER: digeon
+      MYSQL_PASSWORD: supersecret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   caddy:
     image: caddy:2
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
     depends_on:
       - app
-    restart: unless-stopped
 
 volumes:
+  dbdata:
   caddy_data:
   caddy_config:
