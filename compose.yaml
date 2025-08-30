@@ -12,6 +12,8 @@ services:
       DB_PASS: supersecret
     depends_on:
       - mysql
+    volumes:
+      - ./excel:/app/excel
 
   mysql:
     image: mysql:8.0
