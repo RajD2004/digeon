@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
     environment:
       DB_HOST: mysql
       DB_PORT: "3306"
