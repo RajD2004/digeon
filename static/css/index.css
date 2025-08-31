@@ -96,11 +96,11 @@ body {
 .hero-overlay {
   position: relative;
   max-width: 820px;
-  padding: 32px 24px;
-  background: rgba(20, 22, 27, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 0;         /* removed box spacing */
+  background: none;   /* removed background layer */
+  border: none;       /* removed border */
+  border-radius: 0;   /* removed rounded box */
+  box-shadow: none;   /* removed shadow */
 }
 .home-hero h1 { font-size: 2.4rem; margin: 0 0 8px 0; color: #fff; }
 .home-hero p  { font-size: 1.08rem; margin: 0 0 18px 0; color: #cfd3d7; }
