@@ -1,4 +1,7 @@
 /* HOMEPAGE-ONLY STYLES — DARK THEME (moved from inline) */
+html, body { font-family: 'Inter', Arial, sans-serif; } 
+input, button, select, textarea { font: inherit; }
+
 body {
   background: #0e0f12;
   color: #eaeaea;
