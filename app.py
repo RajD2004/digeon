@@ -25,11 +25,6 @@ CONTACT_TO = os.getenv("CONTACT_TO") or os.getenv("SMTP_USER") or "digeon.techno
 CONTACT_TO_NAME = os.getenv("CONTACT_TO_NAME", "Digeon Contact")
 
 
-# ---- Newsletter author allow-list (lowercase) ----
-NEWSLETTER_AUTHORS = {
-    "rajdhull2004@gmail.com",
-    "dt.newsletter@digeon.ai",
-}
 
 def get_db():
     return mysql.connector.connect(
@@ -50,11 +45,6 @@ def get_mkt_db():
         database=os.getenv("DB_MKT_NAME", "marketplace_db"),
         connection_timeout=3,
     )
-
-
-def _is_newsletter_author():
-    email = session.get("marketplace_user")
-    return bool(email and email.lower() in NEWSLETTER_AUTHORS)
 
 
 def _image_to_dataurl(blob):
@@ -606,11 +596,7 @@ def post_page():
     
 @app.route("/newsletter-create")
 def newsletter_create_page():
-    if "marketplace_user" not in session:
-        return redirect(url_for("login_page", next="/newsletter-create"))
-    if not _is_newsletter_author():
-        # not allowed even if logged in
-        return "Forbidden: not authorized to create newsletters.", 403
+    
     return render_template("newsletter-create.html")
 
 
@@ -689,10 +675,7 @@ def api_newsletter_create():
     Saves a post (draft by default) and its category mapping.
     """
 
-    if not _is_newsletter_author():
-        return jsonify({"status": 2, "error": "forbidden"}), 403
     
-
     data = request.get_json(silent=True) or {}
     subject = (data.get("subject") or "").strip()
     body    = data.get("body") or ""
@@ -730,8 +713,6 @@ def api_newsletter_publish():
     Records deliveries in NewsletterDeliveries.
     """
 
-    if not _is_newsletter_author():
-        return jsonify({"status": 2, "error": "forbidden"}), 403
     
 
     data = request.get_json(silent=True) or {}
@@ -830,8 +811,7 @@ def admin_page():
 
 @app.get("/api/newsletter/posts")
 def api_newsletter_posts():
-    if not _is_newsletter_author():
-        return jsonify([]), 403
+    
     conn = get_db()
     cur = conn.cursor(dictionary=True)
     cur.execute("""
