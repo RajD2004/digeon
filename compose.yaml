@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.app
     environment:
-      DB_HOST: database-1.c0zucywagdl4.us-east-1.rds.amazonaws.com
+      DB_HOST: digeondatabase-1.cgx4s8ke8x5x.us-east-1.rds.amazonaws.com
       DB_PORT: "3306"
       DB_NAME: main_db
       DB_MKT_NAME: marketplace_db
