@@ -1,7 +1,11 @@
 
 (function () {
-  async function j(url, opts){ const r=await fetch(url, opts); if(!r.ok) throw new Error(await r.text()); return r.json(); }
-  function mk(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
+    async function j(url, opts){
+        const r = await fetch(url, { credentials: 'same-origin', ...(opts||{}) });
+        if (!r.ok) throw new Error(await r.text());
+        return r.json();
+    }
+    function mk(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
 
   async function wire(card){
     const blogId = card.getAttribute('data-post-id');
