@@ -77,7 +77,7 @@ async function renderBlog() {
         : escapeHTML(post.content);
       const when = new Date(post.created_at).toLocaleString();
       return `
-        <div class="blog-card animate">
+        <div class="blog-card animate" data-post-id="${post.blog_id}">
           ${post.image ? `<img src="${post.image}" alt="">` : ""}
           <div class="blog-card-title">
             <a href="/post?id=${post.blog_id}" style="color:#fff;text-decoration:none;">
@@ -87,6 +87,7 @@ async function renderBlog() {
           <div class="blog-card-date">${when}</div>
           <div class="blog-card-content">${preview}</div>
           <a href="/post?id=${post.blog_id}" class="read-more">Read More →</a>
+          <div class="blog-card-footer"></div>
         </div>
       `;
     }).join("");

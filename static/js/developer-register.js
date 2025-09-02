@@ -40,6 +40,7 @@ document.getElementById('dev-register-form').onsubmit = function(e){
 
 // ===== Agent Registration + Live Preview =====
 const dynamicFields = document.getElementById('dynamic-fields');
+const fieldTemplate = document.getElementById('field-row-template'); // NEW
 const agentForm   = document.getElementById('agent-form');
 const fieldConfig = document.getElementById('field-config');
 const agentMsg    = document.getElementById('agent-msg');
@@ -50,14 +51,22 @@ const prevType   = document.getElementById('prev-type');
 const prevPrice  = document.getElementById('prev-price');
 const prevInputs = document.getElementById('prev-inputs');
 
-// build fields array
+// --- Helpers for mapping select values (template uses Title-cased values)
+const typeToTemplateValue = (t) => {
+  const m = { text:'Text', file:'File', image:'Image', audio:'Audio', video:'Video', number:'Number', other:'Other' };
+  return m[(t||'text').toLowerCase()] || 'Text';
+};
+const templateValueToType = (v) => (v || 'Text').toLowerCase();
+
+// build fields array (reads from new stacked rows)
 function getFieldArray(){
+  const rows = dynamicFields.querySelectorAll('.field-row');
   const arr = [];
-  for(const row of dynamicFields.children){
-    const label = row.querySelector('.field-label').value;
-    const type  = row.querySelector('.field-type').value;
-    if(label && type) arr.push({label, type});
-  }
+  rows.forEach(row=>{
+    const label = row.querySelector('.field-label-input')?.value?.trim() || '';
+    const type  = templateValueToType(row.querySelector('.field-type-select')?.value);
+    if(label && type) arr.push({ label, type }); // keep type lowercase for backend stability
+  });
   return arr;
 }
 
@@ -85,27 +94,43 @@ function renderPreview(){
   fields.forEach(({label,type})=>{
     const wrap=document.createElement('div'); wrap.className='prev-field';
     const lab=document.createElement('label'); lab.textContent=label || 'Field';
-    const ctrl=document.createElement('input'); ctrl.disabled=true; ctrl.type=(type==='file')?'file':'text'; if(type!=='file') ctrl.placeholder='Sample input';
+
+    // Choose appropriate disabled control by type
+    let ctrl;
+    const t = (type||'text').toLowerCase();
+    if (t === 'number') {
+      ctrl = document.createElement('input'); ctrl.type='number'; ctrl.disabled=true; ctrl.placeholder='0';
+    } else if (t === 'file' || t === 'image' || t === 'audio' || t === 'video') {
+      ctrl = document.createElement('input'); ctrl.type='file'; ctrl.disabled=true;
+    } else {
+      ctrl = document.createElement('input'); ctrl.type='text'; ctrl.disabled=true; ctrl.placeholder='Sample input';
+    }
+
     wrap.appendChild(lab); wrap.appendChild(ctrl); prevInputs.appendChild(wrap);
   });
 }
 
-// add/remove dynamic rows
-function addField(label='', type='text'){
-  const row=document.createElement('div');
-  row.className='dyn-field-row';
-  row.innerHTML=`
-    <input type="text" class="field-label" placeholder="Enter label (e.g., Prompt, Upload PDF)" value="${label}" required maxlength="32">
-    <select class="field-type">
-      <option value="text" ${type==='text'?'selected':''}>Text</option>
-      <option value="file" ${type==='file'?'selected':''}>File</option>
-    </select>
-    <button type="button" class="remove-field-btn" title="Remove Field">&times;</button>
-  `;
-  row.querySelector('.remove-field-btn').onclick = function(){ dynamicFields.removeChild(row); saveFieldConfig(); };
-  row.querySelector('.field-label').oninput  = saveFieldConfig;
-  row.querySelector('.field-type').onchange = saveFieldConfig;
-  dynamicFields.appendChild(row);
+// add/remove dynamic rows using the template (label on top, type below)
+function addField(label='User Input', type='text'){
+  if(!fieldTemplate) return; // safety
+  const node = fieldTemplate.content.firstElementChild.cloneNode(true);
+
+  const labelInput = node.querySelector('.field-label-input');
+  const typeSelect = node.querySelector('.field-type-select');
+  const removeBtn  = node.querySelector('.remove-field-btn');
+
+  labelInput.value = label;
+  typeSelect.value = typeToTemplateValue(type);
+
+  // wire events
+  labelInput.addEventListener('input', saveFieldConfig);
+  typeSelect.addEventListener('change', saveFieldConfig);
+  removeBtn.addEventListener('click', ()=>{
+    dynamicFields.removeChild(node);
+    saveFieldConfig();
+  });
+
+  dynamicFields.appendChild(node);
   saveFieldConfig();
 }
 document.getElementById('add-field-btn').onclick = () => addField();
@@ -121,7 +146,7 @@ agentForm.onsubmit = function(e){
   formData.append("type",  document.getElementById('agent-type').value);
   formData.append("price", document.getElementById('agent-price').value);
   formData.append("api_url", document.getElementById('agent-api-url').value);
-  formData.append("inputs", JSON.stringify(getFieldArray()));
+  formData.append("inputs", JSON.stringify(getFieldArray())); // unchanged endpoint contract
   fetch("/api/agent-register",{method:"POST",body:formData})
     .then(r=>r.json()).then(data=>{
       if(data.status===1){ window.location.href="/marketplace"; }

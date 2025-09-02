@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Digeon.ai Newsletter</title>
+  <title>Digeon AI - Newsletter</title>
   <link rel="icon" href="/static/images/icon.png" type="image/png">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,26 +92,20 @@ footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px 
 
   <!-- LOGIN REMINDER BANNER -->
   <div id="directory-access-banner" class="directory-access-banner" style="display:none;">
-    <span>Want to access the full AI Marketplace? <strong>Please login or register first.</strong></span>
-    <a class="banner-action" href="login">Login</a>
-    <a class="banner-action" href="register" style="background:#0077cc;">Register</a>
-    <button class="banner-close" onclick="document.getElementById('directory-access-banner').style.display='none';" title="Dismiss">&times;</button>
+    <span>Want to access the full AI Directory? <strong> Please subscribe to our newsletter.</strong></span>
+    <a class="banner-action" href="subscribe">Subscribe</a>
+    <button class="banner-close" onclick="document.getElementById('directory-access-banner').style.display='none';" title="Dismiss" style="margin-left:20px;">&times;</button>
   </div>
 
   <main>
-    <!-- TEMP: public authoring entry -->
-    <div style="max-width:1200px;margin:18px auto 0;display:flex;justify-content:flex-end;padding:0 24px;">
-      <!-- If you serve the editor via Flask, use href="/newsletter-create".
-          If it’s a static file, use href="/newsletter-create.html". -->
-      
-    </div>
+    <div style="max-width:1200px;margin:18px auto 0;display:flex;justify-content:flex-end;padding:0 24px;"></div>
     <div class="newsletter-main">
       <!-- LEFT SIDE -->
       <section class="newsletter-left animate">
         <h1 class="animate" style="font-size:2.85rem;text-align:left;">
-          Stay Informed, Stay Ahead with<br>
-          Digeon.ai<br>
-          weekly digest
+          Stay Informed and Ahead with<br>
+          Digeon AI<br>
+          Weekly Digest
         </h1>
         <h3>What You'll Get Every Week?</h3>
         <ul>
@@ -125,7 +119,7 @@ footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px 
         <ul>
           <li>Save hours on AI research – we test and curate tools so you don’t have to</li>
           <li>Be the first to discover powerful, niche AI agents before they trend</li>
-          <li>Stay in the loop with Digeon.ai product updates and community events</li>
+          <li>Stay in the loop with Digeon AI product updates and community events</li>
         </ul>
       </section>
       <!-- RIGHT SIDE -->
@@ -136,17 +130,21 @@ footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px 
         <form class="newsletter-form" id="newsletter-form" autocomplete="off">
           <div class="newsletter-form-row">
             <div style="flex:1;">
-              <label for="newsletter-name">Name</label>
+              <label for="newsletter-name">Name: </label>
               <input type="text" id="newsletter-name" name="newsletter-name" required>
             </div>
             <div style="flex:1;">
-              <label for="newsletter-email">Email</label>
+              <label for="newsletter-email">Email: </label>
               <input type="email" id="newsletter-email" name="newsletter-email" required>
             </div>
           </div>
-          <div style="margin-top:8px;margin-bottom:2px;font-weight:700;font-size:1.14rem;color:#333;">Area of Interest</div>
+          <div style="margin-top:8px;margin-bottom:2px;font-weight:700;font-size:1.14rem;color:#ffff;">Area of Interest: </div>
           <div class="newsletter-form-categories">
             <div class="checkbox-group">
+              <!-- Select All Checkbox -->
+              <label>
+                <input type="checkbox" id="area-select-all"> Select All
+              </label>
               {% for category in categories %}
                 <label>
                   <input type="checkbox" name="area[]" value="{{ category }}"> {{ category }}
@@ -178,41 +176,69 @@ footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px 
 
     // Newsletter subscription confirmation logic
     document.getElementById('newsletter-form').onsubmit = async function(e) {
-    e.preventDefault();
+      e.preventDefault();
 
-    const name = document.getElementById('newsletter-name').value.trim();
-    const email = document.getElementById('newsletter-email').value.trim();
-    const checkboxes = document.querySelectorAll('input[name="area[]"]:checked');
-    const categories = Array.from(checkboxes).map(cb => cb.value);
+      const name = document.getElementById('newsletter-name').value.trim();
+      const email = document.getElementById('newsletter-email').value.trim();
+      const checkboxes = document.querySelectorAll('input[name="area[]"]:checked');
+      const categories = Array.from(checkboxes).map(cb => cb.value);
 
-    const btn = document.getElementById('newsletter-submit');
-    btn.disabled = true;
-    btn.textContent = "Subscribing...";
+      const btn = document.getElementById('newsletter-submit');
+      btn.disabled = true;
+      btn.textContent = "Subscribing...";
 
-    const res = await fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, categories })
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, categories })
+      });
+
+      const result = await res.json();
+      if (result.status === 1) {
+        document.getElementById('newsletter-form').style.display = "none";
+        document.getElementById('newsletter-success').style.display = "block";
+      } else {
+        alert("Subscription failed: " + (result.error || "unknown error"));
+        btn.disabled = false;
+        btn.textContent = "Subscribe";
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("next") === "/directory") {
+        window.location.href = "/directory";
+        return;
+      }
+    };
+
+    // Two-way Select All logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const selectAll = document.getElementById('area-select-all');
+      const checkboxes = document.querySelectorAll('input[name="area[]"]');
+
+      function updateSelectAllState() {
+        const total = checkboxes.length;
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        if (checkedCount === total) {
+          selectAll.checked = true;
+          selectAll.indeterminate = false;
+        } else if (checkedCount === 0) {
+          selectAll.checked = false;
+          selectAll.indeterminate = false;
+        } else {
+          selectAll.checked = false;
+          selectAll.indeterminate = true;
+        }
+      }
+
+      selectAll.addEventListener('change', function() {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+      });
+
+      checkboxes.forEach(cb => cb.addEventListener('change', updateSelectAllState));
+
+      // Initialize state on load
+      updateSelectAllState();
     });
-
-    const result = await res.json();
-    if (result.status === 1) {
-      document.getElementById('newsletter-form').style.display = "none";
-      document.getElementById('newsletter-success').style.display = "block";
-    } else {
-      alert("Subscription failed: " + (result.error || "unknown error"));
-      btn.disabled = false;
-      btn.textContent = "Subscribe";
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("next") === "/directory") {
-      window.location.href = "/directory";
-      return;
-  }
-  };
-
-    
   </script>
 
   <script>

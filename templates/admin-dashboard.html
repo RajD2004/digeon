@@ -26,6 +26,24 @@
 
           <div style="margin-top:10px">
             <label for="nlContent">Body *</label>
+
+            <!-- Toolbar (Newsletter) -->
+            <!-- Toolbar (Newsletter) -->
+            <div id="nlToolbar" class="editor-toolbar" data-for="nlContent" style="margin:6px 0 8px; display:flex; flex-wrap:wrap; gap:8px;">
+              <button type="button" class="tb" data-act="bold"       aria-label="Bold"><b>B</b></button>
+              <button type="button" class="tb" data-act="italic"     aria-label="Italic"><i>I</i></button>
+              <button type="button" class="tb" data-act="h1"         aria-label="Heading 1">H1</button>
+              <button type="button" class="tb" data-act="h2"         aria-label="Heading 2">H2</button>
+              <button type="button" class="tb" data-act="h3"         aria-label="Heading 3">H3</button>
+              <button type="button" class="tb" data-act="code"       aria-label="Inline code">Code</button>
+              <button type="button" class="tb" data-act="codeblock"  aria-label="Code block">Code Block</button>
+              <button type="button" class="tb" data-act="link"       aria-label="Insert link">Link</button>
+              <button type="button" class="tb" data-act="highlight"  aria-label="Highlight">HL</button>
+              <button type="button" class="tb" data-act="sub"        aria-label="Subscript">Sub</button>
+              <button type="button" class="tb" data-act="sup"        aria-label="Superscript">Sup</button>
+            </div>
+
+
             <textarea id="nlContent" placeholder="Write your post here. Use {{name}} to personalize the greeting."></textarea>
           </div>
 
@@ -36,6 +54,14 @@
 
           <fieldset style="margin-top:12px">
             <legend>Area of Interest</legend>
+
+            <!-- Controls for cleaner AoI management -->
+            <div class="row" style="gap:8px;margin:6px 0 8px;">
+              <button class="btn btn-outline" id="nlCatsSelectAll" type="button">Select All</button>
+              <button class="btn btn-outline" id="nlCatsClear" type="button">Clear</button>
+            </div>
+
+            <!-- Grid container that JS will populate -->
             <div id="nlCatGrid" class="cat-grid"></div>
           </fieldset>
 
@@ -72,6 +98,22 @@
 
           <div style="margin-top:10px">
             <label for="blContent">Content *</label>
+
+            <!-- Toolbar (Blog) -->
+            <div id="blToolbar" class="editor-toolbar" data-for="blContent" style="margin:6px 0 8px; display:flex; flex-wrap:wrap; gap:8px;">
+              <button type="button" class="tb" data-act="bold"       aria-label="Bold"><b>B</b></button>
+              <button type="button" class="tb" data-act="italic"     aria-label="Italic"><i>I</i></button>
+              <button type="button" class="tb" data-act="h1"         aria-label="Heading 1">H1</button>
+              <button type="button" class="tb" data-act="h2"         aria-label="Heading 2">H2</button>
+              <button type="button" class="tb" data-act="h3"         aria-label="Heading 3">H3</button>
+              <button type="button" class="tb" data-act="code"       aria-label="Inline code">Code</button>
+              <button type="button" class="tb" data-act="codeblock"  aria-label="Code block">Code Block</button>
+              <button type="button" class="tb" data-act="link"       aria-label="Insert link">Link</button>
+              <button type="button" class="tb" data-act="highlight"  aria-label="Highlight">HL</button>
+              <button type="button" class="tb" data-act="sub"        aria-label="Subscript">Sub</button>
+              <button type="button" class="tb" data-act="sup"        aria-label="Superscript">Sup</button>
+            </div>
+
             <textarea id="blContent" placeholder="Write your blog post…"></textarea>
           </div>
 
@@ -82,7 +124,21 @@
           </div>
 
           <div class="actions">
+            <button class="btn btn-outline" id="blClearBtn" type="button">Clear</button>
+            <button class="btn" id="blSaveDraftBtn" type="button">Save Draft</button>
             <button class="btn" id="blPublishBtn" type="button">Publish Blog</button>
+          </div>
+
+          <!-- Blog Live Preview -->
+          <div class="preview" style="margin-top:12px;">
+            <div class="head">
+              <strong>Live Preview (Blog)</strong>
+              <span id="blPvStatus" class="help">Draft not saved</span>
+            </div>
+            <div class="body">
+              <h3 id="blPvTitle" style="margin:0 0 8px;">[Title will appear here]</h3>
+              <div id="blPvContent" class="markdown" style="color:#e6edf3">Start writing your blog post…</div>
+            </div>
           </div>
         </div>
       </div>
@@ -94,11 +150,25 @@
       <div class="body table-wrap">
         <table>
           <thead>
-            <tr><th>Title</th><th>Excerpt</th><th>Created</th></tr>
+            <tr><th>Title</th><th>Excerpt</th><th>Created</th><th>Actions</th></tr>
           </thead>
           <tbody id="blTbody"></tbody>
         </table>
         <div id="blEmpty" class="help" style="display:none;margin-top:8px">No blog posts yet.</div>
+      </div>
+    </div>
+
+    <!-- NEWSLETTER LIST (new) -->
+    <div class="card" style="margin-top:18px">
+      <h2>All Newsletters</h2>
+      <div class="body table-wrap">
+        <table>
+          <thead>
+            <tr><th>Subject</th><th>Preview</th><th>Created</th></tr>
+          </thead>
+          <tbody id="nlTbody"></tbody>
+        </table>
+        <div id="nlEmpty" class="help" style="display:none;margin-top:8px">No newsletters yet.</div>
       </div>
     </div>
   </div>

@@ -1,40 +1,31 @@
-const sidebar = document.getElementById('category-sidebar');
-const agentsList = document.getElementById('agents-list');
-let currentCategoryId = null;
-let categories = [];
+const sidebar         = document.getElementById('category-sidebar');
+const categoryListEl  = document.getElementById('category-list') || sidebar; // reuse existing #category-list if present
+const clearBtn        = document.getElementById('clear-filters');            // reuse existing Clear filters button if present
+const agentsList      = document.getElementById('agents-list');
 
-// ---- Rating filter UI handles
 const resultCountEl = document.getElementById('result-count');
 const minRatingEl   = document.getElementById('min-rating');
+const searchForm    = document.getElementById('site-search');
+const searchInput   = document.getElementById('search-input');
 
-// ---- Ratings cache
+let categories = [];
+let selectedCategoryIds = new Set();   // multi-select categories
+let allAgents = [];                    // merged agents from all categories
+const agentIndex = new Map();          // id -> agent (for merging categories)
+
+// ---- Live search state ------------------------------------------------------
+let activeQuery = '';
+let searchDebounceId = null;
+let isComposing = false;
+const normalize = (s='') => s.toLowerCase().trim().replace(/\s+/g, ' ');
+
+// ---- Ratings cache / helpers (unchanged behavior) --------------------------
 const ratingCache = new Map();
 async function getToolRating(toolId){
   if (ratingCache.has(toolId)) return ratingCache.get(toolId);
   const data = await fetchRating(toolId);
   ratingCache.set(toolId, data);
   return data;
-}
-function applyRatingFilter(items){
-  const minR = parseInt(minRatingEl?.value || '0', 10);
-  if (!minR) return items;
-  return items.filter(it => {
-    const rc = ratingCache.get(it.id);
-    const userVal = rc?.user || 0;
-    const avgVal  = rc?.avg  || 0;
-    const effective = userVal || avgVal;
-    return effective >= minR;
-  });
-}
-function renderCategories() {
-  sidebar.innerHTML = '';
-  categories.forEach((cat) => {
-    const btn = document.createElement('button');
-    btn.textContent = cat.name;
-    btn.className = 'directory-category-btn' + (cat.id === currentCategoryId ? ' selected' : '');
-    btn.onclick = () => { currentCategoryId = cat.id; renderCategories(); fetchAgents(cat.id); };
-    sidebar.appendChild(btn);
-  });
 }
 async function fetchRating(toolId){
   const r = await fetch(`/api/tools/${toolId}/rating`);
@@ -79,10 +70,12 @@ function mountStars(container, tool){
     });
   });
 }
+
+// ---- Rendering --------------------------------------------------------------
 function renderAgents(agentList) {
   agentsList.innerHTML = '';
   if (!agentList.length) {
-    agentsList.innerHTML = `<div style="color:#666;text-align:center;font-size:1.17rem;">No agents found for this category yet.</div>`;
+    agentsList.innerHTML = `<div style="color:#666;text-align:center;font-size:1.17rem;">No agents match those filters.</div>`;
     return;
   }
   for (const ag of agentList) {
@@ -97,37 +90,215 @@ function renderAgents(agentList) {
     mountStars(div.querySelector('.rating-slot'), ag);
   }
 }
+
+function renderCategoryFilters(){
+  // If the provided container is literally the sidebar, clear it (legacy fallback)
+  if (categoryListEl === sidebar) {
+    sidebar.innerHTML = '';
+  }
+
+  // Reuse an existing #category-list if it exists; otherwise create one
+  let list = categoryListEl.id === 'category-list'
+    ? categoryListEl
+    : document.createElement('div');
+
+  if (list !== categoryListEl) {
+    list.id = 'category-list';
+    list.className = 'category-list';
+  }
+
+  // (Re)build the checkbox list
+  list.innerHTML = '';
+  categories.forEach(cat => {
+    const id = `cat_${cat.id}`;
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.innerHTML = `
+      <input type="checkbox" id="${id}" value="${cat.id}">
+      <span>${cat.name}</span>
+    `;
+    const cb = label.querySelector('input');
+    cb.checked = selectedCategoryIds.has(cat.id);
+    cb.addEventListener('change', () => {
+      // If the user interacts with filters, clear active search
+      activeQuery = '';
+      if (searchInput) searchInput.value = '';
+
+      if (cb.checked) selectedCategoryIds.add(cat.id);
+      else selectedCategoryIds.delete(cat.id);
+      applyFiltersAndRender();
+    });
+    list.appendChild(label);
+  });
+
+  // Mount the list if we created a fresh one
+  if (list !== categoryListEl) {
+    categoryListEl.innerHTML = '';
+    categoryListEl.appendChild(list);
+  }
+
+  // ---- Clear button: use existing if present; create only if missing
+  const attachClearHandler = (btn) => {
+    btn.addEventListener('click', () => {
+      selectedCategoryIds.clear();
+      list.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+      if (minRatingEl) minRatingEl.value = '0';
+
+      // Also clear any active search
+      activeQuery = '';
+      if (searchInput) searchInput.value = '';
+
+      applyFiltersAndRender();
+    });
+  };
+
+  if (clearBtn) {
+    // Ensure a handler is attached to the existing button only once
+    clearBtn.replaceWith(clearBtn.cloneNode(true));
+    const freshBtn = document.getElementById('clear-filters') || document.querySelector('#clear-filters');
+    attachClearHandler(freshBtn);
+  } else {
+    const newBtn = document.createElement('button');
+    newBtn.id = 'clear-filters';
+    newBtn.type = 'button';
+    newBtn.textContent = 'Clear filters';
+    attachClearHandler(newBtn);
+    categoryListEl.appendChild(newBtn);
+  }
+}
+
+// ---- Filtering logic --------------------------------------------------------
+function applyRatingFilter(items){
+  const minR = parseInt(minRatingEl?.value || '0', 10);
+  if (!minR) return items;
+  return items.filter(it => {
+    const rc = ratingCache.get(it.id);
+    const userVal = rc?.user || 0;
+    const avgVal  = rc?.avg  || 0;
+    const effective = userVal || avgVal;
+    return effective >= minR;
+  });
+}
+function applyCategoryFilter(items){
+  if (selectedCategoryIds.size === 0) return items;
+  return items.filter(a => {
+    const set = a._cats; // Set of category ids we attach while building allAgents
+    if (!set) return false;
+    for (const cid of set) if (selectedCategoryIds.has(cid)) return true; // OR semantics
+    return false;
+  });
+}
+function applyFiltersAndRender(){
+  const byCat    = applyCategoryFilter(allAgents);
+  const byRating = applyRatingFilter(byCat);
+  resultCountEl.textContent = `${byRating.length} result${byRating.length !== 1 ? 's' : ''}`;
+  renderAgents(byRating);
+}
+
+// ---- Search rendering (prefix) ---------------------------------------------
+function resetFiltersUI(){
+  selectedCategoryIds.clear();
+  const list = document.getElementById('category-list');
+  if (list) list.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
+  if (minRatingEl) minRatingEl.value = '0';
+}
+function applySearchAndRender(q){
+  if (!q) {
+    // No query: show ALL (baseline, filters cleared)
+    resultCountEl.textContent = `${allAgents.length} result${allAgents.length !== 1 ? 's' : ''}`;
+    renderAgents(allAgents);
+    return;
+  }
+  // Query present: clear filters and show prefix matches
+  resetFiltersUI();
+  const matches = allAgents.filter(a => a._name.startsWith(q));
+  resultCountEl.textContent = `${matches.length} result${matches.length !== 1 ? 's' : ''}`;
+  renderAgents(matches);
+}
+function triggerSearch(){
+  const q = normalize(searchInput?.value || '');
+  activeQuery = q;
+  applySearchAndRender(q);
+}
+
+// ---- Data fetching (same backend endpoints) --------------------------------
 async function fetchCategories() {
   const res = await fetch('/api/categories');
   categories = await res.json();
-  if (categories.length > 0) {
-    currentCategoryId = categories[0].id;
-    renderCategories();
-    fetchAgents(currentCategoryId);
-  }
 }
-async function fetchAgents(categoryId) {
-  const res = await fetch(`/api/tools?category_id=${categoryId}`);
-  const agents = await res.json();
-  await Promise.all(agents.map(a => getToolRating(a.id).catch(() => ({avg:0, count:0, user:null}))));
-  const filtered = applyRatingFilter(agents);
-  resultCountEl.textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
-  renderAgents(filtered);
-}
-fetchCategories();
-minRatingEl?.addEventListener('change', () => { if (currentCategoryId) fetchAgents(currentCategoryId); });
 
-// Search
-document.getElementById("site-search").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const query = document.getElementById("search-input").value.trim();
-  if (!query) return;
-  const res = await fetch(`/api/tool-link?name=${encodeURIComponent(query)}`);
-  const data = await res.json();
-  if (data.link) window.open(data.link, "_blank"); else alert("Tool not found.");
+async function fetchAgentsByCategory(categoryId){
+  const res = await fetch(`/api/tools?category_id=${categoryId}`);
+  return res.json();
+}
+
+async function buildAllAgentsFromBackend(){
+  await fetchCategories();
+  agentIndex.clear();
+
+  for (const cat of categories) {
+    const list = await fetchAgentsByCategory(cat.id);
+    for (const ag of list) {
+      if (!agentIndex.has(ag.id)) {
+        ag._cats = new Set(); // attach category ids set
+        agentIndex.set(ag.id, ag);
+      }
+      agentIndex.get(ag.id)._cats.add(cat.id);
+    }
+  }
+
+  allAgents = Array.from(agentIndex.values());
+
+  // Precompute normalized name for fast prefix search
+  allAgents.forEach(a => { a._name = normalize(a.name); });
+
+  // Pre-warm ratings
+  await Promise.all(allAgents.map(a => getToolRating(a.id).catch(() => ({avg:0, count:0, user:null}))));
+}
+
+// ---- Init -------------------------------------------------------------------
+async function init(){
+  await buildAllAgentsFromBackend();  // builds allAgents and warms ratings
+  renderCategoryFilters();            // builds sidebar checkboxes (no duplicate Clear button)
+  // Initial: show ALL
+  resultCountEl.textContent = `${allAgents.length} result${allAgents.length !== 1 ? 's' : ''}`;
+  renderAgents(allAgents);
+}
+
+init();
+
+// Rating filter change handler (also clears active search)
+minRatingEl?.addEventListener('change', () => {
+  activeQuery = '';
+  if (searchInput) searchInput.value = '';
+  applyFiltersAndRender();
 });
 
-// Animations
+// Live search wiring (prefix)
+if (searchInput) {
+  searchInput.addEventListener('compositionstart', () => { isComposing = true; });
+  searchInput.addEventListener('compositionend', () => {
+    isComposing = false;
+    // run immediately at composition end
+    triggerSearch();
+  });
+  searchInput.addEventListener('input', () => {
+    if (isComposing) return;
+    if (searchDebounceId) clearTimeout(searchDebounceId);
+    searchDebounceId = setTimeout(triggerSearch, 120);
+  });
+}
+
+// Keep the form from navigating; Enter just uses live results
+if (searchForm) {
+  searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    triggerSearch();
+    if (searchInput) searchInput.focus();
+  });
+}
+
+// Animations (unchanged)
 document.addEventListener('DOMContentLoaded', function(){
   const obs = new IntersectionObserver((entries)=>{ entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('visible'), i*120); }}); },{threshold:.15});
   document.querySelectorAll('.animate').forEach(el=>obs.observe(el));

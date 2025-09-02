@@ -86,6 +86,29 @@
 
             <label>Agent Input Fields</label>
             <div class="dynamic-fields" id="dynamic-fields"></div>
+
+            <!-- NEW: template for a field row with label ABOVE the type -->
+            <template id="field-row-template">
+              <div class="field-row">
+                <!-- Label the user will type (what this input is about) -->
+                <input type="text" class="field-label-input" placeholder="Field label (e.g., Upload Logo)" maxlength="60" />
+
+                <div class="field-row-bottom">
+                  <!-- The input TYPE selector (options can be populated/overridden by JS if needed) -->
+                  <select class="field-type-select">
+                    <option value="Text">Text</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Video">Video</option>
+                    <option value="File">File</option>
+                    <option value="Image">Image</option>
+                    <option value="Number">Number</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <button type="button" class="remove-field-btn" title="Remove">&times;</button>
+                </div>
+              </div>
+            </template>
+
             <button type="button" class="add-field-btn" id="add-field-btn">+ Add Field</button>
 
             <label for="agent-price">Price (USD)</label>
