@@ -92,6 +92,9 @@ async function renderBlog() {
       `;
     }).join("");
 
+    if (window.initLikesAndComments) window.initLikesAndComments();
+
+
     // fade-in animation
     document.querySelectorAll('.blog-card').forEach(el => {
       const ob = new IntersectionObserver(es =>

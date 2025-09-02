@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS NewsletterPosts;
 DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Categories;
 DROP TABLE IF EXISTS Blogs;
+DROP TABLE IF EXISTS BlogLikes;
+DROP TABLE IF EXISTS BlogComments;
+
 
 CREATE TABLE IF NOT EXISTS Users(
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,4 +88,25 @@ CREATE TABLE IF NOT EXISTS NewsletterDeliveries (
   error_text TEXT NULL,
   FOREIGN KEY (post_id)    REFERENCES NewsletterPosts(post_id),
   FOREIGN KEY (user_email) REFERENCES Users(user_email)
+);
+
+CREATE TABLE IF NOT EXISTS BlogLikes (
+  blog_id    INT NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (blog_id, user_email),
+  CONSTRAINT fk_bloglikes_blog
+    FOREIGN KEY (blog_id) REFERENCES Blogs(blog_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS BlogComments (
+  comment_id INT AUTO_INCREMENT PRIMARY KEY,
+  blog_id    INT NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  user_name  VARCHAR(255) NULL,
+  body       TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_blogcomments_blog
+    FOREIGN KEY (blog_id) REFERENCES Blogs(blog_id) ON DELETE CASCADE
 );

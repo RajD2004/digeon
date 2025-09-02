@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, session, redirect, url_for
+from flask import Flask, request, render_template, jsonify, session, redirect, url_for, abort
 import mysql.connector
 import os
 import base64
@@ -151,6 +151,12 @@ def _delete_blog_row(blog_id: int) -> int:
         return cur.rowcount
     finally:
         cur.close(); conn.close()
+
+def _current_market_user():
+    email = session.get("marketplace_user")
+    if not email:
+        abort(401)
+    return email
 
 #APIS
 
@@ -532,6 +538,88 @@ def api_blog_delete_fallback():
         return jsonify({"status": 1})
     except Exception as e:
         return jsonify({"status": 0, "error": str(e)}), 500
+
+@app.get("/api/blogs/<int:blog_id>/likes")
+def blog_likes_summary(blog_id):
+    conn = get_db(); cur = conn.cursor()
+    try:
+        cur.execute("SELECT COUNT(*) FROM BlogLikes WHERE blog_id=%s", (blog_id,))
+        total = int(cur.fetchone()[0])
+        liked = False
+        user = session.get("marketplace_user")
+        if user:
+            cur.execute("SELECT 1 FROM BlogLikes WHERE blog_id=%s AND user_email=%s LIMIT 1", (blog_id, user))
+            liked = cur.fetchone() is not None
+        return jsonify({"count": total, "liked": liked})
+    finally:
+        cur.close(); conn.close()
+
+@app.post("/api/blogs/<int:blog_id>/like")
+def blog_like_toggle(blog_id):
+    email = _current_market_user()
+    conn = get_db(); cur = conn.cursor()
+    try:
+        cur.execute("SELECT 1 FROM BlogLikes WHERE blog_id=%s AND user_email=%s", (blog_id, email))
+        exists = cur.fetchone() is not None
+        if exists:
+            cur.execute("DELETE FROM BlogLikes WHERE blog_id=%s AND user_email=%s", (blog_id, email))
+        else:
+            cur.execute("INSERT INTO BlogLikes (blog_id, user_email) VALUES (%s, %s)", (blog_id, email))
+        conn.commit()
+        cur.execute("SELECT COUNT(*) FROM BlogLikes WHERE blog_id=%s", (blog_id,))
+        total = int(cur.fetchone()[0])
+        return jsonify({"count": total, "liked": not exists})
+    finally:
+        cur.close(); conn.close()
+
+
+@app.get("/api/blogs/<int:blog_id>/comments")
+def blog_comments_list(blog_id):
+    conn = get_db(); cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+          SELECT comment_id, blog_id, user_email, user_name, body, created_at, updated_at
+          FROM BlogComments WHERE blog_id=%s ORDER BY comment_id ASC
+        """, (blog_id,))
+        return jsonify(cur.fetchall())
+    finally:
+        cur.close(); conn.close()
+
+@app.post("/api/blogs/<int:blog_id>/comments")
+def blog_comments_add(blog_id):
+    email = _current_market_user()
+    data = request.get_json(silent=True) or request.form
+    body = (data.get("body") or "").strip()
+    user_name = (data.get("user_name") or "").strip() or None
+    if not body:
+        return jsonify({"status": 0, "error": "comment body required"}), 400
+    conn = get_db(); cur = conn.cursor()
+    try:
+        cur.execute("""
+          INSERT INTO BlogComments (blog_id, user_email, user_name, body)
+          VALUES (%s,%s,%s,%s)
+        """, (blog_id, email, user_name, body))
+        conn.commit()
+        return jsonify({"status": 1, "comment_id": cur.lastrowid})
+    finally:
+        cur.close(); conn.close()
+
+
+@app.delete("/api/blogs/<int:blog_id>/comments/<int:comment_id>")
+def blog_comments_delete(blog_id, comment_id):
+    email = _current_market_user()
+    conn = get_db(); cur = conn.cursor()
+    try:
+        cur.execute("""
+          DELETE FROM BlogComments
+          WHERE comment_id=%s AND blog_id=%s AND user_email=%s
+        """, (comment_id, blog_id, email))
+        conn.commit()
+        if cur.rowcount == 0:
+            return jsonify({"status": 0, "error": "not found or not allowed"}), 404
+        return jsonify({"status": 1})
+    finally:
+        cur.close(); conn.close()
 
 
 @app.route("/marketplace")
