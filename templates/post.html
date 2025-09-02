@@ -34,6 +34,10 @@
     <!-- Post content is injected here by post.js -->
     <div id="post-container"></div>
 
+    <div class="blog-card" id="post-social" data-post-id="">
+      <div class="blog-card-footer"></div>
+    </div>
+
     <!-- Post interactions (Like + comment count) -->
     <div class="post-actions" style="margin-top:18px;">
       <button id="like-btn" class="like-btn" type="button" aria-pressed="false">
@@ -84,5 +88,13 @@
 
   <!-- External JS -->
   <script src="{{ url_for('static', filename='js/post.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/blog-likes.js') }}?v=2"></script>
+  <script>
+    // Set the blog id from the URL (?id=123) onto the hook, then initialize
+    const id = new URLSearchParams(location.search).get('id');
+    document.getElementById('post-social').setAttribute('data-post-id', id);
+    if (window.initLikesAndComments) window.initLikesAndComments();
+  </script>
+
 </body>
 </html>

@@ -718,7 +718,10 @@ def api_blog(blog_id):
 
 @app.route("/post")
 def post_page():
+    if "marketplace_user" not in session:
+        return redirect(url_for("login_page", next=request.full_path))
     return render_template("post.html")
+
     
 @app.route("/newsletter-create")
 def newsletter_create_page():
