@@ -36,6 +36,8 @@ const blClearBtn     = document.getElementById('blClearBtn');
 const blPvTitle      = document.getElementById('blPvTitle');
 const blPvContent    = document.getElementById('blPvContent');
 const blPvStatus     = document.getElementById('blPvStatus');
+const blTbody = document.getElementById('blTbody');
+const blEmpty = document.getElementById('blEmpty');
 
 // ---------- Formatting toolbars (generic, matches your HTML data-attrs) ----------
 function wireFormattingToolbar(forTextareaId){
@@ -315,7 +317,7 @@ async function fetchBlogs(){
         + '<td>'+escapeHtml(p.title)+'</td>'
         + '<td>'+escapeHtml(excerpt(p.content))+'</td>'
         + '<td>'+when+'</td>'
-        + '<td><button class="btn btn-danger" data-action="delete" data-id="'+escapeHtml(String((p.id != null ? p.id : '')))+'">Delete</button></td>'
+        + '<td><button class="btn btn-danger" data-action="delete" data-id="'+escapeHtml(String(p.blog_id))+'">Delete</button></td>'
         + '</tr>';
     }).join('');
   }catch{ blEmpty.style.display='block'; blTbody.innerHTML=''; }

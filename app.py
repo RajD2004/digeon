@@ -141,6 +141,17 @@ def _newsletter_recipients_for_categories(conn, categories: list[str]):
     cur.close()
     return rows
 
+def _delete_blog_row(blog_id: int) -> int:
+    """Delete by blog_id. Returns number of rows deleted."""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("DELETE FROM Blogs WHERE blog_id = %s", (blog_id,))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        cur.close(); conn.close()
+
 #APIS
 
 @app.route('/')
@@ -494,6 +505,33 @@ def agent_inputs():
     cursor.close()
     conn.close()
     return jsonify(fields)
+
+@app.route("/api/blogs/<int:blog_id>", methods=["DELETE"])
+def api_blog_delete(blog_id):
+    try:
+        deleted = _delete_blog_row(blog_id)
+        if deleted == 0:
+            return jsonify({"status": 0, "error": "not found"}), 404
+        return jsonify({"status": 1})
+    except Exception as e:
+        return jsonify({"status": 0, "error": str(e)}), 500
+
+@app.post("/api/blogs/delete")
+def api_blog_delete_fallback():
+    data = request.get_json(silent=True) or {}
+    blog_id = data.get("id") or data.get("blog_id")
+    try:
+        blog_id = int(blog_id)
+    except Exception:
+        return jsonify({"status": 0, "error": "invalid id"}), 400
+
+    try:
+        deleted = _delete_blog_row(blog_id)
+        if deleted == 0:
+            return jsonify({"status": 0, "error": "not found"}), 404
+        return jsonify({"status": 1})
+    except Exception as e:
+        return jsonify({"status": 0, "error": str(e)}), 500
 
 
 @app.route("/marketplace")
