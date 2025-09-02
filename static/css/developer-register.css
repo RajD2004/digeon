@@ -32,8 +32,43 @@
 .dev-form input[type="text"], .dev-form textarea, .dev-form input[type="number"], .dev-form select { width: 100%; padding: 11px 12px; border-radius: 7px; border: 1.2px solid #bbc; font-size: 1.06rem; background: #f8fbfc;}
 .dev-form textarea { resize: vertical; min-height: 45px; }
 .dynamic-fields { display: flex; flex-direction: column; gap: 13px; margin-bottom: 0;}
+
+/* (legacy row style kept in case) */
 .dyn-field-row { display: flex; gap: 9px; align-items: center;}
 .dyn-field-row input[type="text"] { flex: 1; }
+
+/* NEW: stacked field row (label on top, type + remove below) */
+.field-row{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:10px;
+  border:1.2px solid #d5e1e8;
+  border-radius:8px;
+  background:#f9fcfd;
+}
+.field-label-input{
+  width:100%;
+  padding:10px 12px;
+  border:1.2px solid #bbc;
+  border-radius:7px;
+  background:#f8fbfc;
+  font-size:1.04rem;
+}
+.field-row-bottom{
+  display:flex;
+  gap:9px;
+  align-items:center;
+}
+.field-type-select{
+  flex:1;
+  padding:11px 12px;
+  border-radius:7px;
+  border:1.2px solid #bbc;
+  background:#f8fbfc;
+  font-size:1.06rem;
+}
+
 .remove-field-btn { background: #e63946; color: #fff; border: none; border-radius: 5px; padding: 4px 9px; font-weight: bold; cursor: pointer; }
 .remove-field-btn:hover { background: #b82334; }
 .add-field-btn { background: #19b6ad; color: #fff; border: none; border-radius: 7px; padding: 9px 18px; font-weight: bold; font-size: 1.08rem; cursor: pointer;}

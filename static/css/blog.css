@@ -173,6 +173,39 @@ footer { background: rgba(20, 20, 25, 0.95); padding: 20px; text-align: center; 
 .footer-social-bar img, .footer-social-bar svg { width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; }
 .footer-social-bar img:hover, .footer-social-bar svg:hover { opacity: 1; transform: translateY(-3px) scale(1.1); }
 
+/* --- Likes UI (added) --- */
+.blog-card-footer{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.like-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #2a2d34;
+  border-radius: 999px;
+  background: #0f141a;
+  color: #e6eaea;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .16s, background .16s, border-color .16s, opacity .2s;
+}
+.like-btn .heart{ font-size: 16px; line-height: 1; }
+.like-btn:hover{ transform: translateY(-2px); }
+.like-btn.liked{
+  background: #19b6ad;
+  border-color: #19b6ad;
+  color: #fff;
+}
+.like-btn.disabled{
+  opacity: .6;
+  cursor: not-allowed;
+}
+
 /* ANIMATIONS */
 .animate { transition: opacity 0.6s ease, transform 0.6s ease; }
 .animate.visible { opacity: 1 !important; transform: translateY(0) !important; }

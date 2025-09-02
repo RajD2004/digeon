@@ -30,10 +30,86 @@ thead th{color:#cfe0f2;background:#1a2029}
 .pill.draft{border-color:#41506b;color:#8fb2ff}
 fieldset{border:1px solid var(--border);border-radius:12px;padding:12px}
 legend{padding:0 6px;color:#00d1c4;font-weight:800}
-.cat-grid{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:8px 16px}
+
+/* Area of Interest grid (clean tiles + responsive wrap) */
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+  gap:8px 14px;
+}
+.cat-grid label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(30,32,38,.85);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
+  user-select:none;
+}
+.cat-grid label:hover{background:#1a2029;border-color:#334155}
+.cat-grid input[type="checkbox"]{width:16px;height:16px;accent-color:var(--brand)}
+
+/* Editor toolbar (for newsletter/blog formatting buttons) */
+.editor-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 8px}
+.editor-toolbar .tb{
+  background:#0d1219;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:6px 10px;
+  font-size:13px;
+  cursor:pointer;
+}
+.editor-toolbar .tb:hover{background:#121823;border-color:#334155}
+.editor-toolbar .tb b,
+.editor-toolbar .tb i{pointer-events:none}
+
+/* Toast + Preview */
 .toast{position:fixed;bottom:18px;right:18px;background:#0c1117;border:1px solid var(--border);color:#cfe0f2;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;box-shadow:0 10px 24px rgba(0,0,0,.35);z-index:60}
 .toast.show{opacity:1;transform:none}
 .preview{background:#12161c;border:1px solid var(--border);border-radius:12px;margin-top:10px}
 .preview .head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding:10px 12px}
 .preview .body{padding:12px}
 .preview .tags{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Blog preview Markdown styling */
+.markdown h1,.markdown h2,.markdown h3{margin:12px 0 8px;color:#fff}
+.markdown h1{font-size:22px}
+.markdown h2{font-size:18px}
+.markdown h3{font-size:16px}
+.markdown p{margin:8px 0;line-height:1.55}
+.markdown ul,.markdown ol{margin:8px 0 8px 20px}
+.markdown blockquote{
+  margin:10px 0;
+  padding:8px 12px;
+  border-left:3px solid var(--brand);
+  background:#0e141b;
+  color:#cfe0f2;
+  border-radius:6px;
+}
+.markdown code{
+  background:#0d1219;
+  border:1px solid #243044;
+  border-radius:6px;
+  padding:2px 5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-size:13px;
+}
+.markdown pre{
+  background:#0d1219;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  overflow:auto;
+  margin:10px 0;
+}
+.markdown pre code{
+  background:transparent;
+  border:0;
+  padding:0;
+  font-size:13px;
+}
+.markdown a{color:#7dd3fc;text-decoration:none}
+.markdown a:hover{text-decoration:underline}

@@ -108,3 +108,107 @@ footer {
   opacity: 1;
   transform: translateY(-3px) scale(1.1);
 }
+
+/* --- Likes UI (added) --- */
+.post-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:18px;
+}
+.like-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid #2a2d34;
+  border-radius:999px;
+  background:#0f141a;
+  color:#e6eaea;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .16s, background .16s, border-color .16s, opacity .2s;
+}
+.like-btn .heart{ font-size:16px; line-height:1; }
+.like-btn:hover{ transform: translateY(-2px); }
+.like-btn.liked{
+  background:#19b6ad;
+  border-color:#19b6ad;
+  color:#fff;
+}
+.like-btn.disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.comment-count{ color:#b9c0c7; font-size:.95rem; }
+
+/* --- Comments UI (added) --- */
+.comments-section{
+  margin-top:22px;
+  background:rgba(30,32,38,.85);
+  border:1px solid #2a2d34;
+  border-radius:12px;
+  padding:16px;
+}
+.comments-section h2{
+  margin:0 0 12px 0;
+  font-size:1.25rem;
+  color:#fff;
+}
+.comments-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.comment-item{
+  background:#101319;
+  border:1px solid #2a2d34;
+  border-radius:10px;
+  padding:10px 12px;
+}
+.comment-meta{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  color:#9fb0c2;
+  font-size:.9rem;
+  margin-bottom:6px;
+}
+.comment-name{ color:#eaeaea; font-weight:700; }
+.comment-time{ color:#9fb0c2; }
+.comment-body{
+  color:#dfe4ea;
+  line-height:1.55;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* Comment form */
+.comment-form{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.comment-form input[type="text"],
+.comment-form textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #2a2d34;
+  background:#0f141a;
+  color:#eaeaea;
+  font-size:1rem;
+}
+.comment-form textarea{ min-height:90px; resize:vertical; }
+.comment-form button{
+  justify-self:start;
+  background:#19b6ad;
+  color:#fff;
+  font-weight:700;
+  border:none;
+  border-radius:8px;
+  padding:10px 16px;
+  cursor:pointer;
+  transition: background .18s, transform .18s;
+}
+.comment-form button:hover{ background:#138c86; transform: translateY(-1px); }

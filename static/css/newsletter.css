@@ -33,14 +33,26 @@ a{color:#00d1c4;text-decoration:none} a:hover{text-decoration:underline}
 .newsletter-form input:focus{box-shadow:0 0 0 2px #00d1c4}
 .newsletter-form-categories{display:flex;flex-wrap:wrap;gap:12px 20px}
 .newsletter-form input[type="checkbox"]{accent-color:#00d1c4}
+
+/* Highlight style ONLY for the new Select All checkbox */
+.checkbox-group label:has(> input#area-select-all){
+  font-weight:700;
+  color:#00d1c4;
+}
+
 .newsletter-form button{background:#00d1c4;border:none;color:#fff;font-weight:bold;padding:12px 28px;border-radius:8px;cursor:pointer;transition:background .2s}
 .newsletter-form button:hover{background:#00a79e}
 .newsletter-success{display:none;background:rgba(0,209,196,.1);padding:15px;border-radius:8px;color:#00d1c4;text-align:center;margin-top:15px}
 
 /* ===== Login/Access banner (keep your existing logic) ===== */
-.directory-access-banner{background:#fff3cd;color:#000;border:1.5px solid #ffe599;border-radius:9px;padding:17px 34px;margin:22px auto 0;max-width:700px;font-size:1.05rem;text-align:center;display:none}
+.directory-access-banner{background:#fff3cd;color:#000;border:1.5px solid #ffe599;border-radius:9px;padding:17px 34px;margin:22px auto 0;max-width:700px;font-size:1.05rem;text-align:center;display:none;}
 .directory-access-banner .banner-action{margin-left:13px;background:#00d1c4;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer;text-decoration:none}
 .directory-access-banner .banner-action:hover{background:#00a79e}
+
+/* >>> Added spacing for the close button <<< */
+.directory-access-banner .banner-close{
+  margin-left:20px;
+}
 
 /* ===== Footer ===== */
 footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px solid rgba(255,255,255,.1);margin-top:50px}
