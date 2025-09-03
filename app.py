@@ -722,6 +722,7 @@ def post_page():
         return redirect(url_for("login_page", next=request.full_path))
     return render_template("post.html")
 
+
     
 @app.route("/newsletter-create")
 def newsletter_create_page():
