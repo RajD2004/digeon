@@ -76,11 +76,12 @@ function wireFormattingToolbar(forTextareaId){
     ta.dispatchEvent(new Event('input', {bubbles:true}));
   };
 
+  // ===== UPDATED HANDLER STARTS HERE =====
   toolbar.addEventListener('click', (e)=>{
     const btn = e.target.closest('.tb');
     if(!btn) return;
 
-    // Priority: link > line prefix > wrap
+    // 1) Existing attribute-based behavior (keep priority)
     if (btn.hasAttribute('data-insert-link')) {
       const url = prompt('Enter URL (https://...)','https://');
       if(!url) return;
@@ -91,13 +92,41 @@ function wireFormattingToolbar(forTextareaId){
       return;
     }
 
-    const linePrefix = btn.getAttribute('data-line-prefix');
-    if (linePrefix) { prefixEachLine(linePrefix); return; }
+    const linePrefixAttr = btn.getAttribute('data-line-prefix');
+    if (linePrefixAttr) { prefixEachLine(linePrefixAttr); return; }
 
-    const ws = btn.getAttribute('data-wrap-start');
-    const we = btn.getAttribute('data-wrap-end');
-    if (ws || we) { wrapSelection(ws || '', we || '', 'text'); return; }
+    const wsAttr = btn.getAttribute('data-wrap-start');
+    const weAttr = btn.getAttribute('data-wrap-end');
+    if (wsAttr || weAttr) { wrapSelection(wsAttr || '', weAttr || '', 'text'); return; }
+
+    // 2) NEW: support current HTML's data-act="..." buttons
+    const act = btn.getAttribute('data-act');
+    if (!act) return;
+
+    switch (act) {
+      case 'bold':        wrapSelection('**','**','text'); return;
+      case 'italic':      wrapSelection('*','*','text');   return;
+      case 'h1':          prefixEachLine('# ');            return;
+      case 'h2':          prefixEachLine('## ');           return;
+      case 'h3':          prefixEachLine('### ');          return;
+      case 'code':        wrapSelection('`','`','code');   return;
+      case 'codeblock':   wrapSelection('```\n','\n```','code'); return;
+      case 'link': {
+        const url = prompt('Enter URL (https://...)','https://');
+        if(!url) return;
+        const sStart = (ta.selectionStart != null ? ta.selectionStart : 0);
+        const sEnd   = (ta.selectionEnd   != null ? ta.selectionEnd   : 0);
+        const sel = ta.value.slice(sStart, sEnd) || 'link text';
+        wrapSelection(`<a href="${url}">`, '</a>', sel);
+        return;
+      }
+      case 'highlight':   wrapSelection('<mark>','</mark>','text'); return;
+      case 'sub':         wrapSelection('<sub>','</sub>','x');      return;
+      case 'sup':         wrapSelection('<sup>','</sup>','x');      return;
+      default: return;
+    }
   });
+  // ===== UPDATED HANDLER ENDS HERE =====
 }
 
 // Wire both toolbars (only if present in HTML)
