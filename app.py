@@ -480,23 +480,24 @@ def run_agent():
 
     try:
         # Decide whether to try GET or POST first
+        REQ_TIMEOUT = (10, 120)
         prefer_get = not (in_files and len(in_files)) and (not out_data or len(out_data) == 0)
 
+        
+
         def do_get():
-            print("RUN-AGENT calling GET:", api_url)
-            return requests.get(api_url, params=out_data, timeout=30)
+            return requests.get(api_url, params=out_data, timeout=REQ_TIMEOUT)
 
         def do_post():
-            print("RUN-AGENT calling POST:", api_url)
             if in_files and len(in_files):
                 files_out = {
-                    key: (f.filename, f.stream, f.mimetype or "application/octet-stream")
-                    for key, f in in_files.items()
-                    if f and f.filename
+                    k: (f.filename, f.stream, f.mimetype or "application/octet-stream")
+                    for k, f in in_files.items() if f and f.filename
                 }
-                return requests.post(api_url, data=out_data, files=files_out, timeout=30)
+                return requests.post(api_url, data=out_data, files=files_out, timeout=REQ_TIMEOUT)
             else:
-                return requests.post(api_url, json=out_data, timeout=30)
+                return requests.post(api_url, json=out_data, timeout=REQ_TIMEOUT)
+
 
         # First attempt
         resp = do_get() if prefer_get else do_post()
