@@ -492,13 +492,48 @@ def run_agent():
             resp = requests.post(api_url, json=out_data, timeout=30)
 
         resp.raise_for_status()
+
+        ct = (resp.headers.get("Content-Type") or "").lower()
+        cd = resp.headers.get("Content-Disposition") or ""
+
+        # Non-text (binary) → return as base64 + filename so frontend can download
+        if not ("application/json" in ct or ct.startswith("text/")):
+            content = resp.content
+            b64 = base64.b64encode(content).decode("ascii")
+
+            # Try to parse filename from Content-Disposition
+            filename = "output"
+            if "filename=" in cd:
+                filename = cd.split("filename=", 1)[1].strip('"; ')
+
+            # Guess an extension from Content-Type if missing
+            ext = None
+            if "/" in ct:
+                _, minor = ct.split("/", 1)
+                if minor:
+                    ext = minor.split(";")[0].strip()
+            if ext and not filename.lower().endswith("." + ext):
+                filename = f"{filename}.{ext}"
+
+            return jsonify({
+                "status": 1,
+                "file": {
+                    "filename": filename or "output.bin",
+                    "mime": ct or "application/octet-stream",
+                    "b64": b64
+                }
+            })
+
+        # Text/JSON path (existing behavior preserved)
         try:
-            result = resp.json()
+            result_obj = resp.json()
+            return jsonify({"status": 1, "result": result_obj})
         except Exception:
-            result = resp.text
-        return jsonify({"status": 1, "result": result})
+            return jsonify({"status": 1, "result": resp.text})
+
     except Exception as e:
         return jsonify({"status": 0, "error": str(e)})
+
 
 
 @app.route("/api/agent-inputs")

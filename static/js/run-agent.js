@@ -120,11 +120,57 @@ modalForm.onsubmit = async (e) => {
         body: JSON.stringify({ agent_name: currentAgent.name, inputs: data })
       }).then(r => r.json());
     }
+
     if (res.status === 1) {
+      // --- NEW: if backend sent a file, auto-download it
+      if (res.file && res.file.b64) {
+        const byteChars = atob(res.file.b64);
+        const byteNums = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
+        const blob = new Blob([new Uint8Array(byteNums)], { type: res.file.mime || 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = res.file.filename || 'output.bin';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        modalOutput.className = 'modal-output';
+        modalOutput.innerText = `Downloaded: ${res.file.filename || 'output.bin'}`;
+        return;
+      }
+
+      // Otherwise it's text/JSON — show it and offer a download button
+      const isObject = typeof res.result === 'object';
+      const text = isObject ? JSON.stringify(res.result, null, 2) : String(res.result);
       modalOutput.className = 'modal-output';
-      modalOutput.innerText = (typeof res.result === 'object')
-        ? JSON.stringify(res.result, null, 2)
-        : String(res.result);
+      modalOutput.innerText = text;
+
+      // Ensure we don’t stack multiple buttons on repeated runs
+      const oldBtn = modalOutput.parentElement.querySelector('.download-btn');
+      if (oldBtn) oldBtn.remove();
+
+      // Add a lightweight "Download" button for text results
+      const dlBtn = document.createElement('button');
+      dlBtn.className = 'download-btn';
+      dlBtn.textContent = isObject ? 'Download JSON' : 'Download .txt';
+      dlBtn.style.marginTop = '10px';
+      dlBtn.onclick = () => {
+        const blob = new Blob([text], { type: isObject ? 'application/json' : 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().replace(/[:.]/g, '-');
+        const base = (currentAgent?.name || 'agent').replace(/\s+/g, '_');
+        a.href = url;
+        a.download = isObject ? `${base}-${ts}.json` : `${base}-${ts}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      };
+      modalOutput.parentElement.appendChild(dlBtn);
     } else {
       modalOutput.className = 'modal-output error';
       modalOutput.innerText = 'Error: ' + res.error;
