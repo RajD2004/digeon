@@ -462,9 +462,8 @@ def run_agent():
         in_files = None
     else:
         agent_name = request.form.get("agent_name")
-        # all non-agent_name form fields are forwarded as text fields
         out_data = {k: v for k, v in request.form.items() if k != "agent_name"}
-        in_files = request.files  # ImmutableMultiDict (may be empty)
+        in_files = request.files  # may be empty
 
     if not agent_name:
         return jsonify({"status": 0, "error": "agent_name required"})
@@ -479,10 +478,8 @@ def run_agent():
         return jsonify({"status": 0, "error": "Agent not found"})
     api_url = row[0]
 
-    # Forward
-        # Forward
     try:
-        # Prefer GET if there are no files and no non-agent fields (simple endpoints)
+        # Decide whether to try GET or POST first
         prefer_get = not (in_files and len(in_files)) and (not out_data or len(out_data) == 0)
 
         def do_get():
@@ -504,19 +501,52 @@ def run_agent():
         # First attempt
         resp = do_get() if prefer_get else do_post()
 
-        # If the first attempt says the method is not allowed, try the other
+        # Retry with the other method if 405
         try:
             resp.raise_for_status()
         except requests.HTTPError:
             if resp.status_code == 405:
-                # flip method and retry once
                 resp = do_post() if prefer_get else do_get()
                 resp.raise_for_status()
             else:
                 raise
 
+        # --- SUCCESS HANDLING ---
+        ct = (resp.headers.get("Content-Type") or "").lower()
+        cd = resp.headers.get("Content-Disposition") or ""
+
+        if not ("application/json" in ct or ct.startswith("text/")):
+            content = resp.content
+            b64 = base64.b64encode(content).decode("ascii")
+            filename = "output"
+            if "filename=" in cd:
+                filename = cd.split("filename=", 1)[1].strip('"; ')
+            ext = None
+            if "/" in ct:
+                _, minor = ct.split("/", 1)
+                if minor:
+                    ext = minor.split(";")[0].strip()
+            if ext and not filename.lower().endswith("." + ext):
+                filename = f"{filename}.{ext}"
+
+            return jsonify({
+                "status": 1,
+                "file": {
+                    "filename": filename or "output.bin",
+                    "mime": ct or "application/octet-stream",
+                    "b64": b64
+                }
+            })
+
+        try:
+            result_obj = resp.json()
+            return jsonify({"status": 1, "result": result_obj})
+        except Exception:
+            return jsonify({"status": 1, "result": resp.text})
+
     except Exception as e:
         return jsonify({"status": 0, "error": str(e)})
+
 
 
 
