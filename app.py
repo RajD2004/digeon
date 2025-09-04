@@ -480,56 +480,40 @@ def run_agent():
     api_url = row[0]
 
     # Forward
+        # Forward
     try:
-        if in_files and len(in_files):
-            files_out = {
-                key: (f.filename, f.stream, f.mimetype or "application/octet-stream")
-                for key, f in in_files.items()
-                if f and f.filename
-            }
-            resp = requests.post(api_url, data=out_data, files=files_out, timeout=30)
-        else:
-            resp = requests.post(api_url, json=out_data, timeout=30)
+        # Prefer GET if there are no files and no non-agent fields (simple endpoints)
+        prefer_get = not (in_files and len(in_files)) and (not out_data or len(out_data) == 0)
 
-        resp.raise_for_status()
+        def do_get():
+            print("RUN-AGENT calling GET:", api_url)
+            return requests.get(api_url, params=out_data, timeout=30)
 
-        ct = (resp.headers.get("Content-Type") or "").lower()
-        cd = resp.headers.get("Content-Disposition") or ""
-
-        # Non-text (binary) → return as base64 + filename so frontend can download
-        if not ("application/json" in ct or ct.startswith("text/")):
-            content = resp.content
-            b64 = base64.b64encode(content).decode("ascii")
-
-            # Try to parse filename from Content-Disposition
-            filename = "output"
-            if "filename=" in cd:
-                filename = cd.split("filename=", 1)[1].strip('"; ')
-
-            # Guess an extension from Content-Type if missing
-            ext = None
-            if "/" in ct:
-                _, minor = ct.split("/", 1)
-                if minor:
-                    ext = minor.split(";")[0].strip()
-            if ext and not filename.lower().endswith("." + ext):
-                filename = f"{filename}.{ext}"
-
-            return jsonify({
-                "status": 1,
-                "file": {
-                    "filename": filename or "output.bin",
-                    "mime": ct or "application/octet-stream",
-                    "b64": b64
+        def do_post():
+            print("RUN-AGENT calling POST:", api_url)
+            if in_files and len(in_files):
+                files_out = {
+                    key: (f.filename, f.stream, f.mimetype or "application/octet-stream")
+                    for key, f in in_files.items()
+                    if f and f.filename
                 }
-            })
+                return requests.post(api_url, data=out_data, files=files_out, timeout=30)
+            else:
+                return requests.post(api_url, json=out_data, timeout=30)
 
-        # Text/JSON path (existing behavior preserved)
+        # First attempt
+        resp = do_get() if prefer_get else do_post()
+
+        # If the first attempt says the method is not allowed, try the other
         try:
-            result_obj = resp.json()
-            return jsonify({"status": 1, "result": result_obj})
-        except Exception:
-            return jsonify({"status": 1, "result": resp.text})
+            resp.raise_for_status()
+        except requests.HTTPError:
+            if resp.status_code == 405:
+                # flip method and retry once
+                resp = do_post() if prefer_get else do_get()
+                resp.raise_for_status()
+            else:
+                raise
 
     except Exception as e:
         return jsonify({"status": 0, "error": str(e)})
