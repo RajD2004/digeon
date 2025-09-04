@@ -545,6 +545,8 @@ def run_agent():
         except Exception:
             return jsonify({"status": 1, "result": resp.text})
 
+    except requests.exceptions.ReadTimeout:
+        return jsonify({"status": 0, "error": f"Remote API timed out (> {REQ_TIMEOUT[1]}s). Try smaller files or run again in a few seconds."})
     except Exception as e:
         return jsonify({"status": 0, "error": str(e)})
 
