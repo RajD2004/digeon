@@ -226,6 +226,18 @@ def directory():
         return redirect(url_for("subscribe", next="/directory"))
     return render_template("directory.html")
 
+@app.route("/developer/login")
+def developer_login_page():
+    return render_template("developer-login.html")
+
+
+@app.route("/developer/agent-register")
+def developer_agent_register_page():
+    if "dev_user" not in session:
+        return redirect(url_for("developer_login_page"))
+    return render_template("agent-register.html")
+
+
 
 @app.route("/api/categories")
 def api_categories():
@@ -325,8 +337,6 @@ def marketplace_auth():
         return jsonify({"status": 2, "Except": str(e)})
 
 
-# Helper for password validation (already present)
-# def validate_password(password: str) -> bool:
 
 @app.route("/api/dev-register", methods=['POST'])
 def dev_register():

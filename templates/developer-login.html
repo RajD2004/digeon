@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI – Developer Auth</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/developer-login.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v=6">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Tabs for Developer Auth -->
+    <div class="tab-row" id="tab-row">
+      <button id="tab-login" class="active">Developer Login</button>
+      <button id="tab-register">Developer Register</button>
+    </div>
+
+    <!-- Auth Forms -->
+    <div id="dev-auth-section">
+      <div class="auth-container" id="dev-login-section">
+        <h2>Developer Login</h2>
+        <form id="dev-login-form" class="auth-form" autocomplete="off">
+          <input type="email" id="dev-login-email" placeholder="Email" required>
+          <input type="password" id="dev-login-password" placeholder="Password" required>
+          <button type="submit">Login</button>
+        </form>
+        <div class="form-link-row">
+          <a href="forgot-password">Forgot Password?</a>
+        </div>
+        <div class="auth-msg" id="dev-login-msg"></div>
+      </div>
+
+      <div class="auth-container" id="dev-register-section" style="display:none;">
+        <h2>Developer Registration</h2>
+        <form id="dev-register-form" class="auth-form" autocomplete="off">
+          <input type="email" id="dev-register-email" placeholder="Email" required>
+          <input type="password" id="dev-register-password" placeholder="Password" required>
+          <input type="password" id="dev-register-password2" placeholder="Confirm Password" required>
+          <button type="submit">Register</button>
+        </form>
+        <div class="form-link-row">
+          <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+        <div class="auth-msg" id="dev-register-msg"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/developer-login.js') }}"></script>
+</body>
+</html>
