@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digeon AI - Developer Dashboard</title>
+  <link rel="icon" href="/static/images/icon.png" type="image/png">
+  <style>
+    body {
+      background: #0d1117;
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      color: #c9d1d9;
+    }
+    .navbar {
+      background: #161b22;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+    }
+    .logo img {
+      height: 44px;
+      border-radius: 6px;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+      margin: 0 0 0 20px;
+      padding: 0;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #c9d1d9;
+      font-weight: bold;
+      font-size: 1.07rem;
+      letter-spacing: 0.01em;
+      padding: 7px 0;
+      transition: color 0.22s, border-bottom 0.22s;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: #58a6ff;
+      border-bottom: 2px solid #58a6ff;
+    }
+    .dashboard-container {
+      max-width: 900px;
+      margin: 56px auto 0 auto;
+      background: #161b22;
+      padding: 44px 32px 40px 32px;
+      border-radius: 16px;
+      box-shadow: 0 2px 18px rgba(0,0,0,0.5);
+    }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .dashboard-header h1 {
+      font-size: 2.2rem;
+      margin: 0;
+      color: #f0f6fc;
+    }
+    .dashboard-welcome {
+      font-size: 1.16rem;
+      color: #8b949e;
+      margin-bottom: 15px;
+    }
+    /* Fixed Animation */
+    .create-agent-btn {
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 14px 36px;
+      font-weight: 700;
+      font-size: 1.16rem;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      animation: fadeUpBounce 0.8s ease forwards;
+      opacity: 0;
+      animation-delay: 0.2s;
+      animation-fill-mode: forwards;
+    }
+    .create-agent-btn:hover {
+      background: #2ea043;
+      transform: translateY(-2px) scale(1.035);
+      box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+    }
+    @keyframes fadeUpBounce {
+      0% { opacity: 0; transform: translateY(25px) scale(0.95); }
+      60% { opacity: 1; transform: translateY(-4px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .agents-list-section { margin-top: 36px; }
+    .agents-list-title { font-size: 1.37rem; margin-bottom: 22px; color: #f0f6fc; }
+    .agents-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .agent-card-dev {
+      background: #0d1117;
+      border: 1.4px solid #30363d;
+      border-radius: 12px;
+      padding: 22px 19px 17px 19px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      min-height: 170px;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .agent-card-dev:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+    }
+    .agent-card-dev h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.16rem;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+    .agent-card-dev .agent-desc {
+      color: #8b949e;
+      font-size: 1.01rem;
+      margin-bottom: 9px;
+    }
+    .agent-card-dev .agent-type {
+      font-size: 0.97rem;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    .agent-card-dev .agent-endpoint {
+      font-size: 0.95rem;
+      color: #79c0ff;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .agent-card-dev .agent-price {
+      font-size: 1.04rem;
+      color: #ffa657;
+      font-weight: 700;
+      margin-top: 7px;
+    }
+    .agent-card-dev .input-fields-list {
+      margin-top: 12px;
+    }
+    .agent-card-dev .input-fields-list span {
+      display: inline-block;
+      background: #21262d;
+      color: #8b949e;
+      font-size: 0.96rem;
+      padding: 3px 11px;
+      border-radius: 6px;
+      margin-right: 7px;
+      margin-bottom: 5px;
+    }
+    .no-agents-msg {
+      color: #8b949e;
+      font-size: 1.13rem;
+      padding: 45px 0;
+      text-align: center;
+    }
+    .dashboard-logout {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 11px 32px;
+      font-weight: 700;
+      font-size: 1.07rem;
+      cursor: pointer;
+      margin-top: 32px;
+    }
+    .dashboard-logout:hover { background: #b82334; }
+    @media (max-width: 850px) {
+      .agents-list { grid-template-columns: 1fr; }
+      .dashboard-container { padding: 17px 2vw; }
+    }
+    footer .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 12px 24px;
+      text-align: center;
+      font-size: 1rem;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
+        <ul class="nav-links">
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
+          <li><a href="contact">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="dashboard-container">
+      <div class="dashboard-header">
+        <h1>Developer Dashboard</h1>
+        <button class="create-agent-btn" onclick="window.location.href='register-agent.html'">+ Create New Agent</button>
+      </div>
+      <div class="dashboard-welcome">
+        Welcome, <span id="dev-email">{{ session.get('dev_user','') }}</span>! Here you can manage your agents.
+      </div>
+      <div class="agents-list-section">
+        <div class="agents-list-title">Your Agents</div>
+        <div class="agents-list" id="agents-list"></div>
+        <div class="no-agents-msg" id="no-agents-msg" style="display:none;">You haven't created any agents yet.<br>Click "Create New Agent" to get started!</div>
+      </div>
+      <button class="dashboard-logout" onclick="localStorage.removeItem('devUser'); window.location.href='developer-register.html';">Logout</button>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-row">
+        <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+      </div>
+      <div class="footer-social-bar">
+        <a href="https://x.com/digeonAI" target="_blank" title="X (Twitter)">
+          <img src="https://cdn.simpleicons.org/x/FFFFFF" alt="X (Twitter)">
+        </a>
+        <a href="https://www.instagram.com/digeon.ai/" target="_blank" title="Instagram">
+          <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram">
+        </a>
+        <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" role="img" width="28" height="28" viewBox="0 0 24 24" fill="#FFFFFF">
+              <title>LinkedIn</title>
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zM4.091 9H.535V20.452h3.556V9zM2.313 2.526c-1.144 0-2.067.927-2.067 2.065 0 1.139.923 2.065 2.067 2.065 1.143 0 2.066-.926 2.066-2.065 0-1.138-.923-2.065-2.066-2.065z"/>
+            </svg>
+          </a>
+        <a href="mailto:Digeon.technologies@gmail.com" title="Email Digeon">
+          <img src="https://cdn.simpleicons.org/gmail/FFFFFF" alt="Gmail">
+        </a>
+      </div>
+    </div>
+    <style>
+      .footer-row { text-align: center; margin-top: 28px; }
+      .footer-social-bar { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 26px; margin-bottom: 8px; }
+      .footer-social-bar img, .footer-social-bar svg {
+        width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; vertical-align: middle; filter: none;
+      }
+      .footer-social-bar img:hover, .footer-social-bar svg:hover { opacity: 1; transform: translateY(-3px) scale(1.1); }
+      @media (max-width: 700px) {
+        .footer-social-bar { gap: 18px; margin-top: 17px; margin-bottom: 4px; }
+      }
+    </style>
+  </footer>
+  <script>
+    // -------- AUTH GUARD --------
+    const devUser = localStorage.getItem('devUser');
+    if (!devUser) {
+      window.location.href = "developer-register.html";
+    }
+    document.getElementById('dev-email').textContent = devUser || "";
+
+    // -------- AGENT LISTING --------
+    let agents = JSON.parse(localStorage.getItem('agents') || "[]");
+    let myAgents = agents.filter(a => a.creator === devUser);
+
+    const agentsList = document.getElementById('agents-list');
+    const noAgentsMsg = document.getElementById('no-agents-msg');
+
+    if (!myAgents.length) {
+      agentsList.style.display = "none";
+      noAgentsMsg.style.display = "";
+    } else {
+      agentsList.style.display = "";
+      noAgentsMsg.style.display = "none";
+      myAgents.forEach(agent => {
+        const card = document.createElement('div');
+        card.className = "agent-card-dev";
+        card.innerHTML = `
+          <h3>${agent.name}</h3>
+          <div class="agent-desc">${agent.desc || ""}</div>
+          <div class="agent-type"><strong>Type:</strong> ${agent.type || "None"}</div>
+          <div class="agent-endpoint"><strong>Endpoint:</strong> ${agent.endpoint || ""}</div>
+          <div class="agent-price"><strong>Price:</strong> $${agent.price || "0.00"}</div>
+          <div class="input-fields-list"><strong>Input Fields:</strong> ${
+            (agent.inputs||[]).map(f=>`<span>${f.label} (${f.type})</span>`).join("")
+          }</div>
+        `;
+        agentsList.appendChild(card);
+      });
+    }
+  </script>
+  <script>
+  (async function () {
+    // Show who’s signed in (if you have that spot in your header)
+    const emailSpan = document.getElementById('dev-email');
+    if (emailSpan) emailSpan.textContent = "{{ session.get('dev_user','') }}";
+
+    const list = document.getElementById('agents-list');      // existing container in your dashboard
+    const noMsg = document.getElementById('no-agents-msg');   // existing "no agents" message if you have one
+
+    // 1) Pull the user’s purchased agents
+    const resp = await fetch('/api/my-agents');
+    if (resp.status !== 200) {
+      if (list) list.innerHTML = '<div class="no-agents-msg">Please log in.</div>';
+      return;
+    }
+    const agents = await resp.json();
+
+    // 2) Render cards
+    if (!agents || !agents.length) {
+      if (noMsg) noMsg.style.display = '';
+      return;
+    }
+    if (noMsg) noMsg.style.display = 'none';
+    if (list) {
+      list.innerHTML = agents.map(a => `
+        <div class="agent-card-dev">
+          <h3>${a.name}</h3>
+          <div class="agent-desc">${a.description || ''}</div>
+          <div class="agent-type">Type: ${a.type || ''}</div>
+          <div class="agent-price">$${a.price ?? 0}</div>
+          <button class="create-agent-btn run-btn" data-name="${a.name}" style="margin-top:14px;">Run</button>
+        </div>
+      `).join('');
+    }
+
+    // 3) Wire “Run” buttons to your existing runner (run-agent.js exposes window.openModal)
+    (list || document).querySelectorAll('.run-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const name = btn.getAttribute('data-name');
+        const [fields, allAgents] = await Promise.all([
+          fetch(`/api/agent-inputs?agent_name=${encodeURIComponent(name)}`).then(r => r.json()),
+          fetch('/api/market-agents').then(r => r.json())
+        ]);
+        const meta = (allAgents || []).find(x => x.name === name) || { name };
+        const agent = {
+          id: meta.id,
+          name,
+          desc: meta.description || '',
+          type: meta.type || '',
+          price: meta.price || '',
+          fields: fields || []
+        };
+        window.openModal(agent); // provided by run-agent.js
+      });
+    });
+
+    // 4) Deep-link support: /developer?agent=Name → auto-open it
+    const target = new URLSearchParams(location.search).get('agent');
+    if (target) {
+      const btn = (list || document).querySelector(`.run-btn[data-name="${CSS.escape(target)}"]`);
+      if (btn) btn.click();
+    }
+  })();
+  </script>
+
+  <div class="modal-bg" id="agent-modal-bg">
+    <div class="agent-modal" id="agent-modal">
+      <button class="modal-close" id="modal-close" title="Close">×</button>
+      <img alt="Agent Icon" class="agent-modal-icon" id="modal-icon" src="" style="display:none;"/>
+      <h2 id="modal-title"></h2>
+      <div class="modal-type" id="modal-type"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <form id="modal-form"></form>
+      <div class="modal-output" id="modal-output" style="display:none;"></div>
+    </div>
+  </div>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/run-agent.css') }}">
+  <script src="{{ url_for('static', filename='js/run-agent.js') }}"></script>
+
+</body>
+</html>

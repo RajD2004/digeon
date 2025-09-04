@@ -46,3 +46,12 @@ CREATE TABLE AgentInputs(
     inputFieldType VARCHAR(255) NOT NULL,
     FOREIGN KEY (agent_name) REFERENCES Agents(agent_name)
 );
+
+CREATE TABLE IF NOT EXISTS Purchases (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_email VARCHAR(255) NOT NULL,
+  agent_name VARCHAR(255) NOT NULL,
+  purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_user_agent (user_email, agent_name),
+  FOREIGN KEY (agent_name) REFERENCES Agents(agent_name)
+);

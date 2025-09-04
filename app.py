@@ -997,6 +997,57 @@ def api_contact():
 
     return jsonify({"ok": True})
 
+# --- Developer Portal integration ---
+@app.post("/api/purchase")
+def api_purchase():
+    email = session.get("marketplace_user")
+    if not email:
+        return jsonify({"status": 0, "error": "login required"}), 401
+    agent_name = request.form.get("agent_name") or (request.json or {}).get("agent_name")
+    if not agent_name:
+        return jsonify({"status": 0, "error": "agent_name required"}), 400
+
+    conn = get_mkt_db(); cur = conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO Purchases (user_email, agent_name)
+            VALUES (%s,%s)
+            ON DUPLICATE KEY UPDATE purchased_at=NOW()
+        """, (email, agent_name))
+        conn.commit()
+        return jsonify({"status": 1})
+    finally:
+        cur.close(); conn.close()
+
+
+@app.get("/api/my-agents")
+def api_my_agents():
+    # show user’s purchased agents (accept marketplace_user OR dev_user identity)
+    email = session.get("marketplace_user") or session.get("dev_user")
+    if not email:
+        return jsonify([]), 401
+    conn = get_mkt_db(); cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+          SELECT a.agent_id, a.agent_name AS name, a.description, a.agentType AS type, a.price
+          FROM Purchases p
+          JOIN Agents a ON a.agent_name = p.agent_name
+          WHERE p.user_email=%s
+          ORDER BY p.purchased_at DESC
+        """, (email,))
+        return jsonify(cur.fetchall())
+    finally:
+        cur.close(); conn.close()
+
+@app.get("/developer")
+def developer_dashboard():
+    # require dev login (keeps your existing flow)
+    if "dev_user" not in session:
+        return redirect(url_for("developer_login_page", next="/developer"))
+    # render YOUR dashboard file
+    return render_template("developer-dashboard.html")
+
+
 @app.route("/ops-9c1f0a6b7d2e4c8a3f1b9d7e5c2a0f4e", endpoint="admin_page")
 def admin_page():
     return render_template("admin-dashboard.html")

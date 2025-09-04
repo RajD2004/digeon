@@ -54,15 +54,23 @@ fetch('/api/market-agents')
 
     // Purchase → go to Run Agent page
     container.querySelectorAll('.buy-btn').forEach(function(btn) {
-      btn.onclick = function() {
+      btn.onclick = async function () {
         const agent = JSON.parse(
-          this.closest('.agent-card')
-              .getAttribute('data-agent')
-              .replace(/&apos;/g, "'")
+          this.closest('.agent-card').getAttribute('data-agent').replace(/&apos;/g, "'")
         );
-        window.location.href = `/run-agent?name=${encodeURIComponent(agent.name)}`;
+        const fd = new FormData();
+        fd.append('agent_name', agent.name);
+
+        const r = await fetch('/api/purchase', { method: 'POST', body: fd }).then(x => x.json());
+        if (r.status === 1) {
+          // Deep-link into your Developer Portal and auto-open this agent there
+          window.location.href = `/developer?agent=${encodeURIComponent(agent.name)}`;
+        } else {
+          alert(r.error || 'Failed to purchase');
+        }
       };
     });
+
   });
 
 // Animation observer (cascading fade/slide)
