@@ -283,7 +283,7 @@
     const noMsg = document.getElementById('no-agents-msg');   // existing "no agents" message if you have one
 
     // 1) Pull the user’s purchased agents
-    const resp = await fetch('/api/my-agents');
+    const resp = await fetch('/api/dev/agents');
     if (resp.status !== 200) {
       if (list) list.innerHTML = '<div class="no-agents-msg">Please log in.</div>';
       return;

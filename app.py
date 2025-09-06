@@ -402,6 +402,29 @@ def dev_logout():
     session.pop("dev_user", None)
     return jsonify({"status": 1})
 
+@app.get("/api/dev/agents")
+def api_dev_agents():
+    # show agents the logged-in developer has registered
+    email = session.get("dev_user")
+    if not email:
+        return jsonify([]), 401
+    conn = get_mkt_db(); cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute("""
+          SELECT 
+            agent_id      AS id,
+            agent_name    AS name,
+            description   AS description,
+            agentType     AS type,
+            price         AS price
+          FROM Agents
+          WHERE developer_email = %s
+          ORDER BY agent_id DESC
+        """, (email,))
+        return jsonify(cur.fetchall())
+    finally:
+        cur.close(); conn.close()
+
 
 @app.route("/api/agent-register", methods=["POST"])
 def agent_register():
