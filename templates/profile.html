@@ -6,81 +6,84 @@
   <title>My Profile - Digeon AI</title>
   <link rel="icon" href="/static/images/icon.png" type="image/png">
 
-  <!-- Styles are inlined here, but ideally move to profile.css -->
+  <style>
+    :root{
+      --bg:#0f1216; --panel:#151a21; --panel-2:#121823; --text:#e6edf3; --muted:#9fb0c2;
+      --brand:#19b6ad; --accent:#0077cc; --danger:#e63946; --border:#273141; --ring: rgba(125,211,252,.35);
+    }
+    html{color-scheme:dark;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body { background: var(--bg); margin: 0; font-family: 'Inter', system-ui, Arial, sans-serif; color: var(--text); }
+    a { color:#7dd3fc; text-decoration:none; } a:hover { text-decoration:underline; }
+
+    .navbar { background: var(--panel); border-bottom: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0,0,0,.25); position: sticky; top: 0; z-index: 100; }
+    .navbar .container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 60px; }
+    .logo img { height: 44px; border-radius: 6px; }
+    .nav-links { list-style: none; display: flex; gap: 32px; margin: 0 0 0 20px; padding: 0; align-items: center; }
+    .nav-links li a { color: var(--text); opacity: .9; }
+    .cta-btn { background: var(--brand); color: #0b1117; padding: 10px 14px; border-radius: 10px; font-weight: 600; border: 1px solid #126a66; }
+    .cta-btn:hover { filter: brightness(1.1); }
+
+    .page { max-width: 1100px; margin: 42px auto; padding: 0 18px; }
+    .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 1.9rem; color: var(--brand); }
+    .whoami { color: var(--muted); font-size: .95rem; }
+
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+    .panel-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .panel-title { font-size: 1.15rem; }
+    .panel-body { padding: 18px 20px 24px 20px; }
+
+    .agents-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+    .agent-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .agent-name { font-weight: 700; font-size: 1.05rem; margin: 0 0 8px 0; }
+    .agent-desc { color: var(--muted); font-size: .95rem; margin-bottom: 10px; min-height: 2.4em; }
+    .agent-meta { font-size: .85rem; color: #b7c7d8; margin-bottom: 12px; }
+    .card-actions { display: flex; gap: 10px; }
+    .btn { border: 1px solid var(--border); background: #0c141d; color: var(--text); border-radius: 10px; padding: 9px 12px; font-weight: 600; }
+    .btn:hover { filter: brightness(1.12); }
+    .btn-run { border-color: #1f7ab9; background: #0b1c2b; }
+    .btn-delete { border-color: #5a2126; background: #1e0d11; color: #ffd4d8; } /* if you add “unassign” later */
+
+    .empty { border: 1px dashed var(--border); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); }
+
+    footer { margin: 36px 0 18px; }
+    footer .container { max-width: 1100px; margin: 0 auto; padding: 20px 24px 12px 24px; text-align: center; font-size: 1rem; color: var(--muted); }
+  </style>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 <body>
   <header>
     <nav class="navbar">
       <div class="container">
-        <a href="index.html" class="logo">
-          <img src="logo.png" alt="Digeon AI logo">
-        </a>
+        <a href="/" class="logo"><img src="/static/images/logo.png" alt="Digeon.ai logo"></a>
         <ul class="nav-links">
-          <li><a href="newsletter.html">Newsletter</a></li>
-          <li><a href="directory.html">Directory</a></li>
-          <li><a href="marketplace.html">Marketplace</a></li>
-          <li><a href="blog.html">Blog</a></li>
+          <li><a href="newsletter">Newsletter</a></li>
+          <li><a href="directory">Directory</a></li>
+          <li><a href="marketplace">Marketplace</a></li>
+          <li><a href="blog">Blog</a></li>
           <li><a href="contact">Contact Us</a></li>
         </ul>
+        <a href="/developer/login" class="cta-btn">Developer Portal</a>
       </div>
     </nav>
   </header>
 
-  <div class="main-container">
-    <!-- ==== Profile Header ==== -->
-    <div class="profile-header">
-      <img src="static/images/default-avatar.png" alt="User Avatar" class="profile-avatar">
-      <h2 class="profile-username">@username</h2>
-      <p class="profile-bio">This is a user bio. They can describe themselves here.</p>
-
-      <div class="profile-stats">
-        <span><strong id="stat-posts">0</strong> Posts</span>
-        <span><strong id="stat-followers">0</strong> Followers</span>
-        <span><strong id="stat-following">0</strong> Following</span>
-        <span><strong id="stat-agents">0</strong> Agents</span>
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1>My Profile</h1>
+        <div class="whoami">Signed in as <strong>{{ session.get('marketplace_user') or session.get('dev_user') or 'guest' }}</strong></div>
       </div>
-
-      <div class="profile-actions">
-        <button class="btn-edit">Edit Profile</button>
-      </div>
+      <button class="btn" onclick="localStorage.removeItem('marketplaceUser'); window.location.href='login';">Logout</button>
     </div>
 
-    <!-- ==== Agents Section ==== -->
-    <div class="agents-section">
-      <div class="agents-header">
-        <h2>My Agents</h2>
-        <input type="text" id="agent-search" placeholder="Search agents...">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Purchased Agents</div>
       </div>
-
-      <div id="agents-grid" class="agents-grid">
-        <!-- Agent cards will be injected here by JS -->
-      </div>
-
-      <div id="agents-empty" class="agents-empty">
-        <p>No agents purchased yet.</p>
-        <a href="marketplace.html" class="browse-link">Browse the Marketplace</a>
-      </div>
-    </div>
-
-    <!-- Logout Button -->
-    <button class="profile-logout" onclick="localStorage.removeItem('marketplaceUser'); window.location.href='login.html';">
-      Logout
-    </button>
-  </div>
-
-  <!-- Modal for running agent -->
-  <div id="agent-modal" class="modal">
-    <div class="modal-content">
-      <span id="modal-close" class="modal-close">&times;</span>
-      <h3 id="modal-title">Run Agent</h3>
-      <p id="modal-description">Provide input for this agent:</p>
-      <textarea id="agent-input" rows="4"></textarea>
-      <button id="run-agent-btn" class="btn">Run Agent</button>
-      <div id="agent-result" class="agents-empty" style="display:none;">
-        <h4>Result</h4>
-        <pre id="agent-output"></pre>
+      <div class="panel-body">
+        <div id="purchased-empty" class="empty" style="display:none;">You haven’t purchased any agents yet.</div>
+        <div id="purchased-grid" class="agents-grid"></div>
       </div>
     </div>
   </div>
@@ -91,7 +94,39 @@
     </div>
   </footer>
 
-  <!-- Future JS will handle backend calls -->
-  <script src="profile.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const grid = document.getElementById('purchased-grid');
+    const empty = document.getElementById('purchased-empty');
+
+    try {
+      const resp = await fetch('/api/my-agents');
+      if (resp.status !== 200) {
+        grid.innerHTML = '<div class="empty">Please log in to view your purchases.</div>';
+        return;
+      }
+      const agents = await resp.json();
+
+      if (!agents || !agents.length) {
+        empty.style.display = '';
+        return;
+      }
+
+      grid.innerHTML = agents.map(a => `
+        <div class="agent-card">
+          <div class="agent-name">${a.name}</div>
+          <div class="agent-desc">${a.description || ''}</div>
+          <div class="agent-meta">Type: ${a.type || '—'} · Price: ${a.price ?? '—'}</div>
+          <div class="card-actions">
+            <a class="btn btn-run" href="/run-agent?name=${encodeURIComponent(a.name)}">Run</a>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+      grid.innerHTML = '<div class="empty">Failed to load purchases.</div>';
+    }
+  });
+  </script>
 </body>
 </html>
