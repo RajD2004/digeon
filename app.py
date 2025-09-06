@@ -1052,7 +1052,7 @@ def api_purchase():
 @app.get("/api/my-agents")
 def api_my_agents():
     # show user’s purchased agents (accept marketplace_user OR dev_user identity)
-    email = session.get("marketplace_user") or session.get("dev_user")
+    email = session.get("marketplace_user")
     if not email:
         return jsonify([]), 401
     conn = get_mkt_db(); cur = conn.cursor(dictionary=True)

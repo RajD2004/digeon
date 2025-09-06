@@ -64,7 +64,7 @@ fetch('/api/market-agents')
         const r = await fetch('/api/purchase', { method: 'POST', body: fd }).then(x => x.json());
         if (r.status === 1) {
           // Deep-link into your Developer Portal and auto-open this agent there
-          window.location.href = `/developer?agent=${encodeURIComponent(agent.name)}`;
+          window.location.href = "/profile";
         } else {
           alert(r.error || 'Failed to purchase');
         }
