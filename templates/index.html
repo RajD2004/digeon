@@ -10,7 +10,6 @@
 
     <!-- externalized page-specific CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v=6">
   </head>
   <body>
@@ -35,31 +34,40 @@
     </header>
 
     <main>
+      <!-- HERO -->
       <section class="home-hero animate">
         <div class="hero-gradient"></div>
         <div class="hero-overlay">
           <h1>Discover, Develop, and Deliver</h1>
           <p>
-            Digeon AI helps you find the right AI tools, publish inteligent
-            solutions, and share insight: acting as your digital courier for
+            Digeon AI helps you find the right AI tools, publish intelligent
+            solutions, and share insight — acting as your digital courier for
             AI-powered innovation.
           </p>
+
+          <!-- CTA group (routes unchanged) -->
+          <div class="cta-group">
+            
+            <a href="#about" class="btn-secondary">Learn More</a>
+          </div>
         </div>
       </section>
 
-      <div class="about-block animate">
+      <!-- ABOUT -->
+      <section id="about" class="about-block animate">
         <h2>What is Digeon?</h2>
         <p>
           Digeon AI is a growing platform dedicated to making artificial
           intelligence accessible, practical, and impactful for creators,
-          intovafors, and professionals alike, Whether you're a developer
-          looking to showcase AI agents or a user exploring tools to boost
-          productivity, Digeon brings everything together in one inteligent
-          ecosystem.
+          innovators, and professionals alike.
+          Whether you're a developer looking to showcase AI agents or a user
+          exploring tools to boost productivity, Digeon brings everything
+          together in one intelligent ecosystem.
         </p>
-      </div>
+      </section>
 
-      <div class="features-row">
+      <!-- FEATURE CARDS (routes & images unchanged) -->
+      <section class="features-row">
         <button
           class="feature-btn"
           onclick="window.location.href='{{ url_for("directory") }}'"
@@ -69,10 +77,7 @@
             alt="AI Tools Directory"
           />
           <h3>Tools Directory</h3>
-          <p>
-            Explore extensive list of AI agents for various solutions and
-            applications
-          </p>
+          <p>Find vetted AI tools and agents.</p>
         </button>
 
         <button
@@ -84,7 +89,7 @@
             alt="AI Marketplace"
           />
           <h3>Marketplace</h3>
-          <p>Access growing marketplace for AI resources and services</p>
+          <p>Discover resources and services for builders.</p>
         </button>
 
         <button
@@ -96,9 +101,9 @@
             alt="Weekly AI Newsletter"
           />
           <h3>Weekly Newsletter</h3>
-          <p>Stay updated with latest AI trends, resources and insights</p>
+          <p>Weekly trends, resources, and insights.</p>
         </button>
-      </div>
+      </section>
     </main>
 
     <footer>

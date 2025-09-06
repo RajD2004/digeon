@@ -35,7 +35,6 @@
       <form action="mailto:digeon.technologies@gmail.com" method="POST" enctype="text/plain">
         <input type="text" name="name" placeholder="Your Name" required>
         <input type="email" name="email" placeholder="Your Email" required>
-        <input type="tel" name="phone" placeholder="Your Phone Number" required>
         <textarea name="message" placeholder="Describe your issue..." required></textarea>
         <button type="submit">Send Message</button>
       </form>
@@ -43,25 +42,34 @@
   </main>
 
   <footer>
-    <p>&copy; 2025 Digeon AI. All rights reserved.</p>
-    <div class="footer-social-bar">
-      <a href="https://x.com/digeonAI" target="_blank" title="X (Twitter)">
-        <img src="https://cdn.simpleicons.org/x/FFFFFF" alt="X (Twitter)">
-      </a>
-      <a href="https://www.instagram.com/digeon.ai/" target="_blank" title="Instagram">
-        <img src="https://cdn.simpleicons.org/instagram/FFFFFF" alt="Instagram">
-      </a>
-      <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank" title="LinkedIn">
-        <svg xmlns="http://www.w3.org/2000/svg" role="img" width="28" height="28" viewBox="0 0 24 24" fill="#FFFFFF">
-          <title>LinkedIn</title>
-          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849 3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zM4.091 9H.535V20.452h3.556V9zM2.313 2.526c-1.144 0-2.067.927-2.067 2.065 0 1.139.923 2.065 2.067 2.065 1.143 0 2.066-.926 2.066-2.065 0-1.138-.923-2.065-2.066-2.065z"/>
-        </svg>
-      </a>
-      <a href="mailto:Digeon.technologies@gmail.com" title="Email Digeon">
-        <img src="https://cdn.simpleicons.org/gmail/FFFFFF" alt="Gmail">
-      </a>
+    <div class="container">
+      <div class="footer-row">
+        <p>&copy; 2025 Digeon AI. All rights reserved.</p>
+      </div>
+      <div class="footer-social-bar">
+        <a href="https://x.com/digeonAI" target="_blank" title="X (Twitter)">
+          <img src="https://cdn.simpleicons.org/x/ffffff" alt="X (Twitter)" />
+        </a>
+        <a href="https://www.instagram.com/digeon.ai/" target="_blank" title="Instagram">
+          <img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" />
+        </a>
+        <a href="https://www.linkedin.com/company/digeon-ai/" target="_blank" title="LinkedIn" style="display:inline-block;">
+          <svg xmlns="http://www.w3.org/2000/svg" role="img" width="28" height="28" viewBox="0 0 24 24" fill="#ffffff">
+            <title>LinkedIn</title>
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.026-3.037-1.849-3.037-1.853 0-2.136
+            1.445-2.136 2.939v5.667H9.354V9h3.414v1.561h.049c.476-.899 1.637-1.849
+            3.37-1.849 3.601 0 4.268 2.37 4.268 5.455v6.285zM4.091 9H.535V20.452h3.556V9zM2.313
+            2.526c-1.144 0-2.067.927-2.067 2.065 0 1.139.923 2.065 2.067 2.065 1.143 0
+            2.066-.926 2.066-2.065 0-1.138-.923-2.065-2.066-2.065z"/>
+          </svg>
+        </a>
+        <a href="mailto:Digeon.technologies@gmail.com" title="Email Digeon">
+          <img src="https://cdn.simpleicons.org/gmail/ffffff" alt="Gmail" />
+        </a>
+      </div>
     </div>
   </footer>
+
 
   <!-- externalized JS -->
   <script src="{{ url_for('static', filename='js/contact.js') }}"></script>
