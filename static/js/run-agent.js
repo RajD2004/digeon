@@ -3,9 +3,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Read ?name=...
   const params = new URLSearchParams(location.search);
   const agentName = params.get('name');
+  const EMBEDDED = !!window.RUN_AGENT_EMBEDDED || location.pathname !== '/run-agent';
+
   if (!agentName) {
-    alert('No agent specified. Return to the marketplace and choose an agent.');
-    return;
+    if (!EMBEDDED) {
+      alert('No agent specified. Return to the marketplace and choose an agent.');
+    }
+    return; 
   }
 
   // Fetch the agent's input fields and metadata
