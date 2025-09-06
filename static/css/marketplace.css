@@ -114,10 +114,50 @@ body {
 .login-link-row a:hover { text-decoration: underline; }
 
 /* ===== FOOTER ===== */
-footer { background: rgba(20, 20, 25, 0.95); padding: 20px; text-align: center; }
-.footer-social-bar { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
-.footer-social-bar img, .footer-social-bar svg { width: 28px; height: 28px; opacity: 0.88; transition: opacity 0.16s, transform 0.16s; }
-.footer-social-bar img:hover, .footer-social-bar svg:hover { opacity: 1; transform: translateY(-3px) scale(1.1); }
+footer {
+  background: rgba(20, 20, 25, 0.95);
+  padding: 26px 20px 18px;
+  text-align: center;
+  border-top: 1px solid #2a2d33;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.footer-row {
+  margin-top: 10px;
+}
+
+.footer-row p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.footer-social-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 26px;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+
+.footer-social-bar img,
+.footer-social-bar svg {
+  width: 26px;
+  height: 26px;
+  opacity: 0.88;
+  transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
+  vertical-align: middle;
+  filter: none;
+}
+
+.footer-social-bar img:hover,
+.footer-social-bar svg:hover {
+  opacity: 1;
+  transform: translateY(-3px) scale(1.08);
+  filter: drop-shadow(0 0 4px #19b6ad);
+}
 
 /* ===== ANIMATION ===== */
 .animate { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }

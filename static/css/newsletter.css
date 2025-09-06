@@ -3,15 +3,47 @@ body{margin:0;font-family:'Inter',Arial,sans-serif;background:linear-gradient(13
 a{color:#00d1c4;text-decoration:none} a:hover{text-decoration:underline}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 
-/* ===== Navbar (keep your Flask paths) ===== */
-.navbar{background:rgba(13,17,23,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:fadeDown .6s ease forwards}
+/* ===== Navbar (match index behavior; prevent double underline) ===== */
+.navbar{
+  background:rgba(13,17,23,.85);
+  backdrop-filter:blur(10px);
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  animation:fadeDown .6s ease forwards
+}
 .navbar .container{display:flex;justify-content:space-between;align-items:center;height:60px}
 .logo img{height:44px;border-radius:6px;display:block}
-.nav-links{list-style:none;display:flex;gap:28px;margin:0;padding:0}
-.nav-links a{font-weight:600;font-size:1rem;padding-bottom:4px;border-bottom:2px solid transparent;transition:color .2s,border-bottom .2s;color:#f0f0f0}
-.nav-links a:hover{color:#00d1c4;border-bottom-color:#00d1c4}
 
-/* (Optional) top-right search, if you add it later */
+/* nav links identical behavior to index */
+.nav-links{
+  list-style:none;
+  display:flex;
+  gap:32px;
+  margin:0;
+  padding:0;
+  align-items:center
+}
+.nav-links a{
+  text-decoration:none !important;      /* kill real underline */
+  color:#eaeaea;
+  font-weight:bold;
+  opacity:.95;
+  border-bottom:2px solid transparent;  /* visual "underline" on hover */
+  transition:color .22s ease, transform .22s ease, border-color .22s ease;
+}
+.nav-links a:hover,
+.nav-links a:focus{
+  opacity:1;
+  color:#19b6ad;
+  border-color:#19b6ad;
+  transform:translateY(-1px);
+  text-decoration:none !important;      /* hard override global a:hover */
+}   /* hard override global a:hover */
+
+
+/* (Optional) top-right search, if you add it later) */
 #site-search{display:flex;align-items:center}
 #search-input{padding:7px 12px;border-radius:5px 0 0 5px;border:none;outline:none;font-size:1rem}
 #site-search button{padding:7px 14px;border:none;background:#00d1c4;color:#fff;border-radius:0 5px 5px 0;cursor:pointer;font-weight:bold}
@@ -48,14 +80,38 @@ a{color:#00d1c4;text-decoration:none} a:hover{text-decoration:underline}
 .directory-access-banner{background:#fff3cd;color:#000;border:1.5px solid #ffe599;border-radius:9px;padding:17px 34px;margin:22px auto 0;max-width:700px;font-size:1.05rem;text-align:center;display:none;}
 .directory-access-banner .banner-action{margin-left:13px;background:#00d1c4;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-weight:700;cursor:pointer;text-decoration:none}
 .directory-access-banner .banner-action:hover{background:#00a79e}
+.directory-access-banner .banner-close{margin-left:20px;}
 
-/* >>> Added spacing for the close button <<< */
-.directory-access-banner .banner-close{
-  margin-left:20px;
+/* ===== FOOTER (match homepage) ===== */
+.footer-row {
+  text-align: center;
+  margin-top: 40px;
+  border-top: 1px solid #2a2d33;
+  padding-top: 20px;
 }
-
-/* ===== Footer ===== */
-footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px solid rgba(255,255,255,.1);margin-top:50px}
+.footer-social-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 26px;
+  margin-bottom: 8px;
+}
+.footer-social-bar img,
+.footer-social-bar svg {
+  width: 28px;
+  height: 28px;
+  opacity: 0.88;
+  vertical-align: middle;
+  transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
+  filter: none;
+}
+.footer-social-bar img:hover,
+.footer-social-bar svg:hover {
+  opacity: 1;
+  transform: translateY(-3px) scale(1.1);
+  filter: drop-shadow(0 0 4px #19b6ad);
+}
 
 /* ===== Reveal helpers ===== */
 .animate{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
@@ -66,7 +122,7 @@ footer{text-align:center;padding:20px;color:#aaa;font-size:.9rem;border-top:1px 
 /* ===== Responsive ===== */
 @media(max-width:1100px){.navbar .container{flex-direction:column;height:auto;padding:10px 3vw;gap:12px}}
 @media(max-width:650px){
-  .nav-links{gap:10px;font-size:.95rem}
+  .nav-links{gap:16px}
   .newsletter-main{margin:22px auto}
   .newsletter-left,.newsletter-right{padding:18px}
   .newsletter-form-row{flex-direction:column;gap:12px}
