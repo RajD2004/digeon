@@ -220,7 +220,7 @@
     <div class="dashboard-container">
       <div class="dashboard-header">
         <h1>Developer Dashboard</h1>
-        <button class="create-agent-btn" onclick="window.location.href='register-agent.html'">+ Create New Agent</button>
+        <button class="create-agent-btn" onclick="window.location.href='/developer/agent-register'">+ Create New Agent</button>
       </div>
       <div class="dashboard-welcome">
         Welcome, <span id="dev-email">{{ session.get('dev_user','') }}</span>! Here you can manage your agents.
@@ -230,7 +230,12 @@
         <div class="agents-list" id="agents-list"></div>
         <div class="no-agents-msg" id="no-agents-msg" style="display:none;">You haven't created any agents yet.<br>Click "Create New Agent" to get started!</div>
       </div>
-      <button class="dashboard-logout" onclick="localStorage.removeItem('devUser'); window.location.href='developer-register.html';">Logout</button>
+      <button class="dashboard-logout" onclick="
+        fetch('/api/dev-logout', { method: 'POST' })
+          .finally(() => { window.location.href = '/developer/login'; });
+      ">Logout
+    </button>
+
     </div>
   </main>
   <footer>
@@ -268,44 +273,6 @@
       }
     </style>
   </footer>
-  <script>
-    // -------- AUTH GUARD --------
-    const devUser = localStorage.getItem('devUser');
-    if (!devUser) {
-      window.location.href = "developer-register.html";
-    }
-    document.getElementById('dev-email').textContent = devUser || "";
-
-    // -------- AGENT LISTING --------
-    let agents = JSON.parse(localStorage.getItem('agents') || "[]");
-    let myAgents = agents.filter(a => a.creator === devUser);
-
-    const agentsList = document.getElementById('agents-list');
-    const noAgentsMsg = document.getElementById('no-agents-msg');
-
-    if (!myAgents.length) {
-      agentsList.style.display = "none";
-      noAgentsMsg.style.display = "";
-    } else {
-      agentsList.style.display = "";
-      noAgentsMsg.style.display = "none";
-      myAgents.forEach(agent => {
-        const card = document.createElement('div');
-        card.className = "agent-card-dev";
-        card.innerHTML = `
-          <h3>${agent.name}</h3>
-          <div class="agent-desc">${agent.desc || ""}</div>
-          <div class="agent-type"><strong>Type:</strong> ${agent.type || "None"}</div>
-          <div class="agent-endpoint"><strong>Endpoint:</strong> ${agent.endpoint || ""}</div>
-          <div class="agent-price"><strong>Price:</strong> $${agent.price || "0.00"}</div>
-          <div class="input-fields-list"><strong>Input Fields:</strong> ${
-            (agent.inputs||[]).map(f=>`<span>${f.label} (${f.type})</span>`).join("")
-          }</div>
-        `;
-        agentsList.appendChild(card);
-      });
-    }
-  </script>
   <script>
   (async function () {
     // Show who’s signed in (if you have that spot in your header)

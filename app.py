@@ -397,6 +397,12 @@ def dev_login():
         conn.close()
         return jsonify({"status": 2, "Except": str(e)})
 
+@app.post("/api/dev-logout")
+def dev_logout():
+    session.pop("dev_user", None)
+    return jsonify({"status": 1})
+
+
 @app.route("/api/agent-register", methods=["POST"])
 def agent_register():
     if "dev_user" not in session:
